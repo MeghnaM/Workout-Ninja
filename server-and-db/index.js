@@ -1,0 +1,176 @@
+// Filename - server-and-db/index.js
+
+// To connect with your mongoDB database
+const mongoose = require('mongoose');
+const mongodbURI = 'mongodb://localhost:27017/workout-app-db';
+
+mongoose.connect(mongodbURI)
+.then(() => console.log('Connected to workout-app-db database'))
+.catch((err) => console.log(err))
+
+/* {
+    dbName: 'workout-app-db',
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+} */
+
+// Schema for exercises
+const ExerciseSchema = new mongoose.Schema({
+    // Example - Barbell Squat to Press 4x10
+    exercise: {
+        type: 'String',
+        required: true
+    }
+})
+
+// Schema for workouts
+// When new workout is created frontend sets defaults for name, status and dateCreated
+const WorkoutSchema = new mongoose.Schema({
+    workoutName: {
+        type: String,
+        required: true
+    },
+    status: { 
+        type: String,
+        enum: [ "Not Started", "In Progress", "Completed" ],
+        required: true
+     },
+    exercises: [
+        { exerciseName: ExerciseSchema },
+        { weight: Number },
+        { completed: Boolean }
+    ],
+    dateCreated: { 
+        type: Date,
+        required: true
+    },
+    dateOfWorkout: {
+        type: Date,
+        required: true
+    }
+},{
+    virtuals: {
+      name: {
+        get() {
+          return this.workoutName + ' ' + this.dateOfWorkout;
+        }
+      }
+    }
+})
+
+const Exercise = mongoose.model('Exercise', ExerciseSchema);
+const Workout = mongoose.model('Workout', WorkoutSchema);
+Exercise.createIndexes();
+Workout.createIndexes();
+
+// For server and express
+const express = require('express');
+const app = express();
+const cors = require("cors");
+console.log("App listen at port 4000");
+app.use(express.json());
+app.use(cors());
+app.get("/", (req, resp) => {
+    // Can check if the server is running by looking at http://localhost:4000.
+    // The string "Server is running" being displayed means the server is working properly.
+    resp.send("Server is running");
+});
+
+app.get("/get-exercises", async (req, resp) => {
+    console.log("Get exercises was called")
+    try {
+        console.log("try block was started") 
+        const exerciseCollection = await Exercise.find();
+        console.log(JSON.stringify(exerciseCollection))
+        resp.send(JSON.stringify(exerciseCollection))
+    } catch (error) {
+        console.log(error)
+        resp.send("Get request failed");
+    }
+});
+
+app.get("/get-workouts", async (req, resp) => {
+    console.log("Get workouts was called") 
+    try {
+        console.log("try block was started")
+        const workoutCollection = await Workout.find();
+        console.log(JSON.stringify(workoutCollection))
+        resp.send(JSON.stringify(workoutCollection))
+    } catch (error) {
+        console.log(error)
+        resp.send("Get request failed");
+    }
+});
+
+app.delete("/delete-workout", async (req, resp) => {
+    console.log("Delete workout was called")
+    try {
+        const workout = await Workout.deleteOne({ id: req.id });
+        resp.send("Deleted workout")
+    } catch (error) {
+        console.log(error)
+        resp.send("Delete request failed");
+    }
+})
+
+// TODO - rename this api route, 
+// and maybe delete the line delete result.password - not sure if it's needed
+app.post("/register", async (req, resp) => {
+    console.log("Register was called") // got printed
+    try {
+        const exercise = new Exercise(req.body);
+        let result = await exercise.save();
+        result = result.toObject();
+        if (result) {
+            delete result.password;
+            resp.send(req.body);
+            console.log(result);
+        } else {
+            console.log("Exercise exists in DB");
+        }
+ 
+    } catch (e) {
+        resp.send("Something Went Wrong");
+    }
+});
+
+app.post("/create-new-workout", async (req, resp) => {
+    console.log("Create new workout was called")
+    try {
+        const workout = new Workout(req.body);
+        let result = await workout.save();
+        result = result.toObject();
+        if (result) {
+            const response = { workout: req.body, id: result._id }
+            resp.send(response);
+            console.log(result);
+        } else {
+            console.log("Workout exists in DB");
+        }
+    }
+    catch (e) {
+        resp.send("Something went wrong")
+    }
+})
+
+app.put("/update-existing-workout", async (req, resp) => {
+    console.log("Get request to update existing workout was called")
+    console.log(req.body)
+    console.log(req.body.workout)
+    console.log(req.body.id)
+    try {
+        const workout = await Workout.findByIdAndUpdate(req.body.id, req.body.workout);
+        let result = workout.toObject()
+        if (result) {
+            resp.send(workout)
+            console.log(result)
+        } else {
+            console.log("Could not find workout in DB")
+        }
+    } 
+    catch (e) {
+        resp.send("Something went wrong")
+    }
+})
+
+app.listen(4000);
