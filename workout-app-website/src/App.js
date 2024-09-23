@@ -9,6 +9,7 @@ import NewWorkout from './NewWorkout';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
+import DoWorkout from './DoWorkout';
 
 function App() {
 
@@ -17,6 +18,9 @@ function App() {
   const [workoutObject, setWorkoutObject] = useState({});
   const [showWorkout, setShowWorkout] = useState(false);
   const [workoutList, setWorkoutList] = useState([]);
+  const [ongoingWorkout, setOngoingWorkout] = useState([]);
+  const [showOngoingWorkout, setShowOngoingWorkout] = useState(false);
+  const [exercisesInOngoingWorkout, setExercisesInOngoingWorkout] = useState([]);
 
   useEffect(() => {
     console.log("Use effect is getting called")
@@ -40,6 +44,16 @@ function App() {
     getExercises();
     getWorkouts();
   }, [newExercise, workoutObject])
+
+  const getExerciseById = async (id) => {
+    let result = await fetch('http://localhost:4000/get-exercise-by-id')
+    .then(response => response.json())
+    .then(data => setExercisesInOngoingWorkout({
+      ...exercisesInOngoingWorkout,
+      data
+    }))
+    .catch(error => console.error(error));
+  }
 
   const renderExercise = (props) => {
     const { index, style } = props;
@@ -166,6 +180,13 @@ const deleteWorkoutInDB = async (id) => {
   }
 }
 
+const startWorkout = (index) => {
+  console.log("Button to start workout was clicked")
+  console.log(workoutList[index])
+  setShowOngoingWorkout(true)
+  setOngoingWorkout(workoutList[index])
+}
+
   const renderWorkout = (props) => {
     const { index, style } = props;
     return (
@@ -175,7 +196,7 @@ const deleteWorkoutInDB = async (id) => {
             component="div" 
             disablePadding
           >
-            <ListItemButton>
+            <ListItemButton onClick={() => startWorkout(index)}>
               <ListItemText 
                 color="#a3b899" 
                 primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0,-14)} />
@@ -211,9 +232,7 @@ const deleteWorkoutInDB = async (id) => {
         {
           workoutObject && showWorkout &&
             <NewWorkout 
-              workoutObj={workoutObject} 
-              setWorkoutObject={setWorkoutObject} 
-              setShowWorkout={setShowWorkout}
+              workoutObj={workoutObject}
               saveWorkoutInDB={saveWorkoutInDB}
               deleteWorkoutInDB={deleteWorkoutInDB}
             />
@@ -231,6 +250,14 @@ const deleteWorkoutInDB = async (id) => {
             {renderWorkout}
           </List>
         </Box>
+        <p>Ongoing Workout</p>
+        { ongoingWorkout && showOngoingWorkout && 
+          <DoWorkout 
+            ongoingWorkout={ongoingWorkout}
+            saveWorkoutInDB={saveWorkoutInDB}
+            getExerciseById={getExerciseById}
+          />
+        }
     </header>
     </div >
   );
