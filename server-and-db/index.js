@@ -3,6 +3,7 @@
 // To connect with your mongoDB database
 const mongoose = require('mongoose');
 const mongodbURI = 'mongodb://localhost:27017/workout-app-db';
+const { Schema } = mongoose;
 
 mongoose.connect(mongodbURI)
 .then(() => console.log('Connected to workout-app-db database'))
@@ -15,7 +16,7 @@ mongoose.connect(mongodbURI)
 } */
 
 // Schema for exercises
-const ExerciseSchema = new mongoose.Schema({
+const ExerciseSchema = new Schema({
     // Example - Barbell Squat to Press 4x10
     exercise: {
         type: 'String',
@@ -25,7 +26,11 @@ const ExerciseSchema = new mongoose.Schema({
 
 // Schema for workouts
 // When new workout is created frontend sets defaults for name, status and dateCreated
-const WorkoutSchema = new mongoose.Schema({
+//{ exerciseName: ExerciseSchema },
+//new mongoose.Schema({
+//   { weight: Number },
+//    { completed: Boolean }
+const WorkoutSchema = new Schema({
     workoutName: {
         type: String,
         required: true
@@ -36,9 +41,7 @@ const WorkoutSchema = new mongoose.Schema({
         required: true
      },
     exercises: [
-        { exerciseName: ExerciseSchema },
-        { weight: Number },
-        { completed: Boolean }
+        {type: Schema.Types.ObjectId, ref: 'Exercise' }
     ],
     dateCreated: { 
         type: Date,
@@ -76,12 +79,23 @@ app.get("/", (req, resp) => {
     resp.send("Server is running");
 });
 
+app.get("/get-exercise-by-id", async (req, resp) => {
+    console.log("Get exercise by id was called")
+    try {
+        const exercise = await Exercise.findById(req.id);
+        //console.log(JSON.stringify(exerciseCollection))
+        resp.send(JSON.stringify(exercise))
+    } catch (error) {
+        console.log(error)
+        resp.send("Get request failed");
+    }
+});
+
 app.get("/get-exercises", async (req, resp) => {
     console.log("Get exercises was called")
     try {
-        console.log("try block was started") 
         const exerciseCollection = await Exercise.find();
-        console.log(JSON.stringify(exerciseCollection))
+        //console.log(JSON.stringify(exerciseCollection))
         resp.send(JSON.stringify(exerciseCollection))
     } catch (error) {
         console.log(error)
@@ -92,8 +106,7 @@ app.get("/get-exercises", async (req, resp) => {
 app.get("/get-workouts", async (req, resp) => {
     console.log("Get workouts was called") 
     try {
-        console.log("try block was started")
-        const workoutCollection = await Workout.find();
+        const workoutCollection = await Workout.find().populate('exercises');
         console.log(JSON.stringify(workoutCollection))
         resp.send(JSON.stringify(workoutCollection))
     } catch (error) {
