@@ -63,6 +63,7 @@ function App() {
         style={style}
         exerciseList={exerciseList}
         onAddExerciseToNewWorkout={onAddExerciseToNewWorkout}
+        onAddExerciseToExistingWorkout={onAddExerciseToExistingWorkout}
       />
     );
   }
@@ -126,6 +127,10 @@ function App() {
   // }
   }
 
+  const onAddExerciseToExistingWorkout = (exercise) => {
+    
+  }
+
   // Takes a workout and an id
   // Calls update workout function from api
   // If func call is successful then returns success
@@ -147,11 +152,13 @@ function App() {
           }
       })
       result = await result.text();
+      console.log("Saved workout from DB -")
       console.log(result);
       if (result !== "Something went wrong") {
         alert("Workout saved!")
         setWorkoutObject({})
         setShowWorkout(false)
+        if (ongoingWorkout) setShowOngoingWorkout(false)
       } else { 
         alert("Something went wrong") 
       }
@@ -254,8 +261,9 @@ const startWorkout = (index) => {
         { ongoingWorkout && showOngoingWorkout && 
           <DoWorkout 
             ongoingWorkout={ongoingWorkout}
+            setOngoingWorkout={setOngoingWorkout}
             saveWorkoutInDB={saveWorkoutInDB}
-            getExerciseById={getExerciseById}
+            setShowOngoingWorkout={setShowOngoingWorkout}
           />
         }
     </header>
