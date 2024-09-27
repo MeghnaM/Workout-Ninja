@@ -1,5 +1,5 @@
 import './App.css';
-import { useState } from 'react';
+import { useState, useRef, forwardRef } from 'react';
 import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
@@ -8,10 +8,18 @@ import { Menu } from '@mui/base/Menu';
 import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import { DialogContent, DialogTitle } from '@mui/material';
+import Button from '@mui/material/Button';
+import Box from '@mui/material/Box';
+import { FixedSizeList as List } from 'react-window';
 
 function ExerciseInList(props) {
-    const { index, style, exerciseList, onAddExerciseToNewWorkout } = props;
+    const { index, style, exerciseList, workoutList,
+        onAddExerciseToNewWorkout, onAddExerciseToExistingWorkout } = props;
     const [showDropdown, setShowDropdown] = useState(false);
+    const [dialogOpen, setDialogOpen] = useState(false);
 
     const onAddExerciseToWorkout = () => {
         console.log("Add exercise button was clicked")
@@ -26,6 +34,42 @@ function ExerciseInList(props) {
         console.log("List item button was clicked")
     }
 
+    const selectedWorkout = () => {
+        //onAddExerciseToExistingWorkout(exerciseList[index],
+        setDialogOpen(false) 
+    }
+
+    const onAddToExistingWorkoutButtonClick = () => {
+        console.log("Add to existing workout was clicked")
+        setDialogOpen(true)
+    }
+
+    const WorkoutListForwardRef = forwardRef((props, ref) => {
+        const { index, style, ...otherProps } = props
+        return (
+        <ListItem
+          style={style}
+          key={index}
+          component="div"
+          disablePadding
+        >
+          <ListItemButton ref={ref} onClick={() => onAddToExistingWorkoutButtonClick(index)} {...otherProps}>
+            <ListItemText
+              color="#a3b899"
+              primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
+          </ListItemButton>
+        </ListItem>)
+      });
+      
+      const ref = useRef(null); 
+      
+    const renderWorkoutInExerciseListDialog = (props) => {
+          const { index, style } = props;
+          return (
+            <WorkoutListForwardRef index={index} style={style} ref={ref} />
+          );
+        }
+
     return (
         <ListItem 
             style={style} 
@@ -37,16 +81,35 @@ function ExerciseInList(props) {
               <ListItemText color="#a3b899" primary={exerciseList[index].exercise} />
             </ListItemButton>
             <Dropdown>
-                <MenuButton onClick={onAddExerciseToWorkout}>+</MenuButton>
+                <MenuButton onClick={onAddExerciseToExistingWorkout}>+</MenuButton>
                 <Menu slots={{ listbox: Listbox }}>
                     <MenuItem onClick={onAddExerciseToNewWorkout(exerciseList[index])}>
                         Add to New Workout
                     </MenuItem>
-                    <MenuItem onClick={createHandleMenuClick}>
+                    <MenuItem onClick={onAddToExistingWorkoutButtonClick}>
                         Add to Existing Workout
                     </MenuItem>
                 </Menu>
               </Dropdown>
+              <Dialog open={dialogOpen}>
+                <DialogContent>
+                    
+                </DialogContent>
+                    <DialogActions>
+                    <Box
+                        sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
+                        <List
+                            height={400}
+                            width={360}
+                            itemSize={46}
+                            itemCount={workoutList.length}
+                            overscanCount={5}
+                        >
+                            {renderWorkoutInExerciseListDialog}
+                        </List>
+                    </Box>
+                    </DialogActions>
+             </Dialog>
           </ListItem>
     );
 

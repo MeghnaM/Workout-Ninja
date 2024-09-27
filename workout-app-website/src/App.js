@@ -1,5 +1,5 @@
 import './App.css';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useRef } from 'react';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import { FixedSizeList as List } from 'react-window';
@@ -62,6 +62,9 @@ function App() {
         index={index}
         style={style}
         exerciseList={exerciseList}
+        renderWorkout={renderWorkout}
+        workoutCount={workoutList.length}
+        workoutList={workoutList}
         onAddExerciseToNewWorkout={onAddExerciseToNewWorkout}
         onAddExerciseToExistingWorkout={onAddExerciseToExistingWorkout}
       />
@@ -127,8 +130,18 @@ function App() {
   // }
   }
 
-  const onAddExerciseToExistingWorkout = (exercise) => {
-    
+  const onAddExerciseToExistingWorkout = (exercise, workoutId) => {
+    return async (e) => {
+      console.log("Add exercise to existing workout was clicked")
+      e.preventDefault()
+      // Get workout from workout list using workout id
+      // Update workout in db with that id
+      console.log(workoutList)
+      //const existingWorkout = workoutList.find((workout) => workout.id === workoutId)
+      let result = await fetch(
+
+      )
+    }
   }
 
   // Takes a workout and an id
@@ -194,21 +207,29 @@ const startWorkout = (index) => {
   setOngoingWorkout(workoutList[index])
 }
 
+const WorkoutListForwardRef = forwardRef((props, ref) => {
+  const { index, style, ...otherProps } = props
+  return (
+  <ListItem
+    style={style}
+    key={index}
+    component="div"
+    disablePadding
+  >
+    <ListItemButton ref={ref} onClick={() => startWorkout(index)} {...otherProps}>
+      <ListItemText
+        color="#a3b899"
+        primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
+    </ListItemButton>
+  </ListItem>)
+});
+
+const ref = useRef(null); 
+
   const renderWorkout = (props) => {
     const { index, style } = props;
     return (
-      <ListItem 
-            style={style} 
-            key={index} 
-            component="div" 
-            disablePadding
-          >
-            <ListItemButton onClick={() => startWorkout(index)}>
-              <ListItemText 
-                color="#a3b899" 
-                primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0,-14)} />
-            </ListItemButton>
-      </ListItem>
+      <WorkoutListForwardRef index={index} style={style} ref={ref} />
     );
   }
 
@@ -252,6 +273,7 @@ const startWorkout = (index) => {
             width={360}
             itemSize={46}
             itemCount={workoutList.length}
+            workoutListForwardRef={WorkoutListForwardRef}
             overscanCount={5}
           >
             {renderWorkout}
