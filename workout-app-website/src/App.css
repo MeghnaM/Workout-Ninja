@@ -39,6 +39,13 @@
   padding-top: 20px;
 }
 
+.headingRow {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
 .workoutStatus {
   display: flex;
   justify-content: center;

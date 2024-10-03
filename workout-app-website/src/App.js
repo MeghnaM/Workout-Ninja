@@ -10,6 +10,13 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import DoWorkout from './DoWorkout';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { Dropdown } from '@mui/base/Dropdown';
+import { Menu } from '@mui/base/Menu';
+import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
+import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
+import { styled } from '@mui/system';
+import IconButton from '@mui/material/IconButton';
 
 function App() {
 
@@ -21,13 +28,32 @@ function App() {
   const [ongoingWorkout, setOngoingWorkout] = useState([]);
   const [showOngoingWorkout, setShowOngoingWorkout] = useState(false);
   const [exercisesInOngoingWorkout, setExercisesInOngoingWorkout] = useState([]);
+  const [addExerciseDropdown, setAddExerciseDropdown] = useState(false);
 
   useEffect(() => {
     console.log("Use effect is getting called")
     async function getExercises() {
       await fetch('http://localhost:4000/get-exercises')
         .then(response => response.json())
-        .then(data => { setExerciseList(data) })
+        .then(data => { 
+          // Map over the data that comes back from the db
+          // Create an exercises list
+          // If the exercise id is not already in the exerciseList,
+          // then create a new exercise and set its selected value to be false
+          // then add that that new exercise to the exercises list
+          // then set the state variable to the exercises list
+          const exercises = data.map(exercise => {
+            if (!exerciseList.includes(exercise)) {
+              const newExercise = {
+                ex: exercise,
+                selected: false
+              }
+              return newExercise
+            }
+            return exercise
+          })
+          setExerciseList(exercises) 
+        })
         .catch(error => console.error(error));
     }
 
@@ -65,8 +91,7 @@ function App() {
         renderWorkout={renderWorkout}
         workoutCount={workoutList.length}
         workoutList={workoutList}
-        onAddExerciseToNewWorkout={onAddExerciseToNewWorkout}
-        onAddExerciseToExistingWorkout={onAddExerciseToExistingWorkout}
+        setExerciseList={setExerciseList}
       />
     );
   }
@@ -98,24 +123,34 @@ function App() {
     return tomorrow.toDateString()
   }
 
-  const onAddExerciseToNewWorkout = (exercise) => {
-    return async (e) => {
-      console.log("Add exercise to new workout", exercise)
-      e.preventDefault();
-      let result = await fetch(
-        'http://localhost:4000/create-new-workout', {
-        method: "post",
-        body: JSON.stringify({
-          workoutName: 'New Workout',
-          status: 'Not Started',
-          exercises: [exercise],
-          dateCreated: today(),
-          dateOfWorkout: tomorrow()
-        }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      })
+  // When button is clicked, I want to take the list of 
+  // exercises whose checkbox has been checked off
+  // and send those to the db using the api call
+  // and then set all the selected booleans to false
+  const onAddExerciseToNewWorkout = async (e) => {
+    e.preventDefault();
+    // Map over the selected exercises and just keep the exercise itself
+    // since that's the format that the db expects
+    const selectedExercises = exerciseList.filter(exercise => exercise.selected)
+    const exercises = selectedExercises.map(ex => ex.ex)
+    
+    if (exercises.length === 0) {
+      alert("Please select some exercises first.")
+    } else {
+        let result = await fetch(
+          'http://localhost:4000/create-new-workout', {
+          method: "post",
+          body: JSON.stringify({
+            workoutName: 'New Workout',
+            status: 'Not Started',
+            exercises: exercises,
+            dateCreated: today(),
+            dateOfWorkout: tomorrow()
+          }),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
       result = await result.text();
       if (result !== "Something went wrong") {
         const resultObject = JSON.parse(result)
@@ -123,12 +158,21 @@ function App() {
         setWorkoutObject(resultObject)
         setShowWorkout(!showWorkout)
         alert("Data saved succesfully");
+        
+        // Once the data has been saved in the db,
+        // set all the exercises to have selected boolean as false
+        const updatedExerciseList = exerciseList.map(exercise => {
+          if (exercise.selected) return {...exercise, selected: false}
+          return exercise
+        })
+        setExerciseList(updatedExerciseList)
       }
     }
+  }
   //else {
   //   alert("Please save existing workout before creating a new one.")
   // }
-  }
+ //
 
   const onAddExerciseToExistingWorkout = (exercise, workoutId) => {
     return async (e) => {
@@ -151,8 +195,6 @@ function App() {
   // just an alert saying something went wrong
   const saveWorkoutInDB = async (workout, id) => {
     console.log("Save workout in db was called")
-    //return async (e) => {
-      //e.preventDefault();
       let result = await fetch(
         'http://localhost:4000/update-existing-workout', {
           method: "put",
@@ -175,7 +217,6 @@ function App() {
       } else { 
         alert("Something went wrong") 
       }
-  //}
 }
 
 const deleteWorkoutInDB = async (id) => {
@@ -198,6 +239,11 @@ const deleteWorkoutInDB = async (id) => {
   } else {
     alert("Something went wrong")
   }
+}
+
+const onAddExerciseButtonClick = () => {
+  console.log("Show add exercise dropdown")
+  setAddExerciseDropdown(!addExerciseDropdown)
 }
 
 const startWorkout = (index) => {
@@ -243,9 +289,26 @@ const ref = useRef(null);
           <Button type="submit" variant="contained"
             onClick={onAddNewExercise}>Add</Button>
         </form>
-        <p>Exercise List</p>
+        
         <Box
           sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
+            <div className='headingRow'>
+            <p>Exercise List</p>
+            <Dropdown>
+              <MenuButton onClick={onAddExerciseButtonClick}>
+                <AddCircleIcon/>
+              </MenuButton>
+                <Menu slots={{ listbox: Listbox }}>
+                    <MenuItem onClick={onAddExerciseToNewWorkout}>
+                        Add Exercises to New Workout
+                    </MenuItem>
+                    <MenuItem >
+                        Add Exercises to Existing Workout
+                    </MenuItem>
+                </Menu>
+              </Dropdown>
+            </div>
+            
           <List
             height={400}
             width={360}
@@ -294,3 +357,107 @@ const ref = useRef(null);
 }
 
 export default App;
+
+// Todo - Find a better place to put these styles
+const grey = {
+  50: '#F3F6F9',
+  100: '#E5EAF2',
+  200: '#DAE2ED',
+  300: '#C7D0DD',
+  400: '#B0B8C4',
+  500: '#9DA8B7',
+  600: '#6B7A90',
+  700: '#434D5B',
+  800: '#303740',
+  900: '#1C2025',
+};
+
+const blue = {
+  50: '#F0F7FF',
+  100: '#C2E0FF',
+  200: '#99CCF3',
+  300: '#66B2FF',
+  400: '#3399FF',
+  500: '#007FFF',
+  600: '#0072E6',
+  700: '#0059B3',
+  800: '#004C99',
+  900: '#003A75',
+};
+
+const Listbox = styled('ul')(
+  ({ theme }) => `
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 0.875rem;
+  box-sizing: border-box;
+  padding: 6px;
+  margin: 12px 0;
+  min-width: 200px;
+  border-radius: 12px;
+  overflow: auto;
+  outline: 0px;
+  background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
+  border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
+  color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+  box-shadow: 0px 4px 6px ${
+    theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.50)' : 'rgba(0,0,0, 0.05)'
+  };
+  z-index: 1;
+  `,
+);
+
+const MenuItem = styled(BaseMenuItem)(
+  ({ theme }) => `
+  list-style: none;
+  padding: 8px;
+  border-radius: 8px;
+  cursor: default;
+  user-select: none;
+
+  &:last-of-type {
+    border-bottom: none;
+  }
+
+  &:focus {
+    outline: 3px solid ${theme.palette.mode === 'dark' ? blue[600] : blue[200]};
+    background-color: ${theme.palette.mode === 'dark' ? grey[800] : grey[100]};
+    color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
+  }
+
+  &.${menuItemClasses.disabled} {
+    color: ${theme.palette.mode === 'dark' ? grey[700] : grey[400]};
+  }
+  `,
+);
+
+const MenuButton = styled(BaseMenuButton)(
+  ({ theme }) => `
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 600;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  padding: 8px 16px;
+  border-radius: 8px;
+  color: white;
+  transition: all 150ms ease;
+  cursor: pointer;
+  background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
+  border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
+  color: ${theme.palette.mode === 'dark' ? grey[200] : grey[900]};
+  box-shadow: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+
+  &:hover {
+    background: ${theme.palette.mode === 'dark' ? grey[800] : grey[50]};
+    border-color: ${theme.palette.mode === 'dark' ? grey[600] : grey[300]};
+  }
+
+  &:active {
+    background: ${theme.palette.mode === 'dark' ? grey[700] : grey[100]};
+  }
+
+  &:focus-visible {
+    box-shadow: 0 0 0 4px ${theme.palette.mode === 'dark' ? blue[300] : blue[200]};
+    outline: none;
+  }
+  `,
+);

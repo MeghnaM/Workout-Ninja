@@ -75,7 +75,6 @@ function DoWorkout(props) {
         // then set the completed boolean of that exercise to be the opposite of what it is
         const newList = completedExerciseList.map((exercise) => {
             if (exercise.id === id) {
-              
               const updatedExercise = {
                 ...exercise,
                 completed: !exercise.completed,
@@ -105,6 +104,9 @@ function DoWorkout(props) {
                 />
               </ListItemIcon>
                 <ListItemText color="#a3b899" primary={exerciseList[index].exercise} />
+                <TextField required label="Sets"/>
+                <TextField required label="Reps"/>
+                <TextField required label="Weight"/>
                 </ListItemButton>
         </ListItem>
     }

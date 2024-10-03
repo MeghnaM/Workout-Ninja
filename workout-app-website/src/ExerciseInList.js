@@ -10,14 +10,14 @@ import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
-import { DialogContent, DialogTitle } from '@mui/material';
+import { DialogContent, DialogTitle, ListItemIcon } from '@mui/material';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import { FixedSizeList as List } from 'react-window';
+import Checkbox from '@mui/material/Checkbox';
 
 function ExerciseInList(props) {
-    const { index, style, exerciseList, workoutList,
-        onAddExerciseToNewWorkout, onAddExerciseToExistingWorkout } = props;
+    const { index, style, exerciseList, workoutList, setExerciseList } = props;
     const [showDropdown, setShowDropdown] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -70,6 +70,26 @@ function ExerciseInList(props) {
           );
         }
 
+    // checkbox checked logic
+    const onCheckboxClick = (exercise) => {
+      //console.log("checkbox was clicked")
+      //console.log(exercise)
+      // Find this exercise in the exercise list
+      // and update its selected boolean
+      const updatedExerciseList = exerciseList.map(item => {
+        if (item.ex._id === exercise.ex._id) {
+          const updatedExercise = {
+            ...item,
+            selected: !item.selected
+          }
+          //console.log(updatedExercise)
+          return updatedExercise;
+        }
+        return item;
+     })
+     setExerciseList(updatedExerciseList)
+    }
+
     return (
         <ListItem 
             style={style} 
@@ -78,24 +98,16 @@ function ExerciseInList(props) {
             disablePadding
           >
             <ListItemButton onClick={onClickListItemButton}>
-              <ListItemText color="#a3b899" primary={exerciseList[index].exercise} />
+            <Checkbox 
+                checked={exerciseList[index].selected}
+                fontSize='small'
+                onChange={() => onCheckboxClick(exerciseList[index])}
+                />
+              <ListItemText color="#a3b899" primary={exerciseList[index].ex.exercise} />
             </ListItemButton>
-            <Dropdown>
-                <MenuButton onClick={onAddExerciseToExistingWorkout}>+</MenuButton>
-                <Menu slots={{ listbox: Listbox }}>
-                    <MenuItem onClick={onAddExerciseToNewWorkout(exerciseList[index])}>
-                        Add to New Workout
-                    </MenuItem>
-                    <MenuItem onClick={onAddToExistingWorkoutButtonClick}>
-                        Add to Existing Workout
-                    </MenuItem>
-                </Menu>
-              </Dropdown>
+    
               <Dialog open={dialogOpen}>
-                <DialogContent>
-                    
-                </DialogContent>
-                    <DialogActions>
+                  <DialogActions>
                     <Box
                         sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
                         <List
@@ -108,7 +120,7 @@ function ExerciseInList(props) {
                             {renderWorkoutInExerciseListDialog}
                         </List>
                     </Box>
-                    </DialogActions>
+                  </DialogActions>
              </Dialog>
           </ListItem>
     );
