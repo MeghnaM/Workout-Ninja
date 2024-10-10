@@ -16,7 +16,11 @@ import { Menu } from '@mui/base/Menu';
 import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
 import { MenuItem as BaseMenuItem, menuItemClasses } from '@mui/base/MenuItem';
 import { styled } from '@mui/system';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import { DialogTitle } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
 
 function App() {
 
@@ -29,6 +33,8 @@ function App() {
   const [showOngoingWorkout, setShowOngoingWorkout] = useState(false);
   const [exercisesInOngoingWorkout, setExercisesInOngoingWorkout] = useState([]);
   const [addExerciseDropdown, setAddExerciseDropdown] = useState(false);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [alertClosed, setAlertClosed] = useState(true);
 
   useEffect(() => {
     console.log("Use effect is getting called")
@@ -60,16 +66,13 @@ function App() {
     async function getWorkouts() {
       await fetch('http://localhost:4000/get-workouts')
       .then(response => response.json())
-      .then(data => {
-        //console.log(data)
-        setWorkoutList(data)
-      })
+      .then(data => { setWorkoutList(data) })
       .catch(error => console.error(error));
     }
 
     getExercises();
     getWorkouts();
-  }, [newExercise, workoutObject])
+  }, [newExercise, workoutObject, alertClosed])
 
   const getExerciseById = async (id) => {
     let result = await fetch('http://localhost:4000/get-exercise-by-id')
@@ -174,17 +177,76 @@ function App() {
   // }
  //
 
-  const onAddExerciseToExistingWorkout = (exercise, workoutId) => {
-    return async (e) => {
-      console.log("Add exercise to existing workout was clicked")
-      e.preventDefault()
-      // Get workout from workout list using workout id
-      // Update workout in db with that id
-      console.log(workoutList)
-      //const existingWorkout = workoutList.find((workout) => workout.id === workoutId)
-      let result = await fetch(
+ const onWorkoutNameClick = async (e, index) => {
+  e.preventDefault();
+  console.log("Add to existing workout was clicked")
+  setDialogOpen(false)
 
-      )
+  // Map over the selected exercises and just keep the exercise itself
+  // since that's the format that the db expects
+  const selectedExercises = exerciseList.filter(exercise => exercise.selected)
+  const exercises = selectedExercises.map(ex => ex.ex)
+
+  const workout = workoutList[index]
+  console.log(workout)
+  // Create a new list of exercises that includes the exercises 
+  // that were already part of this workout and the new ones I want to add
+  const updatedExerciseList = [...exercises, ...workout.exercises]
+  console.log(updatedExerciseList)
+   
+  // Make api call to update existing workout
+  let result = await fetch(
+    'http://localhost:4000/update-existing-workout', {
+    method: "put",
+    body: JSON.stringify({
+      id: workout._id,
+      workout: {
+      workoutName: workout.workoutName,
+      status: workout.status,
+      exercises: updatedExerciseList,
+      dateCreated: workout.dateCreated,
+      dateOfWorkout: workout.dateOfWorkout
+      }
+    }),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  })
+result = await result.text();
+if (result !== "Something went wrong") {
+  const resultObject = JSON.parse(result)
+  console.log(resultObject)
+  alert("Data saved succesfully");
+  setAlertClosed(!alertClosed);
+  
+  // Once the data has been saved in the db,
+  // set all the exercises to have selected boolean as false
+  const updatedExerciseList = exerciseList.map(exercise => {
+    if (exercise.selected) return {...exercise, selected: false}
+    return exercise
+  })
+  setExerciseList(updatedExerciseList)
+}
+}
+
+const handleDialogClose = () => {
+  setDialogOpen(false)
+}
+
+  const onAddExerciseToExistingWorkout = async (e) => {
+      e.preventDefault()
+      console.log("Add exercise to existing workout was clicked")
+      // Map over the selected exercises and just keep the exercise itself
+      // since that's the format that the db expects
+      const selectedExercises = exerciseList.filter(exercise => exercise.selected)
+      const exercises = selectedExercises.map(ex => ex.ex)
+
+      if (exercises.length === 0) {
+        alert("Please select some exercises first.")
+      } else {
+        console.log("In the else block")
+        // Display dialog with list of workout
+        setDialogOpen(true)
     }
   }
 
@@ -253,6 +315,32 @@ const startWorkout = (index) => {
   setOngoingWorkout(workoutList[index])
 }
 
+const WorkoutDialogInExerciseListForwardRef = forwardRef((props, ref) => {
+  const { index, style, ...otherProps } = props
+  return (
+  <ListItem
+    style={style}
+    key={index}
+    component="div"
+    disablePadding
+  >
+    <ListItemButton ref={ref} onClick={(e) => onWorkoutNameClick(e, index)} {...otherProps}>
+      <ListItemText
+        color="#a3b899"
+        primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
+    </ListItemButton>
+  </ListItem>)
+});
+
+const exDialogRef = useRef(null); 
+
+const renderWorkoutInExerciseListDialog = (props) => {
+    const { index, style } = props;
+    return (
+      <WorkoutDialogInExerciseListForwardRef index={index} style={style} ref={exDialogRef} />
+    );
+  }
+
 const WorkoutListForwardRef = forwardRef((props, ref) => {
   const { index, style, ...otherProps } = props
   return (
@@ -270,12 +358,11 @@ const WorkoutListForwardRef = forwardRef((props, ref) => {
   </ListItem>)
 });
 
-const ref = useRef(null); 
-
+const workoutsDialogRef = useRef(null); 
   const renderWorkout = (props) => {
     const { index, style } = props;
     return (
-      <WorkoutListForwardRef index={index} style={style} ref={ref} />
+      <WorkoutListForwardRef index={index} style={style} ref={workoutsDialogRef} />
     );
   }
 
@@ -302,12 +389,42 @@ const ref = useRef(null);
                     <MenuItem onClick={onAddExerciseToNewWorkout}>
                         Add Exercises to New Workout
                     </MenuItem>
-                    <MenuItem >
+                    <MenuItem onClick={onAddExerciseToExistingWorkout}>
                         Add Exercises to Existing Workout
                     </MenuItem>
                 </Menu>
               </Dropdown>
             </div>
+
+            <Dialog open={dialogOpen}>
+              <DialogTitle>Workout List</DialogTitle>
+            <IconButton
+          aria-label="close"
+          onClick={handleDialogClose}
+          sx={(theme) => ({
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: theme.palette.grey[500],
+          })}
+        >
+          <CloseIcon />
+        </IconButton>
+                  <DialogActions>
+                    <Box
+                        sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
+                        <List
+                            height={400}
+                            width={360}
+                            itemSize={46}
+                            itemCount={workoutList.length}
+                            overscanCount={5}
+                        >
+                            {renderWorkoutInExerciseListDialog}
+                        </List>
+                    </Box>
+                  </DialogActions>
+             </Dialog>
             
           <List
             height={400}

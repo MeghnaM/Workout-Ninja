@@ -173,14 +173,12 @@ app.post("/create-new-workout", async (req, resp) => {
 app.put("/update-existing-workout", async (req, resp) => {
     console.log("Get request to update existing workout was called")
     console.log(req.body)
-    console.log(req.body.workout)
-    console.log(req.body.id)
     try {
+        // findByIdAndUpdate returns the workout before it was updated
         const workout = await Workout.findByIdAndUpdate(req.body.id, req.body.workout);
         let result = workout.toObject()
         if (result) {
             resp.send(workout)
-            console.log(result)
         } else {
             console.log("Could not find workout in DB")
         }
