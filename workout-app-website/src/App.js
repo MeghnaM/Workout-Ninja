@@ -354,6 +354,9 @@ const WorkoutListForwardRef = forwardRef((props, ref) => {
       <ListItemText
         color="#a3b899"
         primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
+        <IconButton onClick={() => deleteWorkoutInDB(workoutList[index]._id)}>
+          <CloseIcon/>
+        </IconButton>
     </ListItemButton>
   </ListItem>)
 });

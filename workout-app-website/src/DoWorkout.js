@@ -15,39 +15,99 @@ import { DialogTitle } from '@mui/material';
 
 function DoWorkout(props) {
     const { ongoingWorkout, setOngoingWorkout, saveWorkoutInDB, setShowOngoingWorkout } = props;
-    const completedExList = ongoingWorkout.exercises.map(ex => ({
-        id: ex._id,
-        completed: false
+    // Create a list of exercises that has the following properties -
+    // id, exercise name, completed, sets, reps, weight
+    const exercisesAndData = ongoingWorkout.exercises.map(exercise => ({
+        id: exercise._id,
+        exerciseName: exercise.exercise,
+        completed: false,
+        sets: "",
+        reps: "",
+        weight: ""
     }))
-    const [exerciseList, setExerciseList] = useState(ongoingWorkout.exercises);
-    const [completedExerciseList, setCompletedExerciseList] = useState(completedExList);
+    const [exerciseData, setExerciseData] = useState(exercisesAndData);
     const [workoutName, setWorkoutName] = useState(ongoingWorkout.workoutName);
     const [workoutDate, setWorkoutDate] = useState(ongoingWorkout.dateOfWorkout.slice(0, -14));
-    const [checkboxState, setCheckboxState] = useState(false);
     const [closeAlert, setCloseAlert] = useState(false);
 
     useEffect(() => {
-        //console.log("DoWorkout's useEffect is getting called")
-        //console.log(ongoingWorkout)
-        //console.log(workoutName)
-        //console.log(regex.test(workoutDate))
-    }, [workoutDate])
+        console.log(exerciseData)
+    }, [exerciseData])
 
-    // Create a new object with the updated
-    // workoutName, workoutDate and the completed list of exercises
-    // Save that object in the DB
+    // Create a new object with the updated workoutName, workoutDate 
+    // and the completed list of exercises along with sets, reps and weight
+    // Save that object in the DB and set show workout to be false
     const onCompleteWorkout = (e) => {
         e.preventDefault() 
         console.log("Complete workout was clicked")
+
+        // Create objects for weights, sets, reps and exercisesCompleted
+        // Don't need a separate object for exercises because the existing workout has that already
+        const weights = exerciseData.map(data => ({
+            id: data.id,
+            weight: data.weight
+        }))
+        const sets = exerciseData.map(data => ({
+            id: data.id,
+            sets: data.sets
+        }))
+        const reps = exerciseData.map(data => ({
+            id: data.id,
+            reps: data.reps
+        }))
+        const exercisesCompleted = exerciseData.map(data => ({
+            id: data.id,
+            completed: data.completed
+        }))
+ 
+        // Check form validity
+        if (formIsValid) {
+            // Create a new workout object with the exercises and data,
+            // as well as the new workout name and date
+            const completedWorkout = {
+                ...ongoingWorkout,
+                workoutName: workoutName,
+                dateOfWorkout: workoutDate,
+                weights: weights,
+                sets: sets,
+                reps: reps,
+                exercisesCompleted: exercisesCompleted
+            }
+            // Call saveWorkoutInDB with the completed workout
+            setOngoingWorkout(completedWorkout)
+            saveWorkoutInDB(completedWorkout, completedWorkout._id)
+        } else {
+            alert("Please make sure the workout has a name and a date, and that every completed exercise has the sets, reps and weight fields filled out.")
+        }
+
         //console.log(ongoingWorkout)
-        const completedWorkout = {
-            ...ongoingWorkout,
-            workoutName: workoutName,
-            dateOfWorkout: workoutDate,
-            exercisesCompleted: completedExerciseList 
-      }
-      setOngoingWorkout(completedWorkout)
-      saveWorkoutInDB(completedWorkout, completedWorkout._id)
+    //     const completedWorkout = {
+    //         ...ongoingWorkout,
+    //         workoutName: workoutName,
+    //         dateOfWorkout: workoutDate,
+    //         exercisesCompleted: completedExerciseList 
+    //   }
+    //   setOngoingWorkout(completedWorkout)
+    //   saveWorkoutInDB(completedWorkout, completedWorkout._id)
+    }
+
+    // Update exercise with auxillary data
+    const updateExerciseData = (id, field, value) => {
+        // Map over the list of exercises
+        // Find the exercise with this id, update the corresponding field and value
+        // Put the exercise back into the list
+        console.log(exerciseData)
+        const updatedExerciseData = exerciseData.map(exercise => {
+            if (exercise.id === id) {
+                const updatedExercise = {
+                    ...exercise,
+                    [field]: value
+                }
+                return updatedExercise
+            }
+            return exercise
+        })
+        setExerciseData(updatedExerciseData)
     }
 
     const onClose = (e) => {
@@ -69,25 +129,7 @@ function DoWorkout(props) {
         setCloseAlert(false)
     }
 
-    const setExerciseAsCompleted = (id) => {
-        setCheckboxState(!checkboxState)
-        // Find the exercise that has the id = the id I'm looking for
-        // then set the completed boolean of that exercise to be the opposite of what it is
-        const newList = completedExerciseList.map((exercise) => {
-            if (exercise.id === id) {
-              const updatedExercise = {
-                ...exercise,
-                completed: !exercise.completed,
-              };
-              return updatedExercise;
-            }
-            return exercise;
-          });
-        setCompletedExerciseList(newList);
-    }
-
     const displayExercise = (props) => {
-        //console.log(ongoingWorkout.exercises)
         const { index } = props
 
         return <ListItem
@@ -98,29 +140,51 @@ function DoWorkout(props) {
                 <ListItemButton>
                 <ListItemIcon>
                 <Checkbox 
-                checked={checkboxState}
-                onChange={() => setExerciseAsCompleted(exerciseList[index]._id)}
+                checked={exerciseData[index].completed}
+                onChange={(e) => updateExerciseData(exerciseData[index].id, "completed", !exerciseData[index].completed)}
                 fontSize='small'
                 />
               </ListItemIcon>
-                <ListItemText color="#a3b899" primary={exerciseList[index].exercise} />
-                <TextField required label="Sets"/>
-                <TextField required label="Reps"/>
-                <TextField required label="Weight"/>
+                <ListItemText color="#a3b899" primary={exerciseData[index].exerciseName} />
+                <TextField  
+                label="Sets" 
+                defaultValue={exerciseData[index].sets}
+               onChange={(e) => updateExerciseData(exerciseData[index].id, "sets", e.target.value)}
+            />
+                <TextField 
+                label="Reps"
+                defaultValue={exerciseData[index].reps}
+               onChange={(e) => updateExerciseData(exerciseData[index].id, "reps", e.target.value)}
+                />
+                <TextField  
+                label="Weight"
+                defaultValue={exerciseData[index].weight}
+               onChange={(e) => updateExerciseData(exerciseData[index].id, "weight", e.target.value)}
+                />
                 </ListItemButton>
         </ListItem>
     }
 
     const regex = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD format
     const formIsValid = () => {
+        let valid = false
         // Form is valid if workout has a name and the date is in the correct format
-        return workoutName.length > 0 && regex.test(workoutDate)
+        if (workoutName.length > 0 && regex.test(workoutDate)) {
+            // And if for every checked off exercise, sets, reps and weight is populated
+            exerciseData.map(exercise => {
+                if (exercise.completed && exercise.sets.length > 0 
+                    && exercise.reps.length > 0 && exercise.weight.length > 0) {
+                    valid = true
+                }
+            })
+        }
+        return valid
     }
 
     return (
         <Box
             sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
-            <form>
+            <form onSubmit={onCompleteWorkout}>
             <div className="workoutDisplayRow">
                     <TextField
                         required
@@ -146,7 +210,7 @@ function DoWorkout(props) {
                     height={200}
                     width={360}
                     itemSize={46}
-                    itemCount={exerciseList.length}
+                    itemCount={exerciseData.length}
                     overscanCount={5}
                     sx={{listStyleType: 'disc'}}
                 >
@@ -162,7 +226,7 @@ function DoWorkout(props) {
                 <Button onClick={(e) => closeDialog(e.target.textContent)}>No</Button>
                 </DialogActions>
                 </Dialog>
-                <Button variant="contained" disabled={formIsValid() ? false: true} onClick={onCompleteWorkout}>
+                <Button type="submit" variant="contained">
                     Complete Workout
                 </Button>
             </div>
@@ -172,10 +236,3 @@ function DoWorkout(props) {
 }
 
 export default DoWorkout;
-
-{/* <div className="workoutStatus">
-                <label className="text">
-                    Workout Status -
-                    <span className="text">{ongoingWorkout.status}</span>
-                </label>
-            </div> */}

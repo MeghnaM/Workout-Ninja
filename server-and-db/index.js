@@ -44,9 +44,9 @@ const WorkoutSchema = new Schema({
         {type: Schema.Types.ObjectId, ref: 'Exercise' }
     ],
     exercisesCompleted: [],
-    // weight: [{exerciseId, weightInLbs}],
-    // sets: [{exerciseId, sets}],
-    // reps: [{exerciseId, reps}],
+    weights: [],
+    sets: [],
+    reps: [],
     dateCreated: { 
         type: Date,
         required: true
