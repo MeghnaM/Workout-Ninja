@@ -153,6 +153,7 @@ app.post("/register", async (req, resp) => {
 
 app.post("/create-new-workout", async (req, resp) => {
     console.log("Create new workout was called")
+    console.log(req)
     try {
         const workout = new Workout(req.body);
         let result = await workout.save();

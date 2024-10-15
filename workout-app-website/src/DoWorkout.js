@@ -71,7 +71,8 @@ function DoWorkout(props) {
                 weights: weights,
                 sets: sets,
                 reps: reps,
-                exercisesCompleted: exercisesCompleted
+                exercisesCompleted: exercisesCompleted,
+                status: "Completed"
             }
             // Call saveWorkoutInDB with the completed workout
             setOngoingWorkout(completedWorkout)
@@ -79,16 +80,6 @@ function DoWorkout(props) {
         } else {
             alert("Please make sure the workout has a name and a date, and that every completed exercise has the sets, reps and weight fields filled out.")
         }
-
-        //console.log(ongoingWorkout)
-    //     const completedWorkout = {
-    //         ...ongoingWorkout,
-    //         workoutName: workoutName,
-    //         dateOfWorkout: workoutDate,
-    //         exercisesCompleted: completedExerciseList 
-    //   }
-    //   setOngoingWorkout(completedWorkout)
-    //   saveWorkoutInDB(completedWorkout, completedWorkout._id)
     }
 
     // Update exercise with auxillary data

@@ -21,6 +21,7 @@ import DialogActions from '@mui/material/DialogActions';
 import { DialogTitle } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 
 function App() {
 
@@ -35,6 +36,8 @@ function App() {
   const [addExerciseDropdown, setAddExerciseDropdown] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [alertClosed, setAlertClosed] = useState(true);
+  const [showCopyWorkoutDialog, setShowCopyWorkoutDialog] = useState(false);
+  const [completedWorkout, setCompletedWorkout] = useState([]);
 
   useEffect(() => {
     console.log("Use effect is getting called")
@@ -69,7 +72,8 @@ function App() {
       .then(data => { setWorkoutList(data) })
       .catch(error => console.error(error));
     }
-
+ 
+    console.log(workoutList)
     getExercises();
     getWorkouts();
   }, [newExercise, workoutObject, alertClosed])
@@ -125,6 +129,36 @@ function App() {
     tomorrow.setDate(tomorrow.getDate() + 1)
     return tomorrow.toDateString()
   }
+
+  const onCreateNewWorkout = async (e) => {
+    e.preventDefault();
+    console.log("create new workout was clicked")
+    console.log(completedWorkout)
+    const clearedWorkout = {
+      workoutName: 'New Workout',
+      status: 'Not Started',
+      exercises: completedWorkout.exercises,
+      dateCreated: today(),
+      dateOfWorkout: tomorrow()
+    }
+
+    let result = await fetch(
+      'http://localhost:4000/create-new-workout', {
+      method: "post",
+      body: JSON.stringify({...clearedWorkout}),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+  result = await result.text();
+  if (result !== "Something went wrong") {
+    const resultObject = JSON.parse(result)
+    console.log(resultObject)
+    setWorkoutObject(resultObject)
+    setShowWorkout(!showWorkout)
+    alert("Data saved succesfully");
+  }
+}
 
   // When button is clicked, I want to take the list of 
   // exercises whose checkbox has been checked off
@@ -310,9 +344,30 @@ const onAddExerciseButtonClick = () => {
 
 const startWorkout = (index) => {
   console.log("Button to start workout was clicked")
-  console.log(workoutList[index])
+  // If a workout is already in progress, then don't open another one
+  // if (!showOngoingWorkout) {
+  //   alert("Please close or complete the current workout before starting another one.")
+  // }
+  // If the workout is not yet completed, then the user should be able to start it
+  if (workoutList[index].status !== "Completed") {
   setShowOngoingWorkout(true)
   setOngoingWorkout(workoutList[index])
+  }
+  // Otherwise, show a popup that offers the option to duplicate the workout
+  // Which creates a new workout in the database, with the same exercises,
+  // but a new date, no sets and reps and weight, and status = not started
+  else if (workoutList[index].status === "Completed") {
+    setCompletedWorkout(workoutList[index])
+    setShowCopyWorkoutDialog(true)
+  }
+}
+
+const handleCopyWorkoutDialogAction = (e, option) => {
+  if (option === "Yes") {
+    console.log("yes was clicked")
+    onCreateNewWorkout(e)
+  }
+  setShowCopyWorkoutDialog(false);
 }
 
 const WorkoutDialogInExerciseListForwardRef = forwardRef((props, ref) => {
@@ -351,6 +406,9 @@ const WorkoutListForwardRef = forwardRef((props, ref) => {
     disablePadding
   >
     <ListItemButton ref={ref} onClick={() => startWorkout(index)} {...otherProps}>
+      { workoutList[index].status === "Completed" &&
+        <CheckCircleIcon/>
+      }
       <ListItemText
         color="#a3b899"
         primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
@@ -358,7 +416,15 @@ const WorkoutListForwardRef = forwardRef((props, ref) => {
           <CloseIcon/>
         </IconButton>
     </ListItemButton>
-  </ListItem>)
+    <Dialog open={showCopyWorkoutDialog}>
+        <DialogTitle>{"Workout is complete. Create a copy of this workout?"}</DialogTitle>
+        <DialogActions>
+          <Button onClick={(e) => handleCopyWorkoutDialogAction(e, e.target.textContent)} autoFocus>Yes</Button>
+          <Button onClick={(e) => handleCopyWorkoutDialogAction(e, e.target.textContent)}>No</Button>
+        </DialogActions>
+    </Dialog>
+  </ListItem>
+  )
 });
 
 const workoutsDialogRef = useRef(null); 
@@ -380,10 +446,11 @@ const workoutsDialogRef = useRef(null);
             onClick={onAddNewExercise}>Add</Button>
         </form>
         
+        <div className="exercisesAndWorkouts">
         <Box
           sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
             <div className='headingRow'>
-            <p>Exercise List</p>
+            <p>Exercises</p>
             <Dropdown>
               <MenuButton onClick={onAddExerciseButtonClick}>
                 <AddCircleIcon/>
@@ -400,7 +467,7 @@ const workoutsDialogRef = useRef(null);
             </div>
 
             <Dialog open={dialogOpen}>
-              <DialogTitle>Workout List</DialogTitle>
+              <DialogTitle>Workouts</DialogTitle>
             <IconButton
           aria-label="close"
           onClick={handleDialogClose}
@@ -439,18 +506,14 @@ const workoutsDialogRef = useRef(null);
             {renderExercise}
           </List>
         </Box>
-        <p>Workouts</p>
-        {
-          workoutObject && showWorkout &&
-            <NewWorkout 
-              workoutObj={workoutObject}
-              saveWorkoutInDB={saveWorkoutInDB}
-              deleteWorkoutInDB={deleteWorkoutInDB}
-            />
-        }
-        <p>Workout List</p>
+     
+          
         <Box
           sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
+            <div className='headingRow'>
+            <p>Workouts</p>
+            </div>
+            
           <List
             height={400}
             width={360}
@@ -462,14 +525,29 @@ const workoutsDialogRef = useRef(null);
             {renderWorkout}
           </List>
         </Box>
-        <p>Ongoing Workout</p>
+
+        </div>
+        {
+          workoutObject && showWorkout &&
+          <div>
+          <p>New Workout</p>
+            <NewWorkout 
+              workoutObj={workoutObject}
+              saveWorkoutInDB={saveWorkoutInDB}
+              deleteWorkoutInDB={deleteWorkoutInDB}
+            />
+            </div>
+        }
         { ongoingWorkout && showOngoingWorkout && 
+        <div>
+        <p>Current Workout</p>
           <DoWorkout 
             ongoingWorkout={ongoingWorkout}
             setOngoingWorkout={setOngoingWorkout}
             saveWorkoutInDB={saveWorkoutInDB}
             setShowOngoingWorkout={setShowOngoingWorkout}
           />
+          </div>
         }
     </header>
     </div >

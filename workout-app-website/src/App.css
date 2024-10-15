@@ -46,6 +46,13 @@
   justify-content: space-evenly;
 }
 
+.exercisesAndWorkouts {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-evenly;
+}
+
 .workoutStatus {
   display: flex;
   justify-content: center;
