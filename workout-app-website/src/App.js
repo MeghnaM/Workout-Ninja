@@ -22,6 +22,7 @@ import { DialogTitle } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 
 function App() {
 
@@ -405,17 +406,34 @@ const WorkoutListForwardRef = forwardRef((props, ref) => {
     component="div"
     disablePadding
   >
-    <ListItemButton ref={ref} onClick={() => startWorkout(index)} {...otherProps}>
-      { workoutList[index].status === "Completed" &&
+    <ListItemButton className="grid grid-flow-col flex gap-6" 
+      ref={ref} onClick={() => startWorkout(index)} {...otherProps}>
+        <div>
+        { workoutList[index].status === "Completed" &&
         <CheckCircleIcon/>
       }
-      <ListItemText
+      {
+        workoutList[index].status !== "Completed" &&
+        <RadioButtonUncheckedIcon/>
+      }
+        </div>
+        <ListItemText
+        className="self-center"
         color="#a3b899"
-        primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
+        primary={workoutList[index].workoutName} />
+        <div>
+        <ListItemText 
+        color="#a3b899"
+        primary={workoutList[index].dateOfWorkout.slice(0, -14)}
+        />
+        </div>
+        <div>
         <IconButton onClick={() => deleteWorkoutInDB(workoutList[index]._id)}>
           <CloseIcon/>
         </IconButton>
+        </div>
     </ListItemButton>
+
     <Dialog open={showCopyWorkoutDialog}>
         <DialogTitle>{"Workout is complete. Create a copy of this workout?"}</DialogTitle>
         <DialogActions>
@@ -438,19 +456,24 @@ const workoutsDialogRef = useRef(null);
   return (
     <div className="App">
       <header className="App-header">
-        <p>Workout App</p>
+        <div className="p-8">
+        <p className="text-4xl">Workout App</p>
+        </div>
         <form action="">
+          <div className="pb-8">
           <TextField type="string" placeholder="Exercise Name" variant="outlined"
             value={newExercise} onChange={(e) => setNewExercise(e.target.value)} />
           <Button type="submit" variant="contained"
             onClick={onAddNewExercise}>Add</Button>
+            </div>
         </form>
         
-        <div className="exercisesAndWorkouts">
+        <div className="grid grid-flow-col gap-4">
+          <div>
         <Box
           sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
             <div className='headingRow'>
-            <p>Exercises</p>
+            <p className="text-3xl p-4">Exercises</p>
             <Dropdown>
               <MenuButton onClick={onAddExerciseButtonClick}>
                 <AddCircleIcon/>
@@ -506,14 +529,18 @@ const workoutsDialogRef = useRef(null);
             {renderExercise}
           </List>
         </Box>
+        </div>
      
-          
+        <div>
         <Box
           sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
-            <div className='headingRow'>
-            <p>Workouts</p>
+            <p className="p-4">Workouts</p>
+            <div className="grid grid-flow-col gap-4">
+              <p className="text-sm">Completed</p>
+              <p className="text-sm">Name</p>
+              <p className="text-sm">Date</p>
+              <p className="text-sm">Delete</p>
             </div>
-            
           <List
             height={400}
             width={360}
@@ -525,6 +552,7 @@ const workoutsDialogRef = useRef(null);
             {renderWorkout}
           </List>
         </Box>
+        </div>
 
         </div>
         {
