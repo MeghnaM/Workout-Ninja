@@ -10,7 +10,7 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import DoWorkout from './DoWorkout';
-import AddCircleIcon from '@mui/icons-material/AddCircle';
+import AddIcon from '@mui/icons-material/Add';
 import { Dropdown } from '@mui/base/Dropdown';
 import { Menu } from '@mui/base/Menu';
 import { MenuButton as BaseMenuButton } from '@mui/base/MenuButton';
@@ -23,6 +23,8 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import { StyledBox, StyledWebsiteHeading, StyledWebsiteSubheading, StyledSectionHeading, theme } from './StyledComponentsLibrary';
+import { ThemeProvider } from '@mui/material/styles';
 
 function App() {
 
@@ -45,7 +47,7 @@ function App() {
     async function getExercises() {
       await fetch('http://localhost:4000/get-exercises')
         .then(response => response.json())
-        .then(data => { 
+        .then(data => {
           // Map over the data that comes back from the db
           // Create an exercises list
           // If the exercise id is not already in the exerciseList,
@@ -62,18 +64,18 @@ function App() {
             }
             return exercise
           })
-          setExerciseList(exercises) 
+          setExerciseList(exercises)
         })
         .catch(error => console.error(error));
     }
 
     async function getWorkouts() {
       await fetch('http://localhost:4000/get-workouts')
-      .then(response => response.json())
-      .then(data => { setWorkoutList(data) })
-      .catch(error => console.error(error));
+        .then(response => response.json())
+        .then(data => { setWorkoutList(data) })
+        .catch(error => console.error(error));
     }
- 
+
     console.log(workoutList)
     getExercises();
     getWorkouts();
@@ -81,12 +83,12 @@ function App() {
 
   const getExerciseById = async (id) => {
     let result = await fetch('http://localhost:4000/get-exercise-by-id')
-    .then(response => response.json())
-    .then(data => setExercisesInOngoingWorkout({
-      ...exercisesInOngoingWorkout,
-      data
-    }))
-    .catch(error => console.error(error));
+      .then(response => response.json())
+      .then(data => setExercisesInOngoingWorkout({
+        ...exercisesInOngoingWorkout,
+        data
+      }))
+      .catch(error => console.error(error));
   }
 
   const renderExercise = (props) => {
@@ -146,20 +148,20 @@ function App() {
     let result = await fetch(
       'http://localhost:4000/create-new-workout', {
       method: "post",
-      body: JSON.stringify({...clearedWorkout}),
+      body: JSON.stringify({ ...clearedWorkout }),
       headers: {
         'Content-Type': 'application/json'
       }
     })
-  result = await result.text();
-  if (result !== "Something went wrong") {
-    const resultObject = JSON.parse(result)
-    console.log(resultObject)
-    setWorkoutObject(resultObject)
-    setShowWorkout(!showWorkout)
-    alert("Data saved succesfully");
+    result = await result.text();
+    if (result !== "Something went wrong") {
+      const resultObject = JSON.parse(result)
+      console.log(resultObject)
+      setWorkoutObject(resultObject)
+      setShowWorkout(!showWorkout)
+      alert("Data saved succesfully");
+    }
   }
-}
 
   // When button is clicked, I want to take the list of 
   // exercises whose checkbox has been checked off
@@ -171,24 +173,24 @@ function App() {
     // since that's the format that the db expects
     const selectedExercises = exerciseList.filter(exercise => exercise.selected)
     const exercises = selectedExercises.map(ex => ex.ex)
-    
+
     if (exercises.length === 0) {
       alert("Please select some exercises first.")
     } else {
-        let result = await fetch(
-          'http://localhost:4000/create-new-workout', {
-          method: "post",
-          body: JSON.stringify({
-            workoutName: 'New Workout',
-            status: 'Not Started',
-            exercises: exercises,
-            dateCreated: today(),
-            dateOfWorkout: tomorrow()
-          }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        })
+      let result = await fetch(
+        'http://localhost:4000/create-new-workout', {
+        method: "post",
+        body: JSON.stringify({
+          workoutName: 'New Workout',
+          status: 'Not Started',
+          exercises: exercises,
+          dateCreated: today(),
+          dateOfWorkout: tomorrow()
+        }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
       result = await result.text();
       if (result !== "Something went wrong") {
         const resultObject = JSON.parse(result)
@@ -196,11 +198,11 @@ function App() {
         setWorkoutObject(resultObject)
         setShowWorkout(!showWorkout)
         alert("Data saved succesfully");
-        
+
         // Once the data has been saved in the db,
         // set all the exercises to have selected boolean as false
         const updatedExerciseList = exerciseList.map(exercise => {
-          if (exercise.selected) return {...exercise, selected: false}
+          if (exercise.selected) return { ...exercise, selected: false }
           return exercise
         })
         setExerciseList(updatedExerciseList)
@@ -210,78 +212,78 @@ function App() {
   //else {
   //   alert("Please save existing workout before creating a new one.")
   // }
- //
+  //
 
- const onWorkoutNameClick = async (e, index) => {
-  e.preventDefault();
-  console.log("Add to existing workout was clicked")
-  setDialogOpen(false)
+  const onWorkoutNameClick = async (e, index) => {
+    e.preventDefault();
+    console.log("Add to existing workout was clicked")
+    setDialogOpen(false)
 
-  // Map over the selected exercises and just keep the exercise itself
-  // since that's the format that the db expects
-  const selectedExercises = exerciseList.filter(exercise => exercise.selected)
-  const exercises = selectedExercises.map(ex => ex.ex)
+    // Map over the selected exercises and just keep the exercise itself
+    // since that's the format that the db expects
+    const selectedExercises = exerciseList.filter(exercise => exercise.selected)
+    const exercises = selectedExercises.map(ex => ex.ex)
 
-  const workout = workoutList[index]
-  console.log(workout)
-  // Create a new list of exercises that includes the exercises 
-  // that were already part of this workout and the new ones I want to add
-  const updatedExerciseList = [...exercises, ...workout.exercises]
-  console.log(updatedExerciseList)
-   
-  // Make api call to update existing workout
-  let result = await fetch(
-    'http://localhost:4000/update-existing-workout', {
-    method: "put",
-    body: JSON.stringify({
-      id: workout._id,
-      workout: {
-      workoutName: workout.workoutName,
-      status: workout.status,
-      exercises: updatedExerciseList,
-      dateCreated: workout.dateCreated,
-      dateOfWorkout: workout.dateOfWorkout
+    const workout = workoutList[index]
+    console.log(workout)
+    // Create a new list of exercises that includes the exercises 
+    // that were already part of this workout and the new ones I want to add
+    const updatedExerciseList = [...exercises, ...workout.exercises]
+    console.log(updatedExerciseList)
+
+    // Make api call to update existing workout
+    let result = await fetch(
+      'http://localhost:4000/update-existing-workout', {
+      method: "put",
+      body: JSON.stringify({
+        id: workout._id,
+        workout: {
+          workoutName: workout.workoutName,
+          status: workout.status,
+          exercises: updatedExerciseList,
+          dateCreated: workout.dateCreated,
+          dateOfWorkout: workout.dateOfWorkout
+        }
+      }),
+      headers: {
+        'Content-Type': 'application/json'
       }
-    }),
-    headers: {
-      'Content-Type': 'application/json'
-    }
-  })
-result = await result.text();
-if (result !== "Something went wrong") {
-  const resultObject = JSON.parse(result)
-  console.log(resultObject)
-  alert("Data saved succesfully");
-  setAlertClosed(!alertClosed);
-  
-  // Once the data has been saved in the db,
-  // set all the exercises to have selected boolean as false
-  const updatedExerciseList = exerciseList.map(exercise => {
-    if (exercise.selected) return {...exercise, selected: false}
-    return exercise
-  })
-  setExerciseList(updatedExerciseList)
-}
-}
+    })
+    result = await result.text();
+    if (result !== "Something went wrong") {
+      const resultObject = JSON.parse(result)
+      console.log(resultObject)
+      alert("Data saved succesfully");
+      setAlertClosed(!alertClosed);
 
-const handleDialogClose = () => {
-  setDialogOpen(false)
-}
+      // Once the data has been saved in the db,
+      // set all the exercises to have selected boolean as false
+      const updatedExerciseList = exerciseList.map(exercise => {
+        if (exercise.selected) return { ...exercise, selected: false }
+        return exercise
+      })
+      setExerciseList(updatedExerciseList)
+    }
+  }
+
+  const handleDialogClose = () => {
+    setDialogOpen(false)
+  }
 
   const onAddExerciseToExistingWorkout = async (e) => {
-      e.preventDefault()
-      console.log("Add exercise to existing workout was clicked")
-      // Map over the selected exercises and just keep the exercise itself
-      // since that's the format that the db expects
-      const selectedExercises = exerciseList.filter(exercise => exercise.selected)
-      const exercises = selectedExercises.map(ex => ex.ex)
+    e.preventDefault()
+    console.log("Add exercise to existing workout was clicked")
+    // Map over the selected exercises and just keep the exercise itself
+    // since that's the format that the db expects
+    const selectedExercises = exerciseList.filter(exercise => exercise.selected)
+    const exercises = selectedExercises.map(ex => ex.ex)
 
-      if (exercises.length === 0) {
-        alert("Please select some exercises first.")
-      } else {
-        console.log("In the else block")
-        // Display dialog with list of workout
-        setDialogOpen(true)
+    if (exercises.length === 0) {
+      alert("Please select some exercises first.")
+    } else {
+      console.log("In the else block")
+      // Display dialog with list of workout
+      setDialogOpen(true)
     }
   }
 
@@ -292,33 +294,33 @@ const handleDialogClose = () => {
   // just an alert saying something went wrong
   const saveWorkoutInDB = async (workout, id) => {
     console.log("Save workout in db was called")
-      let result = await fetch(
-        'http://localhost:4000/update-existing-workout', {
-          method: "put",
-          body: JSON.stringify({ 
-            id: id, 
-            workout: workout 
-          }),
-          headers: {
-            'Content-Type': 'application/json'
-          }
-      })
-      result = await result.text();
-      console.log("Saved workout from DB -")
-      console.log(result);
-      if (result !== "Something went wrong") {
-        alert("Workout saved!")
-        setWorkoutObject({})
-        setShowWorkout(false)
-        if (ongoingWorkout) setShowOngoingWorkout(false)
-      } else { 
-        alert("Something went wrong") 
+    let result = await fetch(
+      'http://localhost:4000/update-existing-workout', {
+      method: "put",
+      body: JSON.stringify({
+        id: id,
+        workout: workout
+      }),
+      headers: {
+        'Content-Type': 'application/json'
       }
-}
+    })
+    result = await result.text();
+    console.log("Saved workout from DB -")
+    console.log(result);
+    if (result !== "Something went wrong") {
+      alert("Workout saved!")
+      setWorkoutObject({})
+      setShowWorkout(false)
+      if (ongoingWorkout) setShowOngoingWorkout(false)
+    } else {
+      alert("Something went wrong")
+    }
+  }
 
-const deleteWorkoutInDB = async (id) => {
-  let result = await fetch(
-    'http://localhost:4000/delete-workout', {
+  const deleteWorkoutInDB = async (id) => {
+    let result = await fetch(
+      'http://localhost:4000/delete-workout', {
       method: "delete",
       body: JSON.stringify({
         id: id
@@ -327,125 +329,125 @@ const deleteWorkoutInDB = async (id) => {
         'Content-Type': 'application/json'
       }
     })
-  result = await result.text();
-  console.log(result)
-  if (result !== "Delete request failed") {
-    alert("Workout deleted successfully")
-    setWorkoutObject({})
-    setShowWorkout(false)
-  } else {
-    alert("Something went wrong")
+    result = await result.text();
+    console.log(result)
+    if (result !== "Delete request failed") {
+      alert("Workout deleted successfully")
+      setWorkoutObject({})
+      setShowWorkout(false)
+    } else {
+      alert("Something went wrong")
+    }
   }
-}
 
-const onAddExerciseButtonClick = () => {
-  console.log("Show add exercise dropdown")
-  setAddExerciseDropdown(!addExerciseDropdown)
-}
-
-const startWorkout = (index) => {
-  console.log("Button to start workout was clicked")
-  // If a workout is already in progress, then don't open another one
-  // if (!showOngoingWorkout) {
-  //   alert("Please close or complete the current workout before starting another one.")
-  // }
-  // If the workout is not yet completed, then the user should be able to start it
-  if (workoutList[index].status !== "Completed") {
-  setShowOngoingWorkout(true)
-  setOngoingWorkout(workoutList[index])
+  const onAddExerciseButtonClick = () => {
+    console.log("Show add exercise dropdown")
+    setAddExerciseDropdown(!addExerciseDropdown)
   }
-  // Otherwise, show a popup that offers the option to duplicate the workout
-  // Which creates a new workout in the database, with the same exercises,
-  // but a new date, no sets and reps and weight, and status = not started
-  else if (workoutList[index].status === "Completed") {
-    setCompletedWorkout(workoutList[index])
-    setShowCopyWorkoutDialog(true)
+
+  const startWorkout = (index) => {
+    console.log("Button to start workout was clicked")
+    // If a workout is already in progress, then don't open another one
+    // if (!showOngoingWorkout) {
+    //   alert("Please close or complete the current workout before starting another one.")
+    // }
+    // If the workout is not yet completed, then the user should be able to start it
+    if (workoutList[index].status !== "Completed") {
+      setShowOngoingWorkout(true)
+      setOngoingWorkout(workoutList[index])
+    }
+    // Otherwise, show a popup that offers the option to duplicate the workout
+    // Which creates a new workout in the database, with the same exercises,
+    // but a new date, no sets and reps and weight, and status = not started
+    else if (workoutList[index].status === "Completed") {
+      setCompletedWorkout(workoutList[index])
+      setShowCopyWorkoutDialog(true)
+    }
   }
-}
 
-const handleCopyWorkoutDialogAction = (e, option) => {
-  if (option === "Yes") {
-    console.log("yes was clicked")
-    onCreateNewWorkout(e)
+  const handleCopyWorkoutDialogAction = (e, option) => {
+    if (option === "Yes") {
+      console.log("yes was clicked")
+      onCreateNewWorkout(e)
+    }
+    setShowCopyWorkoutDialog(false);
   }
-  setShowCopyWorkoutDialog(false);
-}
 
-const WorkoutDialogInExerciseListForwardRef = forwardRef((props, ref) => {
-  const { index, style, ...otherProps } = props
-  return (
-  <ListItem
-    style={style}
-    key={index}
-    component="div"
-    disablePadding
-  >
-    <ListItemButton ref={ref} onClick={(e) => onWorkoutNameClick(e, index)} {...otherProps}>
-      <ListItemText
-        color="#a3b899"
-        primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
-    </ListItemButton>
-  </ListItem>)
-});
+  const WorkoutDialogInExerciseListForwardRef = forwardRef((props, ref) => {
+    const { index, style, ...otherProps } = props
+    return (
+      <ListItem
+        style={style}
+        key={index}
+        component="div"
+        disablePadding
+      >
+        <ListItemButton ref={ref} onClick={(e) => onWorkoutNameClick(e, index)} {...otherProps}>
+          <ListItemText
+            color="#a3b899"
+            primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
+        </ListItemButton>
+      </ListItem>)
+  });
 
-const exDialogRef = useRef(null); 
+  const exDialogRef = useRef(null);
 
-const renderWorkoutInExerciseListDialog = (props) => {
+  const renderWorkoutInExerciseListDialog = (props) => {
     const { index, style } = props;
     return (
       <WorkoutDialogInExerciseListForwardRef index={index} style={style} ref={exDialogRef} />
     );
   }
 
-const WorkoutListForwardRef = forwardRef((props, ref) => {
-  const { index, style, ...otherProps } = props
-  return (
-  <ListItem
-    style={style}
-    key={index}
-    component="div"
-    disablePadding
-  >
-    <ListItemButton className="grid grid-flow-col flex gap-6" 
-      ref={ref} onClick={() => startWorkout(index)} {...otherProps}>
-        <div>
-        { workoutList[index].status === "Completed" &&
-        <CheckCircleIcon/>
-      }
-      {
-        workoutList[index].status !== "Completed" &&
-        <RadioButtonUncheckedIcon/>
-      }
-        </div>
-        <ListItemText
-        className="self-center"
-        color="#a3b899"
-        primary={workoutList[index].workoutName} />
-        <div>
-        <ListItemText 
-        color="#a3b899"
-        primary={workoutList[index].dateOfWorkout.slice(0, -14)}
-        />
-        </div>
-        <div>
-        <IconButton onClick={() => deleteWorkoutInDB(workoutList[index]._id)}>
-          <CloseIcon/>
-        </IconButton>
-        </div>
-    </ListItemButton>
+  const WorkoutListForwardRef = forwardRef((props, ref) => {
+    const { index, style, ...otherProps } = props
+    return (
+      <ListItem
+        style={style}
+        key={index}
+        component="div"
+        disablePadding
+      >
+        <ListItemButton className="grid grid-flow-col flex gap-6"
+          ref={ref} onClick={() => startWorkout(index)} {...otherProps}>
+          <div>
+            {workoutList[index].status === "Completed" &&
+              <CheckCircleIcon />
+            }
+            {
+              workoutList[index].status !== "Completed" &&
+              <RadioButtonUncheckedIcon />
+            }
+          </div>
+          <ListItemText
+            className="self-center"
+            color="#a3b899"
+            primary={workoutList[index].workoutName} />
+          <div>
+            <ListItemText
+              color="#a3b899"
+              primary={workoutList[index].dateOfWorkout.slice(0, -14)}
+            />
+          </div>
+          <div>
+            <IconButton onClick={() => deleteWorkoutInDB(workoutList[index]._id)}>
+              <CloseIcon />
+            </IconButton>
+          </div>
+        </ListItemButton>
 
-    <Dialog open={showCopyWorkoutDialog}>
-        <DialogTitle>{"Workout is complete. Create a copy of this workout?"}</DialogTitle>
-        <DialogActions>
-          <Button onClick={(e) => handleCopyWorkoutDialogAction(e, e.target.textContent)} autoFocus>Yes</Button>
-          <Button onClick={(e) => handleCopyWorkoutDialogAction(e, e.target.textContent)}>No</Button>
-        </DialogActions>
-    </Dialog>
-  </ListItem>
-  )
-});
+        <Dialog open={showCopyWorkoutDialog}>
+          <DialogTitle>{"Workout is complete. Create a copy of this workout?"}</DialogTitle>
+          <DialogActions>
+            <Button onClick={(e) => handleCopyWorkoutDialogAction(e, e.target.textContent)} autoFocus>Yes</Button>
+            <Button onClick={(e) => handleCopyWorkoutDialogAction(e, e.target.textContent)}>No</Button>
+          </DialogActions>
+        </Dialog>
+      </ListItem>
+    )
+  });
 
-const workoutsDialogRef = useRef(null); 
+  const workoutsDialogRef = useRef(null);
   const renderWorkout = (props) => {
     const { index, style } = props;
     return (
@@ -454,131 +456,148 @@ const workoutsDialogRef = useRef(null);
   }
 
   return (
-    <div className="App">
-      <header className="App-header">
-        <div className="p-8">
-        <p className="text-4xl">Workout App</p>
-        </div>
-        <form action="">
-          <div className="pb-8">
-          <TextField type="string" placeholder="Exercise Name" variant="outlined"
-            value={newExercise} onChange={(e) => setNewExercise(e.target.value)} />
-          <Button type="submit" variant="contained"
-            onClick={onAddNewExercise}>Add</Button>
+    <ThemeProvider theme={theme}>
+      <div className="App">
+        <header className="App-header">
+          <div className="p-8">
+            <StyledWebsiteHeading variant="h2" color="primary">Workout Ninja</StyledWebsiteHeading>
+            <StyledWebsiteSubheading color="secondary">
+              Progressive overload is the name of the game when it comes to building a leaner, healthier body. 
+            </StyledWebsiteSubheading>
+            <StyledWebsiteSubheading color="secondary">
+              Start with where you are and slowly increase strength, range of motion, endurance and overall fitness. 
+            </StyledWebsiteSubheading>
+            <StyledWebsiteSubheading color="secondary">
+              The best way to measure progress is to be able to track it, and that's where Workout Ninja comes in.
+            </StyledWebsiteSubheading>
+            <StyledWebsiteSubheading color="secondary">
+              You can maintain a list of your favorite exercises, create new workouts, and track your progress over time.
+            </StyledWebsiteSubheading>
+            <StyledWebsiteSubheading color="secondary">
+              Workout Ninja makes achieving your fitness goals fun!
+            </StyledWebsiteSubheading>
+          </div>
+          <form action="">
+            <div className="pb-8">
+              <TextField type="string" placeholder="Exercise Name" variant="outlined"
+                value={newExercise} onChange={(e) => setNewExercise(e.target.value)} />
+              <Button type="submit" variant="contained" className="bg-indigo-500"
+                onClick={onAddNewExercise}>Add</Button>
             </div>
-        </form>
-        
-        <div className="grid grid-flow-col gap-4">
-          <div>
-        <Box
-          sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
-            <div className='headingRow'>
-            <p className="text-3xl p-4">Exercises</p>
-            <Dropdown>
-              <MenuButton onClick={onAddExerciseButtonClick}>
-                <AddCircleIcon/>
-              </MenuButton>
-                <Menu slots={{ listbox: Listbox }}>
-                    <MenuItem onClick={onAddExerciseToNewWorkout}>
-                        Add Exercises to New Workout
-                    </MenuItem>
-                    <MenuItem onClick={onAddExerciseToExistingWorkout}>
-                        Add Exercises to Existing Workout
-                    </MenuItem>
-                </Menu>
-              </Dropdown>
-            </div>
+          </form>
 
-            <Dialog open={dialogOpen}>
-              <DialogTitle>Workouts</DialogTitle>
-            <IconButton
-          aria-label="close"
-          onClick={handleDialogClose}
-          sx={(theme) => ({
-            position: 'absolute',
-            right: 8,
-            top: 8,
-            color: theme.palette.grey[500],
-          })}
-        >
-          <CloseIcon />
-        </IconButton>
+          <div className="grid grid-flow-col gap-4">
+            <div>
+              <StyledBox>
+                <div className='headingRow'>
+                  <StyledSectionHeading variant="h4">Exercises</StyledSectionHeading>
+                  <Dropdown>
+                    <MenuButton
+                      sx={{ borderRadius: '40%' }}
+                      onClick={onAddExerciseButtonClick}>
+                      <AddIcon />
+                    </MenuButton>
+                    <Menu slots={{ listbox: Listbox }}>
+                      <MenuItem onClick={onAddExerciseToNewWorkout}>
+                        Add Exercises to New Workout
+                      </MenuItem>
+                      <MenuItem onClick={onAddExerciseToExistingWorkout}>
+                        Add Exercises to Existing Workout
+                      </MenuItem>
+                    </Menu>
+                  </Dropdown>
+                </div>
+
+                <Dialog open={dialogOpen}>
+                  <DialogTitle>Workouts</DialogTitle>
+                  <IconButton
+                    aria-label="close"
+                    onClick={handleDialogClose}
+                    sx={(theme) => ({
+                      position: 'absolute',
+                      right: 8,
+                      top: 8,
+                      color: theme.palette.grey[500],
+                    })}
+                  >
+                    <CloseIcon />
+                  </IconButton>
                   <DialogActions>
                     <Box
-                        sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
-                        <List
-                            height={400}
-                            width={360}
-                            itemSize={46}
-                            itemCount={workoutList.length}
-                            overscanCount={5}
-                        >
-                            {renderWorkoutInExerciseListDialog}
-                        </List>
+                      sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: theme.palette.background.main }}>
+                      <List
+                        height={400}
+                        width={360}
+                        itemSize={46}
+                        itemCount={workoutList.length}
+                        overscanCount={5}
+                      >
+                        {renderWorkoutInExerciseListDialog}
+                      </List>
                     </Box>
                   </DialogActions>
-             </Dialog>
-            
-          <List
-            height={400}
-            width={360}
-            itemSize={46}
-            itemCount={exerciseList.length}
-            overscanCount={5}
-          >
-            {renderExercise}
-          </List>
-        </Box>
-        </div>
-     
-        <div>
-        <Box
-          sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
-            <p className="p-4">Workouts</p>
-            <div className="grid grid-flow-col gap-4">
-              <p className="text-sm">Completed</p>
-              <p className="text-sm">Name</p>
-              <p className="text-sm">Date</p>
-              <p className="text-sm">Delete</p>
-            </div>
-          <List
-            height={400}
-            width={360}
-            itemSize={46}
-            itemCount={workoutList.length}
-            workoutListForwardRef={WorkoutListForwardRef}
-            overscanCount={5}
-          >
-            {renderWorkout}
-          </List>
-        </Box>
-        </div>
+                </Dialog>
 
-        </div>
-        {
-          workoutObject && showWorkout &&
-          <div>
-          <p>New Workout</p>
-            <NewWorkout 
-              workoutObj={workoutObject}
-              saveWorkoutInDB={saveWorkoutInDB}
-              deleteWorkoutInDB={deleteWorkoutInDB}
-            />
+                <List
+                  height={400}
+                  width={360}
+                  itemSize={46}
+                  itemCount={exerciseList.length}
+                  overscanCount={5}
+                >
+                  {renderExercise}
+                </List>
+              </StyledBox>
             </div>
-        }
-        { ongoingWorkout && showOngoingWorkout && 
-        <div>
-        <p>Current Workout</p>
-          <DoWorkout 
-            ongoingWorkout={ongoingWorkout}
-            setOngoingWorkout={setOngoingWorkout}
-            saveWorkoutInDB={saveWorkoutInDB}
-            setShowOngoingWorkout={setShowOngoingWorkout}
-          />
+
+            <div>
+              <StyledBox>
+                <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
+                <div className="grid grid-flow-col gap-4">
+                  <p className="text-sm">Completed</p>
+                  <p className="text-sm">Name</p>
+                  <p className="text-sm">Date</p>
+                  <p className="text-sm">Delete</p>
+                </div>
+                <List
+                  height={400}
+                  width={360}
+                  itemSize={46}
+                  itemCount={workoutList.length}
+                  workoutListForwardRef={WorkoutListForwardRef}
+                  overscanCount={5}
+                >
+                  {renderWorkout}
+                </List>
+              </StyledBox>
+            </div>
+
           </div>
-        }
-    </header>
-    </div >
+          {
+            workoutObject && showWorkout &&
+            <div>
+              <p>New Workout</p>
+              <NewWorkout
+                workoutObj={workoutObject}
+                saveWorkoutInDB={saveWorkoutInDB}
+                deleteWorkoutInDB={deleteWorkoutInDB}
+              />
+            </div>
+          }
+          {ongoingWorkout && showOngoingWorkout &&
+            <div>
+              <p>Current Workout</p>
+              <DoWorkout
+                ongoingWorkout={ongoingWorkout}
+                setOngoingWorkout={setOngoingWorkout}
+                saveWorkoutInDB={saveWorkoutInDB}
+                setShowOngoingWorkout={setShowOngoingWorkout}
+              />
+            </div>
+          }
+        </header>
+      </div >
+    </ThemeProvider>
   );
 }
 
@@ -625,9 +644,8 @@ const Listbox = styled('ul')(
   background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
   border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
   color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  box-shadow: 0px 4px 6px ${
-    theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.50)' : 'rgba(0,0,0, 0.05)'
-  };
+  box-shadow: 0px 4px 6px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.50)' : 'rgba(0,0,0, 0.05)'
+    };
   z-index: 1;
   `,
 );
