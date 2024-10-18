@@ -18,10 +18,12 @@ import DialogActions from '@mui/material/DialogActions';
 import { DialogTitle } from '@mui/material';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
-import { StyledBox, StyledMenuItem, StyledMenuButton, StyledWebsiteHeading, StyledWebsiteSubheading, StyledSectionHeading, theme } from './StyledComponentsLibrary';
+import { StyledBox, StyledMenuItem, StyledMenuButton, StyledListItemText, StyledSectionSubheading,
+  StyledWebsiteHeading, StyledWebsiteSubheading, StyledSectionHeading, theme } from './StyledComponentsLibrary';
 import { ThemeProvider } from '@mui/material/styles';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import Checkbox from '@mui/material/Checkbox';
 
 function App() {
 
@@ -399,38 +401,29 @@ function App() {
   const WorkoutListForwardRef = forwardRef((props, ref) => {
     const { index, style, ...otherProps } = props
     return (
+      <ThemeProvider theme={theme}>
       <ListItem
         style={style}
         key={index}
         component="div"
         disablePadding
       >
-        <ListItemButton className="grid grid-flow-col flex gap-6"
-          ref={ref} onClick={() => startWorkout(index)} {...otherProps}>
-          <div>
-            {workoutList[index].status === "Completed" &&
-              <CheckCircleIcon />
-            }
-            {
-              workoutList[index].status !== "Completed" &&
-              <RadioButtonUncheckedIcon />
-            }
-          </div>
-          <ListItemText
-            className="self-center"
-            color="#a3b899"
-            primary={workoutList[index].workoutName} />
-          <div>
-            <ListItemText
-              color="#a3b899"
-              primary={workoutList[index].dateOfWorkout.slice(0, -14)}
-            />
-          </div>
-          <div>
-            <IconButton onClick={() => deleteWorkoutInDB(workoutList[index]._id)}>
+        <ListItemButton ref={ref} onClick={() => startWorkout(index)} {...otherProps}>
+            <Checkbox 
+                icon={<RadioButtonUncheckedIcon/>}
+                checkedIcon={<RadioButtonCheckedIcon/>}
+                checked={workoutList[index].status === "Completed"}
+                fontSize='small'
+                color='secondary'
+              />
+          <StyledListItemText primary={workoutList[index].workoutName} />
+          <StyledListItemText primary={workoutList[index].dateOfWorkout.slice(0, -14)}/>
+            <IconButton 
+              sx={{ color: theme.palette.secondary.main }}
+              onClick={() => deleteWorkoutInDB(workoutList[index]._id)}
+            >
               <CloseIcon />
             </IconButton>
-          </div>
         </ListItemButton>
 
         <Dialog open={showCopyWorkoutDialog}>
@@ -441,6 +434,7 @@ function App() {
           </DialogActions>
         </Dialog>
       </ListItem>
+      </ThemeProvider>
     )
   });
 
@@ -477,6 +471,7 @@ function App() {
           <form action="">
             <div className="pb-8">
               <TextField type="string" placeholder="Exercise Name" variant="outlined"
+                sx={{marginRight: 2}}
                 value={newExercise} onChange={(e) => setNewExercise(e.target.value)} />
               <Button type="submit" variant="contained" className="bg-indigo-500"
                 onClick={onAddNewExercise}>Add</Button>
@@ -484,7 +479,6 @@ function App() {
           </form>
 
           <div className="grid grid-flow-col gap-4">
-            <div>
               <StyledBox>
                 <div className='headingRow'>
                   <StyledSectionHeading variant="h4">Exercises</StyledSectionHeading>
@@ -502,7 +496,6 @@ function App() {
                     </Menu>
                   </Dropdown>
                 </div>
-
                 <Dialog open={dialogOpen}>
                   <DialogTitle>Workouts</DialogTitle>
                   <IconButton
@@ -520,8 +513,8 @@ function App() {
                   <DialogActions>
                     <StyledBox>
                       <List
-                        height={400}
-                        width={360}
+                        height={300}
+                        width={400}
                         itemSize={46}
                         itemCount={workoutList.length}
                         overscanCount={5}
@@ -531,10 +524,9 @@ function App() {
                     </StyledBox>
                   </DialogActions>
                 </Dialog>
-
                 <List
-                  height={400}
-                  width={360}
+                  height={300}
+                  width={400}
                   itemSize={46}
                   itemCount={exerciseList.length}
                   overscanCount={5}
@@ -542,20 +534,19 @@ function App() {
                   {renderExercise}
                 </List>
               </StyledBox>
-            </div>
 
             <div>
               <StyledBox>
                 <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
                 <div className="grid grid-flow-col gap-4">
-                  <p className="text-sm">Completed</p>
-                  <p className="text-sm">Name</p>
-                  <p className="text-sm">Date</p>
-                  <p className="text-sm">Delete</p>
+                  <StyledSectionSubheading>Completed</StyledSectionSubheading>
+                  <StyledSectionSubheading>Name</StyledSectionSubheading>
+                  <StyledSectionSubheading>Date</StyledSectionSubheading>
+                  <StyledSectionSubheading>Delete</StyledSectionSubheading>
                 </div>
                 <List
-                  height={400}
-                  width={360}
+                  height={300}
+                  width={400}
                   itemSize={46}
                   itemCount={workoutList.length}
                   workoutListForwardRef={WorkoutListForwardRef}
@@ -579,15 +570,12 @@ function App() {
             </div>
           }
           {ongoingWorkout && showOngoingWorkout &&
-            <div>
-              <p>Current Workout</p>
               <DoWorkout
                 ongoingWorkout={ongoingWorkout}
                 setOngoingWorkout={setOngoingWorkout}
                 saveWorkoutInDB={saveWorkoutInDB}
                 setShowOngoingWorkout={setShowOngoingWorkout}
               />
-            </div>
           }
         </header>
       </div >

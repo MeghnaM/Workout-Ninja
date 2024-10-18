@@ -12,6 +12,11 @@ import Checkbox from '@mui/material/Checkbox';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import { DialogTitle } from '@mui/material';
+import { StyledBox, StyledSectionHeading } from './StyledComponentsLibrary';
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
+import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
+import { ThemeProvider } from '@mui/material/styles';
+import { theme } from './StyledComponentsLibrary';
 
 function DoWorkout(props) {
     const { ongoingWorkout, setOngoingWorkout, saveWorkoutInDB, setShowOngoingWorkout } = props;
@@ -131,25 +136,33 @@ function DoWorkout(props) {
                 <ListItemButton>
                 <ListItemIcon>
                 <Checkbox 
+                icon={<RadioButtonUncheckedIcon/>}
+                checkedIcon={<RadioButtonCheckedIcon/>}
                 checked={exerciseData[index].completed}
                 onChange={(e) => updateExerciseData(exerciseData[index].id, "completed", !exerciseData[index].completed)}
                 fontSize='small'
                 />
               </ListItemIcon>
-                <ListItemText color="#a3b899" primary={exerciseData[index].exerciseName} />
+                <ListItemText
+                    sx={{color: theme.palette.primary.main, width: 200}} 
+                    primary={exerciseData[index].exerciseName} 
+                />
                 <TextField  
                 label="Sets" 
                 defaultValue={exerciseData[index].sets}
+                sx={{maxWidth: 200}}
                onChange={(e) => updateExerciseData(exerciseData[index].id, "sets", e.target.value)}
             />
                 <TextField 
                 label="Reps"
                 defaultValue={exerciseData[index].reps}
+                sx={{maxWidth: 200}}
                onChange={(e) => updateExerciseData(exerciseData[index].id, "reps", e.target.value)}
                 />
                 <TextField  
                 label="Weight"
                 defaultValue={exerciseData[index].weight}
+                sx={{maxWidth: 200}}
                onChange={(e) => updateExerciseData(exerciseData[index].id, "weight", e.target.value)}
                 />
                 </ListItemButton>
@@ -173,10 +186,11 @@ function DoWorkout(props) {
     }
 
     return (
-        <Box
-            sx={{ width: '100%', height: 400, maxWidth: 360, bgcolor: 'background.paper' }}>
+        <ThemeProvider theme={theme}>
+        <StyledBox>
+            <StyledSectionHeading variant="h4">Current Workout</StyledSectionHeading>
             <form onSubmit={onCompleteWorkout}>
-            <div className="workoutDisplayRow">
+                <div className="workoutDisplayRow">
                     <TextField
                         required
                         id="outlined-required"
@@ -195,11 +209,11 @@ function DoWorkout(props) {
                         defaultValue={workoutDate}
                         onChange={(e) => setWorkoutDate(e.target.value)}
                     />
-            </div>
+                </div>
 
                 <List
-                    height={200}
-                    width={360}
+                    height={210}
+                    width={400}
                     itemSize={46}
                     itemCount={exerciseData.length}
                     overscanCount={5}
@@ -222,7 +236,8 @@ function DoWorkout(props) {
                 </Button>
             </div>
             </form>
-        </Box>
+        </StyledBox>
+        </ThemeProvider>
     )
 }
 

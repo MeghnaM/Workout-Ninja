@@ -35,7 +35,8 @@
   flex-direction: row;
   align-items: center;
   justify-content: space-evenly;
-  padding-top: 20px;
+  padding-right: 5px;
+  padding-left: 5px;
 }
 
 .headingRow {

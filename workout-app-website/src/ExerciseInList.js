@@ -5,7 +5,6 @@ import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
-import Box from '@mui/material/Box';
 import { FixedSizeList as List } from 'react-window';
 import Checkbox from '@mui/material/Checkbox';
 import { StyledListItemText, theme } from './StyledComponentsLibrary.js';
@@ -16,26 +15,10 @@ import { StyledBox } from './StyledComponentsLibrary.js';
 
 function ExerciseInList(props) {
     const { index, style, exerciseList, workoutList, setExerciseList } = props;
-
-    const [showDropdown, setShowDropdown] = useState(false);
     const [dialogOpen, setDialogOpen] = useState(false);
-
-    const onAddExerciseToWorkout = () => {
-        console.log("Add exercise button was clicked")
-        setShowDropdown(!showDropdown)
-    }
-
-    const createHandleMenuClick = (menuItem) => {
-        console.log(`Button was clicked for ${menuItem}`)
-    }
 
     const onClickListItemButton = () => {
         console.log("List item button was clicked")
-    }
-
-    const selectedWorkout = () => {
-        //onAddExerciseToExistingWorkout(exerciseList[index],
-        setDialogOpen(false) 
     }
 
     const onAddToExistingWorkoutButtonClick = () => {
@@ -108,13 +91,12 @@ function ExerciseInList(props) {
                 />
               <StyledListItemText primary={exerciseList[index].ex.exercise} />
             </ListItemButton>
-    
               <Dialog open={dialogOpen}>
                   <DialogActions>
                     <StyledBox>
                         <List
-                            height={400}
-                            width={360}
+                            height={300}
+                            width={400}
                             itemSize={46}
                             itemCount={workoutList.length}
                             overscanCount={5}
@@ -127,7 +109,6 @@ function ExerciseInList(props) {
           </ListItem>
           </ThemeProvider>
     );
-
 }
 
 export default ExerciseInList;
