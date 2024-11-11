@@ -11,7 +11,7 @@ import { StyledListItemText, theme } from './StyledComponentsLibrary.js';
 import { ThemeProvider } from '@mui/material/styles';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import { StyledBox } from './StyledComponentsLibrary.js';
+import Box from '@mui/material/Box';
 
 function ExerciseInList(props) {
     const { index, style, exerciseList, workoutList, setExerciseList } = props;
@@ -36,9 +36,7 @@ function ExerciseInList(props) {
           disablePadding
         >
           <ListItemButton ref={ref} onClick={() => onAddToExistingWorkoutButtonClick(index)} {...otherProps}>
-            <ListItemText
-              color="#a3b899"
-              primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
+            <StyledListItemText primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
           </ListItemButton>
         </ListItem>)
       });
@@ -92,8 +90,7 @@ function ExerciseInList(props) {
               <StyledListItemText primary={exerciseList[index].ex.exercise} />
             </ListItemButton>
               <Dialog open={dialogOpen}>
-                  <DialogActions>
-                    <StyledBox>
+                    <Box>
                         <List
                             height={300}
                             width={400}
@@ -103,8 +100,7 @@ function ExerciseInList(props) {
                         >
                             {renderWorkoutInExerciseListDialog}
                         </List>
-                    </StyledBox>
-                  </DialogActions>
+                    </Box>
              </Dialog>
           </ListItem>
           </ThemeProvider>

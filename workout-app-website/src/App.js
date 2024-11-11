@@ -20,7 +20,7 @@ import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
 import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked';
 import { StyledBox, StyledMenuItem, StyledMenuButton, StyledListItemText, StyledSectionSubheading,
-  StyledWebsiteHeading, StyledWebsiteSubheading, StyledSectionHeading, theme } from './StyledComponentsLibrary';
+  StyledWebsiteHeading, StyledWebsiteSubheading, StyledSectionHeading, theme, Listbox } from './StyledComponentsLibrary';
 import { ThemeProvider } from '@mui/material/styles';
 import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
 import Checkbox from '@mui/material/Checkbox';
@@ -118,7 +118,7 @@ function App() {
     result = await result.text();
     console.log(result);
     if (result) {
-      alert("Data saved succesfully");
+      alert("Data saved succesfully!");
       setNewExercise("");
     }
   }
@@ -158,7 +158,7 @@ function App() {
       console.log(resultObject)
       setWorkoutObject(resultObject)
       setShowWorkout(!showWorkout)
-      alert("Data saved succesfully");
+      alert("Data saved succesfully!");
     }
   }
 
@@ -196,7 +196,7 @@ function App() {
         console.log(resultObject)
         setWorkoutObject(resultObject)
         setShowWorkout(!showWorkout)
-        alert("Data saved succesfully");
+        alert("Data saved succesfully!");
 
         // Once the data has been saved in the db,
         // set all the exercises to have selected boolean as false
@@ -252,7 +252,7 @@ function App() {
     if (result !== "Something went wrong") {
       const resultObject = JSON.parse(result)
       console.log(resultObject)
-      alert("Data saved succesfully");
+      alert("Data saved succesfully!");
       setAlertClosed(!alertClosed);
 
       // Once the data has been saved in the db,
@@ -293,6 +293,7 @@ function App() {
   // just an alert saying something went wrong
   const saveWorkoutInDB = async (workout, id) => {
     console.log("Save workout in db was called")
+    console.log(workout)
     let result = await fetch(
       'http://localhost:4000/update-existing-workout', {
       method: "put",
@@ -331,7 +332,7 @@ function App() {
     result = await result.text();
     console.log(result)
     if (result !== "Delete request failed") {
-      alert("Workout deleted successfully")
+      alert("Workout deleted successfully!")
       setWorkoutObject({})
       setShowWorkout(false)
     } else {
@@ -382,9 +383,7 @@ function App() {
         disablePadding
       >
         <ListItemButton ref={ref} onClick={(e) => onWorkoutNameClick(e, index)} {...otherProps}>
-          <ListItemText
-            color="#a3b899"
-            primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
+          <StyledListItemText primary={workoutList[index].workoutName + " " + workoutList[index].dateOfWorkout.slice(0, -14)} />
         </ListItemButton>
       </ListItem>)
   });
@@ -497,8 +496,11 @@ function App() {
                   </Dropdown>
                 </div>
                 <Dialog open={dialogOpen}>
-                  <DialogTitle>Workouts</DialogTitle>
-                  <IconButton
+                  <DialogActions>
+                    <StyledBox>
+                    <DialogTitle>
+                    <StyledSectionSubheading variant="h5">Workouts</StyledSectionSubheading>
+                    <IconButton
                     aria-label="close"
                     onClick={handleDialogClose}
                     sx={(theme) => ({
@@ -510,8 +512,7 @@ function App() {
                   >
                     <CloseIcon />
                   </IconButton>
-                  <DialogActions>
-                    <StyledBox>
+                  </DialogTitle>
                       <List
                         height={300}
                         width={400}
@@ -526,7 +527,7 @@ function App() {
                 </Dialog>
                 <List
                   height={300}
-                  width={400}
+                  width={380}
                   itemSize={46}
                   itemCount={exerciseList.length}
                   overscanCount={5}
@@ -560,14 +561,11 @@ function App() {
           </div>
           {
             workoutObject && showWorkout &&
-            <div>
-              <p>New Workout</p>
               <NewWorkout
                 workoutObj={workoutObject}
                 saveWorkoutInDB={saveWorkoutInDB}
                 deleteWorkoutInDB={deleteWorkoutInDB}
               />
-            </div>
           }
           {ongoingWorkout && showOngoingWorkout &&
               <DoWorkout
@@ -584,52 +582,3 @@ function App() {
 }
 
 export default App;
-
-// Todo - Find a better place to put these styles
-const grey = {
-  50: '#F3F6F9',
-  100: '#E5EAF2',
-  200: '#DAE2ED',
-  300: '#C7D0DD',
-  400: '#B0B8C4',
-  500: '#9DA8B7',
-  600: '#6B7A90',
-  700: '#434D5B',
-  800: '#303740',
-  900: '#1C2025',
-};
-
-const blue = {
-  50: '#F0F7FF',
-  100: '#C2E0FF',
-  200: '#99CCF3',
-  300: '#66B2FF',
-  400: '#3399FF',
-  500: '#007FFF',
-  600: '#0072E6',
-  700: '#0059B3',
-  800: '#004C99',
-  900: '#003A75',
-};
-
-const Listbox = styled('ul')(
-  ({ theme }) => `
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 0.875rem;
-  box-sizing: border-box;
-  padding: 6px;
-  margin: 12px 0;
-  min-width: 200px;
-  border-radius: 12px;
-  overflow: auto;
-  outline: 0px;
-  background: ${theme.palette.mode === 'dark' ? grey[900] : '#fff'};
-  border: 1px solid ${theme.palette.mode === 'dark' ? grey[700] : grey[200]};
-  color: ${theme.palette.mode === 'dark' ? grey[300] : grey[900]};
-  box-shadow: 0px 4px 6px ${theme.palette.mode === 'dark' ? 'rgba(0,0,0, 0.50)' : 'rgba(0,0,0, 0.05)'
-    };
-  z-index: 1;
-  `,
-);
-
-
