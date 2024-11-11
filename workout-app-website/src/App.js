@@ -417,13 +417,13 @@ function App() {
               />
           <StyledListItemText primary={workoutList[index].workoutName} />
           <StyledListItemText primary={workoutList[index].dateOfWorkout.slice(0, -14)}/>
-            <IconButton 
-              sx={{ color: theme.palette.secondary.main }}
+        </ListItemButton>
+        <IconButton 
+              sx={{ color: theme.palette.secondary.main, paddingRight: 3 }}
               onClick={() => deleteWorkoutInDB(workoutList[index]._id)}
             >
               <CloseIcon />
             </IconButton>
-        </ListItemButton>
 
         <Dialog open={showCopyWorkoutDialog}>
           <DialogTitle>{"Workout is complete. Create a copy of this workout?"}</DialogTitle>
