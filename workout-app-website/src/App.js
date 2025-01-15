@@ -451,7 +451,7 @@ function App() {
         <header className="App-header">
           <div className="p-8">
             <StyledWebsiteHeading variant="h2" color="primary">Workout Ninja</StyledWebsiteHeading>
-            <StyledWebsiteSubheading color="secondary">
+            {/* <StyledWebsiteSubheading color="secondary">
               Progressive overload is the name of the game when it comes to building a leaner, healthier body. 
             </StyledWebsiteSubheading>
             <StyledWebsiteSubheading color="secondary">
@@ -462,10 +462,10 @@ function App() {
             </StyledWebsiteSubheading>
             <StyledWebsiteSubheading color="secondary">
               You can maintain a list of your favorite exercises, create new workouts, and track your progress over time.
-            </StyledWebsiteSubheading>
+            </StyledWebsiteSubheading> */}
             <StyledWebsiteSubheading color="secondary">
               Workout Ninja makes achieving your fitness goals fun!
-            </StyledWebsiteSubheading>
+            </StyledWebsiteSubheading> 
           </div>
           <form action="">
             <div className="pb-8">
