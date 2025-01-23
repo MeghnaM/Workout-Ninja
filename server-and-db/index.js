@@ -76,7 +76,11 @@ const app = express();
 const cors = require("cors");
 console.log("App listen at port 4000");
 app.use(express.json());
-app.use(cors());
+// app.use(cors());
+app.use(cors({
+    origin: ['https://workout-ninja.com'],
+    credentials: true
+  }));
 app.get("/", (req, resp) => {
     // Can check if the server is running by looking at http://localhost:4000.
     // The string "Server is running" being displayed means the server is working properly.
