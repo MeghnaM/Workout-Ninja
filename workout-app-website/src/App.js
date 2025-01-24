@@ -109,7 +109,7 @@ function App() {
   const onAddNewExercise = async (e) => {
     e.preventDefault();
     let result = await fetch(
-      'http://localhost:4000/register', {
+      (`${process.env.REACT_APP_API_BASE_URL}/register`), {
       method: "post",
       body: JSON.stringify({ exercise: newExercise }),
       headers: {
