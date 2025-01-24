@@ -41,10 +41,11 @@ function App() {
   const [showCopyWorkoutDialog, setShowCopyWorkoutDialog] = useState(false);
   const [completedWorkout, setCompletedWorkout] = useState([]);
 
+  // (`${process.env.REACT_APP_API_BASE_URL}/your-endpoint`)
   useEffect(() => {
     console.log("Use effect is getting called")
     async function getExercises() {
-      await fetch('http://localhost:4000/get-exercises')
+      await fetch(`${process.env.REACT_APP_API_BASE_URL}/get-exercises`)
         .then(response => response.json())
         .then(data => {
           // Map over the data that comes back from the db
