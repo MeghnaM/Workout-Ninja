@@ -70,7 +70,7 @@ function App() {
     }
 
     async function getWorkouts() {
-      await fetch('http://localhost:4000/get-workouts')
+      await fetch(`${process.env.REACT_APP_API_BASE_URL}/get-workouts`)
         .then(response => response.json())
         .then(data => { setWorkoutList(data) })
         .catch(error => console.error(error));
