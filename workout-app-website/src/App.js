@@ -41,11 +41,12 @@ function App() {
   const [showCopyWorkoutDialog, setShowCopyWorkoutDialog] = useState(false);
   const [completedWorkout, setCompletedWorkout] = useState([]);
 
-  // (`${process.env.REACT_APP_API_BASE_URL}/your-endpoint`)
+  const apiUrl = process.env.WORKOUT_APP_API_URL
+
   useEffect(() => {
     console.log("Use effect is getting called")
     async function getExercises() {
-      await fetch(`${process.env.REACT_APP_API_BASE_URL}/get-exercises`)
+      await fetch(`${apiUrl}/get-exercises`)
         .then(response => response.json())
         .then(data => {
           // Map over the data that comes back from the db
@@ -70,7 +71,7 @@ function App() {
     }
 
     async function getWorkouts() {
-      await fetch(`${process.env.REACT_APP_API_BASE_URL}/get-workouts`)
+      await fetch(`${apiUrl}/get-workouts`)
         .then(response => response.json())
         .then(data => { setWorkoutList(data) })
         .catch(error => console.error(error));
@@ -82,7 +83,7 @@ function App() {
   }, [newExercise, workoutObject, alertClosed])
 
   const getExerciseById = async (id) => {
-    let result = await fetch('http://localhost:4000/get-exercise-by-id')
+    let result = await fetch(`${apiUrl}/get-exercise-by-id`)
       .then(response => response.json())
       .then(data => setExercisesInOngoingWorkout({
         ...exercisesInOngoingWorkout,
@@ -109,7 +110,7 @@ function App() {
   const onAddNewExercise = async (e) => {
     e.preventDefault();
     let result = await fetch(
-      (`${process.env.REACT_APP_API_BASE_URL}/register`), {
+      (`${apiUrl}/register`), {
       method: "post",
       body: JSON.stringify({ exercise: newExercise }),
       headers: {
@@ -146,7 +147,7 @@ function App() {
     }
 
     let result = await fetch(
-      'http://localhost:4000/create-new-workout', {
+      (`${apiUrl}/create-new-workout`), {
       method: "post",
       body: JSON.stringify({ ...clearedWorkout }),
       headers: {
@@ -178,7 +179,7 @@ function App() {
       alert("Please select some exercises first.")
     } else {
       let result = await fetch(
-        'http://localhost:4000/create-new-workout', {
+        (`${apiUrl}/create-new-workout`), {
         method: "post",
         body: JSON.stringify({
           workoutName: 'New Workout',
@@ -233,7 +234,7 @@ function App() {
 
     // Make api call to update existing workout
     let result = await fetch(
-      'http://localhost:4000/update-existing-workout', {
+      (`${apiUrl}/update-existing-workout`), {
       method: "put",
       body: JSON.stringify({
         id: workout._id,
@@ -296,7 +297,7 @@ function App() {
     console.log("Save workout in db was called")
     console.log(workout)
     let result = await fetch(
-      'http://localhost:4000/update-existing-workout', {
+      (`${apiUrl}/update-existing-workout`), {
       method: "put",
       body: JSON.stringify({
         id: id,
@@ -321,7 +322,7 @@ function App() {
 
   const deleteWorkoutInDB = async (id) => {
     let result = await fetch(
-      'http://localhost:4000/delete-workout', {
+      (`${apiUrl}/delete-workout`), {
       method: "delete",
       body: JSON.stringify({
         id: id
