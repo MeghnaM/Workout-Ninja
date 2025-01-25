@@ -43,6 +43,7 @@ function App() {
 
   const apiUrl = process.env.REACT_APP_API_URL
 
+  // development api url format = http://localhost:4000/get-workouts
   useEffect(() => {
     console.log("Use effect is getting called")
     async function getExercises() {
@@ -107,10 +108,11 @@ function App() {
     );
   }
 
+  // (`${apiUrl}/register`)
   const onAddNewExercise = async (e) => {
     e.preventDefault();
     let result = await fetch(
-      (`${apiUrl}/register`), {
+      `${process.env.REACT_APP_API_URL}/register`, {
       method: "post",
       body: JSON.stringify({ exercise: newExercise }),
       headers: {
