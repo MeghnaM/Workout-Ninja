@@ -46,6 +46,7 @@ function App() {
   // development api url format = http://localhost:4000/get-workouts
   useEffect(() => {
     console.log("Use effect is getting called")
+    console.log("apiUrl", apiUrl)
     async function getExercises() {
       await fetch(`${apiUrl}/get-exercises`)
         .then(response => response.json())
