@@ -41,7 +41,7 @@ function App() {
   const [showCopyWorkoutDialog, setShowCopyWorkoutDialog] = useState(false);
   const [completedWorkout, setCompletedWorkout] = useState([]);
 
-  const apiUrl = process.env.WORKOUT_APP_API_URL
+  const apiUrl = process.env.REACT_APP_API_URL
 
   useEffect(() => {
     console.log("Use effect is getting called")
