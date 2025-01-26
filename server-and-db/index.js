@@ -78,8 +78,10 @@ console.log("App listen at port 4000");
 app.use(express.json());
 // app.use(cors());
 app.use(cors({
-    origin: ['https://workout-ninja.com'],
-    credentials: true
+    origin: ['http://localhost:3000', 'https://workout-ninja.com'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    //credentials: true - not using session-based authorization, so skipping
   }));
 app.get("/", (req, resp) => {
     // Can check if the server is running by looking at http://localhost:4000.
