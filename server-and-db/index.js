@@ -2,7 +2,16 @@
 
 // To connect with your mongoDB database
 const mongoose = require('mongoose');
-const mongodbURI = 'mongodb://localhost:27017/workout-app-db';
+//const mongodbURI = 'mongodb://localhost:27017/workout-app-db';
+
+const username = encodeURIComponent("meghna");
+const password = encodeURIComponent("FRG8tgh*bte_any9xdu");
+const cluster = "workoutappcluster.1xt5j.mongodb.net";
+const appName = "WorkoutAppCluster";
+let mongodbURI =
+  `mongodb+srv://${username}:${password}@${cluster}/?retryWrites=true&w=majority&appName=${appName}`;
+
+//const mongodbURI = 'mongodb+srv://meghna:@workoutappcluster.1xt5j.mongodb.net/?retryWrites=true&w=majority&appName=WorkoutAppCluster'
 const { Schema } = mongoose;
 
 mongoose.connect(mongodbURI)
