@@ -9,7 +9,7 @@ const password = encodeURIComponent("FRG8tgh*bte_any9xdu");
 const cluster = "workoutappcluster.1xt5j.mongodb.net";
 const appName = "WorkoutAppCluster";
 let mongodbURI =
-  `mongodb+srv://${username}:${password}@${cluster}/?retryWrites=true&w=majority&appName=${appName}`;
+  `mongodb://${username}:${password}@${cluster}/?retryWrites=true&w=majority&appName=${appName}`;
 
 //const mongodbURI = 'mongodb+srv://meghna:@workoutappcluster.1xt5j.mongodb.net/?retryWrites=true&w=majority&appName=WorkoutAppCluster'
 const { Schema } = mongoose;
