@@ -204,4 +204,5 @@ app.put("/update-existing-workout", async (req, resp) => {
     }
 })
 
-app.listen(4000);
+var port = process.env.PORT || 8080; // set the port
+app.listen(port);
