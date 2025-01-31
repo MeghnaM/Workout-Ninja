@@ -14,10 +14,7 @@ let mongodbURI =
 //const mongodbURI = 'mongodb+srv://meghna:@workoutappcluster.1xt5j.mongodb.net/?retryWrites=true&w=majority&appName=WorkoutAppCluster'
 const { Schema } = mongoose;
 
-mongoose.connect(mongodbURI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-})
+mongoose.connect(mongodbURI)
 .then(() => console.log('Connected to workout-app-db database'))
 .catch((err) => console.log(err))
 
