@@ -112,8 +112,9 @@ app.get("/get-exercise-by-id", async (req, resp) => {
 app.get("/get-exercises", async (req, resp) => {
     console.log("Get exercises was called")
     try {
+        console.log("Inside the try block for get exercises")
         const exerciseCollection = await Exercise.find();
-        //console.log(JSON.stringify(exerciseCollection))
+        console.log(JSON.stringify(exerciseCollection))
         resp.send(JSON.stringify(exerciseCollection))
     } catch (error) {
         console.log(error)
