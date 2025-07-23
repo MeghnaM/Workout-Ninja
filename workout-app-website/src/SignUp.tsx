@@ -29,19 +29,40 @@ export default function SignUp() {
           sx={{ "& > :not(style)": { m: 1 } }}
           noValidate
           autoComplete="off"
+          style={{
+            margin: 10,
+            display: "flex",
+            flexDirection: "column",
+          }}
         >
           <Input placeholder="Email" inputProps={ariaLabel} />
           <Input placeholder="Password" inputProps={ariaLabel} />
+          <Button
+            variant="contained"
+            style={{
+              fontWeight: "bold",
+              marginLeft: 10,
+              width: 100,
+              alignSelf: "center",
+            }}
+          >
+            Sign Up
+          </Button>
         </Box>
         <div
           style={{
             display: "flex",
             flexDirection: "row",
             alignItems: "center",
+            justifyContent: "center",
+            marginTop: 20,
           }}
         >
           <Typography>Already have an account?</Typography>
-          <Button variant="text" style={{ fontWeight: "bold" }}>
+          <Button
+            variant="contained"
+            style={{ fontWeight: "bold", marginLeft: 10 }}
+          >
             Log In
           </Button>
         </div>

@@ -543,17 +543,6 @@ function App() {
                 <SignUp />
               </StyledWebsiteSubheading>
             </div>
-            {/* <div
-            className="p-8"
-            style={{
-              backgroundColor: "white",
-              width: 500,
-              outline: "1px",
-              borderRadius: 20,
-            }}
-          >
-            <SignUp />
-          </div> */}
           </div>
         </header>
       </div>
