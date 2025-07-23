@@ -36,6 +36,7 @@ import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import Checkbox from "@mui/material/Checkbox";
 import LineGraph from "./LineGraph.tsx";
 import SignUp from "./SignUp.tsx";
+import backgroundImage from "./assets/nature-pink-green.jpg";
 
 function App() {
   const [newExercise, setNewExercise] = useState("");
@@ -499,18 +500,60 @@ function App() {
 
   return (
     <ThemeProvider theme={theme}>
-      <div className="App">
+      <div
+        className="App"
+        style={{
+          backgroundImage: `url(${backgroundImage})`,
+          backgroundSize: "cover",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
         <header className="App-header">
-          <div className="p-8">
-            <StyledWebsiteHeading variant="h2" color="primary">
-              Workout Ninja
-            </StyledWebsiteHeading>
-            <StyledWebsiteSubheading color="secondary">
-              Workout Ninja makes achieving your fitness goals fun!
-            </StyledWebsiteSubheading>
-          </div>
-          <div>
+          <div
+            style={{
+              border: "5px solid #ffbdb6",
+              padding: 20,
+              borderRadius: 20,
+            }}
+          >
+            <div
+              className="p-8"
+              style={{
+                backgroundColor: "#ffbdb6",
+                width: 600,
+                borderRadius: 20,
+                padding: 50,
+              }}
+            >
+              <StyledWebsiteHeading variant="h2" color="primary">
+                Workout Ninja
+              </StyledWebsiteHeading>
+              <StyledWebsiteSubheading color="secondary">
+                Workout Ninja makes achieving your fitness goals fun!
+              </StyledWebsiteSubheading>
+              <StyledWebsiteSubheading
+                color="primary"
+                style={{
+                  marginTop: 30,
+                  display: "flex",
+                  flexDirection: "column",
+                  alignItems: "center",
+                }}
+              >
+                <SignUp />
+              </StyledWebsiteSubheading>
+            </div>
+            {/* <div
+            className="p-8"
+            style={{
+              backgroundColor: "white",
+              width: 500,
+              outline: "1px",
+              borderRadius: 20,
+            }}
+          >
             <SignUp />
+          </div> */}
           </div>
         </header>
       </div>
