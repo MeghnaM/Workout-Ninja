@@ -3,7 +3,7 @@ import { extent, max } from "@visx/vendor/d3-array";
 import * as allCurves from "@visx/curve";
 import { Group } from "@visx/group";
 import { LinePath } from "@visx/shape";
-import { scaleTime, scaleLinear, scaleOrdinal } from "@visx/scale";
+import { scaleTime, scaleLinear, scaleOrdinal, scaleBand } from "@visx/scale";
 import {
   MarkerArrow,
   MarkerCross,
@@ -16,6 +16,7 @@ import generateDateValue, {
 } from "@visx/mock-data/lib/generators/genDateValue";
 import { StyledSectionHeading } from "./StyledComponentsLibrary";
 import { LegendOrdinal } from "@visx/legend";
+import { AxisBottom } from "@visx/axis";
 
 type CurveType = keyof typeof allCurves;
 
@@ -59,7 +60,7 @@ export type CurveProps = {
   showControls?: boolean;
 };
 
-const values = generateDateValue(25).sort(
+const values = generateDateValue(25, 1 / 72).sort(
   (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
 );
 const values2 = generateDateValue(25).sort(
@@ -113,9 +114,33 @@ const ordinalColorScale = scaleOrdinal({
   range: ["#66d981", "#71f5ef", "#4899f1", "#7d81f6"],
 });
 
+// now for some data manipulation to create the dates
+const dateRange = exerciseWeightsOverTime["Squat"].map((item) =>
+  item.date.toDateString()
+);
+console.log("Getting dates", dateRange);
+const dateScale = scaleBand<string>({
+  domain: dateRange,
+  padding: 0.2,
+});
+
+// Todo - for AxisBottom
+// const parseDate = timeParse("%Y-%m-%d");
+// const format = timeFormat("%b %d");
+// const formatDate = (date: string) => format(parseDate(date) as Date);
+// // accessors
+// const getDate = (d: CityTemperature) => d.date;
+// // scales
+// const dateScale = scaleBand<string>({
+//   domain: data.map(getDate),
+//   padding: 0.2,
+// });
+
 // LinePath takes data of type DateValue - which means the date is a Date, and
 // the value is a number. That fits the data I want so I can use DateValue too.
 // Now let's make my series data look like the series data in the example.
+
+// LinePath - the values are plotted, not the dates.
 
 export default function LineGraph({
   width,
@@ -188,7 +213,7 @@ export default function LineGraph({
         {width > 8 &&
           exercises.map((exercise, i) => {
             let lineData: [DateValue] = exerciseWeightsOverTime[exercise] || [];
-            //console.log("Line Data", exerciseWeightsOverTime[exercise]);
+            console.log("Line Data", exerciseWeightsOverTime[exercise]);
             series.map((data) => console.log("Series", data));
             return (
               <Group key={`lines-${i}`} top={i * lineHeight} left={13}>
@@ -205,10 +230,10 @@ export default function LineGraph({
               </Group>
             );
           })}
-        {/* <AxisBottom
+        <AxisBottom
           top={yMax + margin.top}
           scale={dateScale}
-          tickFormat={formatDate}
+          // tickFormat={formatDate}
           stroke={purple3}
           tickStroke={purple3}
           tickLabelProps={{
@@ -216,7 +241,7 @@ export default function LineGraph({
             fontSize: 11,
             textAnchor: "middle",
           }}
-        /> */}
+        />
       </svg>
 
       <style>{`
