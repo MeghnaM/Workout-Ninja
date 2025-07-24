@@ -7,7 +7,7 @@ import Input from "@mui/material/Input";
 import Button from "@mui/material/Button";
 import { Typography } from "@mui/material";
 import Alert from "@mui/material/Alert";
-import { auth } from "./firebase.ts";
+import { auth } from "./firebase";
 
 // TODO
 // Typescript

@@ -5,9 +5,9 @@ import { useState } from "react";
 import Box from "@mui/material/Box";
 import Input from "@mui/material/Input";
 import Button from "@mui/material/Button";
-import { Typography } from "@mui/material";
+import { paperClasses, Typography } from "@mui/material";
 import Alert from "@mui/material/Alert";
-import { auth } from "./firebase.ts";
+import { auth } from "./firebase";
 
 // TODO
 // Typescript
@@ -38,7 +38,9 @@ export default function SignUpForm(props: Props) {
     password: "",
   });
 
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [errors, setErrors] = useState<FormErrors>({});
+  const [newUserFirebaseId, setNewUserFirebaseId] = useState<String>("");
   const [registrationSuccessful, setRegistrationSuccessful] =
     useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -107,7 +109,33 @@ export default function SignUpForm(props: Props) {
     }
   };
 
-  const handleSubmit = async (): Promise<void> => {
+  const onCreateNewUser = async (e: Event) => {
+    e.preventDefault();
+    console.log("Create new user was clicked.");
+    const uid = newUserFirebaseId;
+    const user = {
+      email: formData.email,
+      password: formData.password,
+      firebaseUid: uid,
+    };
+
+    let result: Response = await fetch(`${apiUrl}/create-new-user`, {
+      method: "post",
+      body: JSON.stringify(user),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const resultText: string = await result.text();
+    if (resultText !== "Something went wrong") {
+      const resultObject = JSON.parse(resultText);
+      console.log(resultObject);
+      setNewUserFirebaseId("");
+      alert("Data saved succesfully!");
+    }
+  };
+
+  const handleSubmit = async (e: Event): Promise<void> => {
     // Clear any previous submit errors
     setErrors((prev) => ({ ...prev, submit: "" }));
 
@@ -121,8 +149,16 @@ export default function SignUpForm(props: Props) {
         auth,
         formData.email,
         formData.password
-      );
+      )
+        .then((userCredential) => {
+          console.log("User UID:", userCredential.user.uid);
+          setNewUserFirebaseId(userCredential.user.uid);
+        })
+        .catch((error) => {
+          console.log("Error while creating user in Firebase:", error);
+        });
       setRegistrationSuccessful(true);
+      onCreateNewUser(e);
       console.log("Form data:", formData);
     } catch (error) {
       var submitError = "";
