@@ -45,6 +45,13 @@ mongoose
     useUnifiedTopology: true
 } */
 
+const UserSchema = new Schema({
+  firebaseUid: { type: String, required: true, unique: true },
+  email: { type: String, required: true, unique: true },
+  password: String, // TODO: Remove this when Firebase is fully working
+  createdAt: { type: Date, default: Date.now },
+});
+
 // Schema for exercises
 const ExerciseSchema = new Schema({
   // Example - Barbell Squat to Press 4x10
@@ -98,8 +105,10 @@ const WorkoutSchema = new Schema(
 
 const Exercise = mongoose.model("Exercise", ExerciseSchema);
 const Workout = mongoose.model("Workout", WorkoutSchema);
+const User = mongoose.model("User", UserSchema);
 Exercise.createIndexes();
 Workout.createIndexes();
+User.createIndexes();
 
 // For server and express
 const express = require("express");
@@ -207,6 +216,24 @@ app.post("/create-new-workout", async (req, resp) => {
     }
   } catch (e) {
     resp.send("Something went wrong");
+  }
+});
+
+app.post("/create-new-user", async (req, resp) => {
+  console.log("Create the following new user in workout app db:", req);
+  try {
+    const user = new User(req.body);
+    let result = await user.save();
+    result = result.toObject();
+    if (result) {
+      const response = { user: req.body, id: result._id };
+      resp.send(response);
+      console.log(result);
+    } else {
+      console.log("User exists in db.");
+    }
+  } catch (e) {
+    resp.send("Something went wrong.");
   }
 });
 
