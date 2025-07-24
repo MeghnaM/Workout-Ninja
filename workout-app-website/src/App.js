@@ -35,8 +35,9 @@ import { ThemeProvider } from "@mui/material/styles";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import Checkbox from "@mui/material/Checkbox";
 import LineGraph from "./LineGraph.tsx";
-import SignUp from "./SignUp.tsx";
+
 import backgroundImage from "./assets/nature-pink-green.jpg";
+import AuthPage from "./AuthPage.tsx";
 
 function App() {
   const [newExercise, setNewExercise] = useState("");
@@ -509,41 +510,7 @@ function App() {
         }}
       >
         <header className="App-header">
-          <div
-            style={{
-              border: "5px solid #ffbdb6",
-              padding: 20,
-              borderRadius: 20,
-            }}
-          >
-            <div
-              className="p-8"
-              style={{
-                backgroundColor: "#ffbdb6",
-                width: 600,
-                borderRadius: 20,
-                padding: 50,
-              }}
-            >
-              <StyledWebsiteHeading variant="h2" color="primary">
-                Workout Ninja
-              </StyledWebsiteHeading>
-              <StyledWebsiteSubheading color="secondary">
-                Workout Ninja makes achieving your fitness goals fun!
-              </StyledWebsiteSubheading>
-              <StyledWebsiteSubheading
-                color="primary"
-                style={{
-                  marginTop: 30,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                }}
-              >
-                <SignUp />
-              </StyledWebsiteSubheading>
-            </div>
-          </div>
+          <AuthPage />
         </header>
       </div>
     </ThemeProvider>
