@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React from "react";
+import { useState } from "react";
 import { extent, max } from "@visx/vendor/d3-array";
 import * as allCurves from "@visx/curve";
 import { Group } from "@visx/group";

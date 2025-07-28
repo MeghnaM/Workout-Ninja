@@ -219,7 +219,7 @@ app.post("/create-new-workout", async (req, resp) => {
 });
 
 app.post("/create-new-user", async (req, resp) => {
-  console.log("Create the following new user in workout app db:", req);
+  console.log("Create the following new user in workout app db:", req.body);
   try {
     const user = new User(req.body);
     let result = await user.save();
@@ -232,7 +232,7 @@ app.post("/create-new-user", async (req, resp) => {
       console.log("User exists in db.");
     }
   } catch (e) {
-    resp.send("Something went wrong.");
+    resp.send("Something went wrong");
   }
 });
 

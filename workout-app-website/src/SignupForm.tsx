@@ -1,13 +1,15 @@
 //import { firebaseConfig } from "./firebase";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 import * as React from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Input from "@mui/material/Input";
 import Button from "@mui/material/Button";
 import { paperClasses, Typography } from "@mui/material";
 import Alert from "@mui/material/Alert";
 import { auth } from "./firebase";
+import { error } from "console";
 
 // TODO
 // Typescript
@@ -38,6 +40,7 @@ export default function SignUpForm(props: Props) {
     password: "",
   });
 
+  const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
   const [errors, setErrors] = useState<FormErrors>({});
   const [newUserFirebaseId, setNewUserFirebaseId] = useState<String>("");
@@ -109,7 +112,7 @@ export default function SignUpForm(props: Props) {
     }
   };
 
-  const onCreateNewUser = async (e: Event) => {
+  const onCreateNewUser = async (e) => {
     e.preventDefault();
     console.log("Create new user was clicked.");
     const uid = newUserFirebaseId;
@@ -127,15 +130,33 @@ export default function SignUpForm(props: Props) {
       },
     });
     const resultText: string = await result.text();
-    if (resultText !== "Something went wrong") {
+    console.log(resultText === "Something went wrong", resultText);
+    // TODO - If user is created in Firebase but API call fails, then
+    // delete user in Firebase too within this if statement
+    if (resultText === "Something went wrong") {
+      console.log("API call failed with error: ", resultText);
+      console.error(`API call failed with error - ${resultText}`);
+      const submitError = `The following error occurred: ${resultText}`;
+      setErrors((prev) => ({
+        ...prev,
+        submit: submitError,
+      }));
+      deleteUser(uid);
+    } else {
+      console.log("Result text -", resultText);
       const resultObject = JSON.parse(resultText);
       console.log(resultObject);
+      setRegistrationSuccessful(true);
       setNewUserFirebaseId("");
-      alert("Data saved succesfully!");
+      // alert("Data saved succesfully!");
+      // In this case we don't want the user to be able to navigate back to
+      // to the auth page so we set replace = true
+      navigate("/home", { replace: true });
+      console.log("navigate called");
     }
   };
 
-  const handleSubmit = async (e: Event): Promise<void> => {
+  const handleSubmit = async (e): Promise<void> => {
     // Clear any previous submit errors
     setErrors((prev) => ({ ...prev, submit: "" }));
 
@@ -144,42 +165,59 @@ export default function SignUpForm(props: Props) {
       return;
     }
     setIsSubmitting(true);
-    try {
-      await createUserWithEmailAndPassword(
-        auth,
-        formData.email,
-        formData.password
-      )
-        .then((userCredential) => {
-          console.log("User UID:", userCredential.user.uid);
-          setNewUserFirebaseId(userCredential.user.uid);
-        })
-        .catch((error) => {
-          console.log("Error while creating user in Firebase:", error);
-        });
-      setRegistrationSuccessful(true);
-      onCreateNewUser(e);
-      console.log("Form data:", formData);
-    } catch (error) {
-      var submitError = "";
-      if (error.code) {
-        switch (error.code) {
-          case "auth/email-already-in-use":
-            submitError =
-              "User with this email already exists. Please log in or try a different email.";
-            break;
-          default:
-            submitError = `The following error occurred: ${error.message}`;
+    // try {
+    await createUserWithEmailAndPassword(
+      auth,
+      formData.email,
+      formData.password
+    )
+      .then((userCredential) => {
+        console.log("User UID:", userCredential.user.uid);
+        setNewUserFirebaseId(userCredential.user.uid);
+        onCreateNewUser(e);
+      })
+      .catch((error) => {
+        console.log("Error while creating user in Firebase:", error);
+        var submitError = "";
+        if (error.code) {
+          switch (error.code) {
+            case "auth/email-already-in-use":
+              submitError =
+                "User with this email already exists. Please log in or try a different email.";
+              break;
+            default:
+              submitError = `The following error occurred: ${error.message}`;
+          }
         }
-      }
-      console.error("Registration failed:", error);
-      setErrors((prev) => ({
-        ...prev,
-        submit: submitError,
-      }));
-    } finally {
-      setIsSubmitting(false);
-    }
+        console.error("Registration failed:", error);
+        setErrors((prev) => ({
+          ...prev,
+          submit: submitError,
+        }));
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
+    // } catch (error) {
+    //   var submitError = "";
+    //   if (error.code) {
+    //     switch (error.code) {
+    //       case "auth/email-already-in-use":
+    //         submitError =
+    //           "User with this email already exists. Please log in or try a different email.";
+    //         break;
+    //       default:
+    //         submitError = `The following error occurred: ${error.message}`;
+    //     }
+    //   }
+    //   console.error("Registration failed:", error);
+    //   setErrors((prev) => ({
+    //     ...prev,
+    //     submit: submitError,
+    //   }));
+    // } finally {
+    //   setIsSubmitting(false);
+    // }
   };
 
   const handleAlertClose = () => {
@@ -251,12 +289,7 @@ export default function SignUpForm(props: Props) {
           </Button>
         </Box>
         {registrationSuccessful && (
-          <Alert
-            onClose={handleAlertClose}
-            variant="filled"
-            severity="success"
-            color="secondary"
-          >
+          <Alert onClose={handleAlertClose} variant="filled" severity="success">
             Your account has been created, welcome to Workout Ninja!
           </Alert>
         )}

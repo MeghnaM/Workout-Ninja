@@ -1,4 +1,5 @@
 import "./App.css";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect, forwardRef, useRef } from "react";
 import Button from "@mui/material/Button";
 import { FixedSizeList as List } from "react-window";
@@ -35,9 +36,9 @@ import { ThemeProvider } from "@mui/material/styles";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import Checkbox from "@mui/material/Checkbox";
 import LineGraph from "./LineGraph.tsx";
-
-import backgroundImage from "./assets/nature-pink-green.jpg";
 import AuthPage from "./AuthPage.tsx";
+import HomePage from "./HomePage.tsx";
+import backgroundImage from "./assets/nature-pink-green.jpg";
 
 function App() {
   const [newExercise, setNewExercise] = useState("");
@@ -500,20 +501,25 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme={theme}>
-      <div
-        className="App"
-        style={{
-          backgroundImage: `url(${backgroundImage})`,
-          backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-        }}
-      >
-        <header className="App-header">
-          <AuthPage />
-        </header>
-      </div>
-    </ThemeProvider>
+    <BrowserRouter>
+      <ThemeProvider theme={theme}>
+        <div
+          className="App"
+          style={{
+            backgroundImage: `url(${backgroundImage})`,
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+          }}
+        >
+          <header className="App-header">
+            <Routes>
+              <Route path="/" element={<AuthPage />} />
+              <Route path="/home" element={<HomePage />} />
+            </Routes>
+          </header>
+        </div>
+      </ThemeProvider>
+    </BrowserRouter>
   );
 }
 

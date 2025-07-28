@@ -4,11 +4,12 @@ import {
   StyledWebsiteHeading,
   StyledWebsiteSubheading,
 } from "./StyledComponentsLibrary";
-import SignupForm from "./SignupForm.tsx";
-import LoginForm from "./LoginForm.tsx";
+import SignupForm from "./SignupForm";
+import LoginForm from "./LoginForm";
 
 export default function AuthPage() {
   const [signupView, setSignupView] = useState<boolean>(true);
+  const backgroundImage = "./assets/nature-pink-green.jpg";
   return (
     <div
       style={{
