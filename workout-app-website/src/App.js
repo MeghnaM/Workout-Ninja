@@ -503,21 +503,12 @@ function App() {
   return (
     <BrowserRouter>
       <ThemeProvider theme={theme}>
-        <div
-          className="App"
-          style={{
-            backgroundImage: `url(${backgroundImage})`,
-            backgroundSize: "cover",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          <header className="App-header">
-            <Routes>
-              <Route path="/" element={<AuthPage />} />
-              <Route path="/home" element={<HomePage />} />
-            </Routes>
-          </header>
-        </div>
+        <Routes>
+          <Route path="/" element={<AuthPage />} />
+          <Route path="/home" element={<HomePage />} />
+        </Routes>
+        {/* </header>
+        </div> */}
       </ThemeProvider>
     </BrowserRouter>
   );

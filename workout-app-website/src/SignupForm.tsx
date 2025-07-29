@@ -112,14 +112,13 @@ export default function SignUpForm(props: Props) {
     }
   };
 
-  const onCreateNewUser = async (e) => {
+  const onCreateNewUser = async (e, firebaseUser) => {
     e.preventDefault();
     console.log("Create new user was clicked.");
-    const uid = newUserFirebaseId;
     const user = {
       email: formData.email,
       password: formData.password,
-      firebaseUid: uid,
+      firebaseUid: firebaseUser.uid,
     };
 
     let result: Response = await fetch(`${apiUrl}/create-new-user`, {
@@ -134,14 +133,15 @@ export default function SignUpForm(props: Props) {
     if (resultText === "Something went wrong") {
       console.log("API call failed with error: ", resultText);
       console.error(`API call failed with error - ${resultText}`);
-      const submitError = `The following error occurred: Unable to create user in DB.`;
+      const submitError =
+        "The following error occurred: Unable to create user in DB.";
       setErrors((prev) => ({
         ...prev,
         submit: submitError,
       }));
       // TODO - If user is created in Firebase but API call fails, then
       // delete user in Firebase too within this if statement
-      // deleteUser(uid); // this function only takes a user, not a user id
+      deleteUser(firebaseUser);
     } else {
       console.log("Result text -", resultText);
       const resultObject = JSON.parse(resultText);
@@ -165,7 +165,6 @@ export default function SignUpForm(props: Props) {
       return;
     }
     setIsSubmitting(true);
-    // try {
     await createUserWithEmailAndPassword(
       auth,
       formData.email,
@@ -174,7 +173,7 @@ export default function SignUpForm(props: Props) {
       .then((userCredential) => {
         console.log("User UID:", userCredential.user.uid);
         setNewUserFirebaseId(userCredential.user.uid);
-        onCreateNewUser(e);
+        onCreateNewUser(e, userCredential.user);
       })
       .catch((error) => {
         console.log("Error while creating user in Firebase:", error);
@@ -198,26 +197,6 @@ export default function SignUpForm(props: Props) {
       .finally(() => {
         setIsSubmitting(false);
       });
-    // } catch (error) {
-    //   var submitError = "";
-    //   if (error.code) {
-    //     switch (error.code) {
-    //       case "auth/email-already-in-use":
-    //         submitError =
-    //           "User with this email already exists. Please log in or try a different email.";
-    //         break;
-    //       default:
-    //         submitError = `The following error occurred: ${error.message}`;
-    //     }
-    //   }
-    //   console.error("Registration failed:", error);
-    //   setErrors((prev) => ({
-    //     ...prev,
-    //     submit: submitError,
-    //   }));
-    // } finally {
-    //   setIsSubmitting(false);
-    // }
   };
 
   const handleAlertClose = () => {

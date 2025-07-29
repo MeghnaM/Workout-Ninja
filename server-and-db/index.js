@@ -232,6 +232,9 @@ app.post("/create-new-user", async (req, resp) => {
       console.log("User exists in db.");
     }
   } catch (e) {
+    // TODO Figure out a better way to print the error message
+    // For example when the firebase uid was a required field and the
+    // req body didn't have it so a new user was not getting created
     resp.send("Something went wrong");
   }
 });

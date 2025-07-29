@@ -2,6 +2,7 @@
 import { signInWithEmailAndPassword } from "firebase/auth";
 import React from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Input from "@mui/material/Input";
 import Button from "@mui/material/Button";
@@ -38,6 +39,7 @@ export default function LoginForm(props: Props) {
     password: "",
   });
 
+  const navigate = useNavigate();
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -117,6 +119,8 @@ export default function LoginForm(props: Props) {
     try {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
       console.log("Form data:", formData);
+      navigate("/home", { replace: true });
+      console.log("navigate called");
     } catch (error) {
       var submitError = "";
       if (error.code) {
