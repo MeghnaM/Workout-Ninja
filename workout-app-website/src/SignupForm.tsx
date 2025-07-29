@@ -1,6 +1,6 @@
 //import { firebaseConfig } from "./firebase";
 import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
-import * as React from "react";
+import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
@@ -131,17 +131,17 @@ export default function SignUpForm(props: Props) {
     });
     const resultText: string = await result.text();
     console.log(resultText === "Something went wrong", resultText);
-    // TODO - If user is created in Firebase but API call fails, then
-    // delete user in Firebase too within this if statement
     if (resultText === "Something went wrong") {
       console.log("API call failed with error: ", resultText);
       console.error(`API call failed with error - ${resultText}`);
-      const submitError = `The following error occurred: ${resultText}`;
+      const submitError = `The following error occurred: Unable to create user in DB.`;
       setErrors((prev) => ({
         ...prev,
         submit: submitError,
       }));
-      deleteUser(uid);
+      // TODO - If user is created in Firebase but API call fails, then
+      // delete user in Firebase too within this if statement
+      // deleteUser(uid); // this function only takes a user, not a user id
     } else {
       console.log("Result text -", resultText);
       const resultObject = JSON.parse(resultText);
