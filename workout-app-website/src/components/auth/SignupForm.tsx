@@ -1,14 +1,15 @@
 //import { firebaseConfig } from "./firebase";
-import { signInWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Box from "@mui/material/Box";
 import Input from "@mui/material/Input";
 import Button from "@mui/material/Button";
-import { Typography } from "@mui/material";
+import { paperClasses, Typography } from "@mui/material";
 import Alert from "@mui/material/Alert";
-import { auth } from "./firebase";
+import { auth } from "../../firebase";
+import { error } from "console";
 
 // TODO
 // Typescript
@@ -33,14 +34,18 @@ interface Props {
   setSignupView: (signupView: boolean) => void;
 }
 
-export default function LoginForm(props: Props) {
+export default function SignUpForm(props: Props) {
   const [formData, setFormData] = useState<FormData>({
     email: "",
     password: "",
   });
 
   const navigate = useNavigate();
+  const apiUrl = process.env.REACT_APP_API_URL;
   const [errors, setErrors] = useState<FormErrors>({});
+  const [newUserFirebaseId, setNewUserFirebaseId] = useState<String>("");
+  const [registrationSuccessful, setRegistrationSuccessful] =
+    useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -107,7 +112,51 @@ export default function LoginForm(props: Props) {
     }
   };
 
-  const handleSubmit = async (): Promise<void> => {
+  const onCreateNewUser = async (e, firebaseUser) => {
+    e.preventDefault();
+    console.log("Create new user was clicked.");
+    const user = {
+      email: formData.email,
+      password: formData.password,
+      firebaseUid: firebaseUser.uid,
+    };
+
+    let result: Response = await fetch(`${apiUrl}/create-new-user`, {
+      method: "post",
+      body: JSON.stringify(user),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+    const resultText: string = await result.text();
+    console.log(resultText === "Something went wrong", resultText);
+    if (resultText === "Something went wrong") {
+      console.log("API call failed with error: ", resultText);
+      console.error(`API call failed with error - ${resultText}`);
+      const submitError =
+        "The following error occurred: Unable to create user in DB.";
+      setErrors((prev) => ({
+        ...prev,
+        submit: submitError,
+      }));
+      // TODO - If user is created in Firebase but API call fails, then
+      // delete user in Firebase too within this if statement
+      deleteUser(firebaseUser);
+    } else {
+      console.log("Result text -", resultText);
+      const resultObject = JSON.parse(resultText);
+      console.log(resultObject);
+      setRegistrationSuccessful(true);
+      setNewUserFirebaseId("");
+      // alert("Data saved succesfully!");
+      // In this case we don't want the user to be able to navigate back to
+      // to the auth page so we set replace = true
+      navigate("/home", { replace: true });
+      console.log("navigate called");
+    }
+  };
+
+  const handleSubmit = async (e): Promise<void> => {
     // Clear any previous submit errors
     setErrors((prev) => ({ ...prev, submit: "" }));
 
@@ -116,38 +165,53 @@ export default function LoginForm(props: Props) {
       return;
     }
     setIsSubmitting(true);
-    try {
-      await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      console.log("Form data:", formData);
-      navigate("/home", { replace: true });
-      console.log("navigate called");
-    } catch (error) {
-      var submitError = "";
-      if (error.code) {
-        switch (error.code) {
-          case "auth/invalid-credential":
-            submitError =
-              "User with this email/password does not exist. Please try a different email/password or sign up.";
-            break;
-          default:
-            submitError = `Login failed. The following error occurred: ${error.message}`;
+    await createUserWithEmailAndPassword(
+      auth,
+      formData.email,
+      formData.password
+    )
+      .then((userCredential) => {
+        console.log("User UID:", userCredential.user.uid);
+        setNewUserFirebaseId(userCredential.user.uid);
+        onCreateNewUser(e, userCredential.user);
+      })
+      .catch((error) => {
+        console.log("Error while creating user in Firebase:", error);
+        var submitError = "";
+        if (error.code) {
+          switch (error.code) {
+            case "auth/email-already-in-use":
+              submitError =
+                "User with this email already exists. Please log in or try a different email.";
+              break;
+            default:
+              submitError = `The following error occurred: ${error.message}`;
+          }
         }
-      }
-      console.error("Log In failed:", error);
-      setErrors((prev) => ({
-        ...prev,
-        submit: submitError,
-      }));
-    } finally {
-      setIsSubmitting(false);
-    }
+        console.error("Registration failed:", error);
+        setErrors((prev) => ({
+          ...prev,
+          submit: submitError,
+        }));
+      })
+      .finally(() => {
+        setIsSubmitting(false);
+      });
   };
 
-  const handleSignUpClick = () => props.setSignupView(true);
+  const handleAlertClose = () => {
+    setRegistrationSuccessful(false);
+    setFormData({ email: "", password: "" });
+  };
+
+  const handleLoginButtonClick = () => props.setSignupView(false);
 
   return (
     <form action="">
       <div className="pb-8">
+        <Typography>
+          Create a new account to sign up for Workout Ninja
+        </Typography>
         <Box
           component="form"
           sx={{ "& > :not(style)": { m: 1 } }}
@@ -200,9 +264,14 @@ export default function LoginForm(props: Props) {
             onClick={handleSubmit}
             disabled={isSubmitting}
           >
-            {isSubmitting ? "Logging In .." : "Log In"}
+            {isSubmitting ? "Signing Up .." : "Sign Up"}
           </Button>
         </Box>
+        {registrationSuccessful && (
+          <Alert onClose={handleAlertClose} variant="filled" severity="success">
+            Your account has been created, welcome to Workout Ninja!
+          </Alert>
+        )}
         <div
           style={{
             display: "flex",
@@ -212,13 +281,13 @@ export default function LoginForm(props: Props) {
             marginTop: 20,
           }}
         >
-          <Typography>Don't have an account?</Typography>
+          <Typography>Already have an account?</Typography>
           <Button
             variant="contained"
             style={{ fontWeight: "bold", marginLeft: 10 }}
-            onClick={handleSignUpClick}
+            onClick={handleLoginButtonClick}
           >
-            Sign Up
+            Log In
           </Button>
         </div>
       </div>

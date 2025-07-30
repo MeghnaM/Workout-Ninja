@@ -3,10 +3,10 @@ import { useState } from "react";
 import {
   StyledWebsiteHeading,
   StyledWebsiteSubheading,
-} from "./StyledComponentsLibrary";
+} from "../StyledComponentsLibrary";
 import SignupForm from "./SignupForm";
 import LoginForm from "./LoginForm";
-import backgroundImage from "./assets/nature-pink-green.jpg";
+import backgroundImage from "../../assets/nature-pink-green.jpg";
 
 export default function AuthPage() {
   const [signupView, setSignupView] = useState<boolean>(true);

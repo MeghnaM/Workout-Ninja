@@ -4,12 +4,12 @@ import { useState, useEffect, forwardRef, useRef } from "react";
 import Button from "@mui/material/Button";
 import { FixedSizeList as List } from "react-window";
 import TextField from "@mui/material/TextField";
-import ExerciseInList from "./ExerciseInList";
-import NewWorkout from "./NewWorkout";
+import ExerciseInList from "./components/dashboard/ExerciseInList.js";
+import NewWorkout from "./components/dashboard/NewWorkout.js";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import DoWorkout from "./DoWorkout";
+import DoWorkout from "./components/dashboard/DoWorkout.js";
 import AddIcon from "@mui/icons-material/Add";
 import { Dropdown } from "@mui/base/Dropdown";
 import { Menu } from "@mui/base/Menu";
@@ -31,13 +31,13 @@ import {
   StyledSectionHeading,
   theme,
   Listbox,
-} from "./StyledComponentsLibrary";
+} from "./components/StyledComponentsLibrary.js";
 import { ThemeProvider } from "@mui/material/styles";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import Checkbox from "@mui/material/Checkbox";
-import LineGraph from "./LineGraph.tsx";
-import AuthPage from "./AuthPage.tsx";
-import HomePage from "./HomePage.tsx";
+import LineGraph from "./components/dashboard/LineGraph.tsx";
+import AuthPage from "./components/auth/AuthPage.tsx";
+import HomePage from "./components/pages/HomePage.tsx";
 import backgroundImage from "./assets/nature-pink-green.jpg";
 
 function App() {

@@ -1,15 +1,14 @@
-import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect, forwardRef, useRef } from "react";
 import Button from "@mui/material/Button";
 import { FixedSizeList as List } from "react-window";
 import TextField from "@mui/material/TextField";
-import ExerciseInList from "./ExerciseInList";
-import NewWorkout from "./NewWorkout";
+import ExerciseInList from "../dashboard/ExerciseInList";
+import NewWorkout from "../dashboard/NewWorkout";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
-import DoWorkout from "./DoWorkout";
+import DoWorkout from "../dashboard/DoWorkout";
 import AddIcon from "@mui/icons-material/Add";
 import { Dropdown } from "@mui/base/Dropdown";
 import { Menu } from "@mui/base/Menu";
@@ -31,11 +30,11 @@ import {
   StyledSectionHeading,
   theme,
   Listbox,
-} from "./StyledComponentsLibrary";
+} from "../StyledComponentsLibrary";
 import { ThemeProvider } from "@mui/material/styles";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import Checkbox from "@mui/material/Checkbox";
-import LineGraph from "./LineGraph";
+import LineGraph from "../dashboard/LineGraph";
 
 interface WorkoutDialogProps {
   index: number;

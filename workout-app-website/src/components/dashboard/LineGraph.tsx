@@ -15,7 +15,7 @@ import {
 import generateDateValue, {
   DateValue,
 } from "@visx/mock-data/lib/generators/genDateValue";
-import { StyledSectionHeading } from "./StyledComponentsLibrary";
+import { StyledSectionHeading } from "../StyledComponentsLibrary";
 import { LegendOrdinal } from "@visx/legend";
 import { AxisBottom } from "@visx/axis";
 
