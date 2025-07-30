@@ -1,44 +1,9 @@
 import "./App.css";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import { useState, useEffect, forwardRef, useRef } from "react";
-import Button from "@mui/material/Button";
-import { FixedSizeList as List } from "react-window";
-import TextField from "@mui/material/TextField";
-import ExerciseInList from "./components/dashboard/ExerciseInList.js";
-import NewWorkout from "./components/dashboard/NewWorkout.js";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
-import DoWorkout from "./components/dashboard/DoWorkout.js";
-import AddIcon from "@mui/icons-material/Add";
-import { Dropdown } from "@mui/base/Dropdown";
-import { Menu } from "@mui/base/Menu";
-import { styled } from "@mui/system";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import { DialogTitle } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
-import CloseIcon from "@mui/icons-material/Close";
-import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import {
-  StyledBox,
-  StyledMenuItem,
-  StyledMenuButton,
-  StyledListItemText,
-  StyledSectionSubheading,
-  StyledWebsiteHeading,
-  StyledWebsiteSubheading,
-  StyledSectionHeading,
-  theme,
-  Listbox,
-} from "./components/StyledComponentsLibrary.js";
+import { theme } from "./components/StyledComponentsLibrary.js";
 import { ThemeProvider } from "@mui/material/styles";
-import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
-import Checkbox from "@mui/material/Checkbox";
-import LineGraph from "./components/dashboard/LineGraph.tsx";
 import AuthPage from "./components/auth/AuthPage.tsx";
-import HomePage from "./components/pages/HomePage.tsx";
-import backgroundImage from "./assets/nature-pink-green.jpg";
+import HomePage from "./components/layout/HomePage.tsx";
 
 function App() {
   // const [newExercise, setNewExercise] = useState("");
@@ -505,7 +470,7 @@ function App() {
       <ThemeProvider theme={theme}>
         <Routes>
           <Route path="/" element={<AuthPage />} />
-          <Route path="/home" element={<HomePage />} />
+          <Route path="/*" element={<HomePage />} />
         </Routes>
       </ThemeProvider>
     </BrowserRouter>
