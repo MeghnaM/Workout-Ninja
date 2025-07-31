@@ -46,6 +46,8 @@ mongoose
 } */
 
 const UserSchema = new Schema({
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
   firebaseUid: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   createdAt: { type: Date, default: Date.now },

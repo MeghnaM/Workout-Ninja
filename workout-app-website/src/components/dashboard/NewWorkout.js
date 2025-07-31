@@ -6,11 +6,14 @@ import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import CircleIcon from "@mui/icons-material/Circle";
-import { StyledBox, StyledSectionHeading } from "../StyledComponentsLibrary";
+import {
+  StyledBox,
+  StyledSectionHeading,
+} from "../styles/StyledComponentsLibrary";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import { ThemeProvider } from "@mui/material/styles";
-import { theme } from "../StyledComponentsLibrary";
+import { theme } from "../styles/StyledComponentsLibrary";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 

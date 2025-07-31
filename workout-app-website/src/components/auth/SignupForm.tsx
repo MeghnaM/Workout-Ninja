@@ -1,5 +1,10 @@
 //import { firebaseConfig } from "./firebase";
-import { createUserWithEmailAndPassword, deleteUser } from "firebase/auth";
+import {
+  createUserWithEmailAndPassword,
+  deleteUser,
+  updateProfile,
+  UserCredential,
+} from "firebase/auth";
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -20,11 +25,15 @@ import { error } from "console";
 const ariaLabel = { "aria-label": "description" };
 
 interface FormData {
+  firstName: string;
+  lastName: string;
   email: string;
   password: string;
 }
 
 interface FormErrors {
+  firstName?: string;
+  lastName?: string;
   email?: string;
   password?: string;
   submit?: string;
@@ -36,6 +45,8 @@ interface Props {
 
 export default function SignUpForm(props: Props) {
   const [formData, setFormData] = useState<FormData>({
+    firstName: "",
+    lastName: "",
     email: "",
     password: "",
   });
@@ -63,8 +74,60 @@ export default function SignUpForm(props: Props) {
       newErrors.password = "Password must be at least 8 characters long";
     }
 
+    if (!formData.firstName) {
+      newErrors.firstName = "First name is required";
+    }
+    if (!formData.lastName) {
+      newErrors.lastName = "Last name is required";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length == 0;
+  };
+
+  const handleFirstNameChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    const value = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      firstName: value,
+    }));
+    // Clear error when user starts typing
+    if (errors.firstName) {
+      setErrors((prev) => ({
+        ...prev,
+        firstName: "",
+      }));
+    }
+    if (errors.submit) {
+      setErrors((prev) => ({
+        ...prev,
+        submit: "",
+      }));
+    }
+  };
+  const handleLastNameChange = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ): void => {
+    const value = e.target.value;
+    setFormData((prev) => ({
+      ...prev,
+      lastName: value,
+    }));
+    // Clear error when user starts typing
+    if (errors.lastName) {
+      setErrors((prev) => ({
+        ...prev,
+        lastName: "",
+      }));
+    }
+    if (errors.submit) {
+      setErrors((prev) => ({
+        ...prev,
+        submit: "",
+      }));
+    }
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
@@ -116,6 +179,8 @@ export default function SignUpForm(props: Props) {
     e.preventDefault();
     console.log("Create new user was clicked.");
     const user = {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
       email: formData.email,
       password: formData.password,
       firebaseUid: firebaseUser.uid,
@@ -170,8 +235,11 @@ export default function SignUpForm(props: Props) {
       formData.email,
       formData.password
     )
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         console.log("User UID:", userCredential.user.uid);
+        await updateProfile(userCredential.user, {
+          displayName: formData.firstName,
+        });
         setNewUserFirebaseId(userCredential.user.uid);
         onCreateNewUser(e, userCredential.user);
       })
@@ -201,7 +269,7 @@ export default function SignUpForm(props: Props) {
 
   const handleAlertClose = () => {
     setRegistrationSuccessful(false);
-    setFormData({ email: "", password: "" });
+    setFormData({ firstName: "", lastName: "", email: "", password: "" });
   };
 
   const handleLoginButtonClick = () => props.setSignupView(false);
@@ -223,6 +291,28 @@ export default function SignUpForm(props: Props) {
             flexDirection: "column",
           }}
         >
+          <Input
+            type="text"
+            id="firstName"
+            value={formData.firstName}
+            placeholder="First Name"
+            inputProps={ariaLabel}
+            onChange={handleFirstNameChange}
+          />
+          {errors.firstName && (
+            <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
+          )}
+          <Input
+            type="text"
+            id="lastName"
+            value={formData.lastName}
+            placeholder="Last Name"
+            inputProps={ariaLabel}
+            onChange={handleLastNameChange}
+          />
+          {errors.lastName && (
+            <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
+          )}
           <Input
             type="email"
             id="email"

@@ -6,7 +6,10 @@ import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import { FixedSizeList as List } from "react-window";
 import Checkbox from "@mui/material/Checkbox";
-import { StyledListItemText, theme } from "../StyledComponentsLibrary.js";
+import {
+  StyledListItemText,
+  theme,
+} from "../styles/StyledComponentsLibrary.js";
 import { ThemeProvider } from "@mui/material/styles";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";

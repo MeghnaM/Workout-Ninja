@@ -10,11 +10,14 @@ import Checkbox from "@mui/material/Checkbox";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import { DialogTitle } from "@mui/material";
-import { StyledBox, StyledSectionHeading } from "../StyledComponentsLibrary";
+import {
+  StyledBox,
+  StyledSectionHeading,
+} from "../styles/StyledComponentsLibrary";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import { ThemeProvider } from "@mui/material/styles";
-import { theme } from "../StyledComponentsLibrary";
+import { theme } from "../styles/StyledComponentsLibrary";
 
 function DoWorkout(props) {
   const {
