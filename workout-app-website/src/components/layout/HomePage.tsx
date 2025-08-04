@@ -25,7 +25,7 @@ function HomePage() {
         <Header />
         <Routes>
           <Route path="/" element={<Dashboard />} />
-          <Route path="/home" element={<Dashboard />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/profile" element={<ProfilePage />} />
         </Routes>
       </main>

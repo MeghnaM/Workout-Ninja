@@ -119,7 +119,7 @@ export default function LoginForm(props: Props) {
     try {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
       console.log("Form data:", formData);
-      navigate("/home", { replace: true });
+      navigate("/dashboard", { replace: true });
       console.log("navigate called");
     } catch (error) {
       var submitError = "";
