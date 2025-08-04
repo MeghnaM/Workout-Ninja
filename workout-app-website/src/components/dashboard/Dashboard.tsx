@@ -1,4 +1,3 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { useState, useEffect, forwardRef, useRef } from "react";
 import Button from "@mui/material/Button";
 import { FixedSizeList as List } from "react-window";
@@ -7,35 +6,26 @@ import ExerciseInList from "./ExerciseInList";
 import NewWorkout from "./NewWorkout";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
-import ListItemText from "@mui/material/ListItemText";
 import DoWorkout from "./DoWorkout";
-import AddIcon from "@mui/icons-material/Add";
-import { Dropdown } from "@mui/base/Dropdown";
-import { Menu } from "@mui/base/Menu";
-import { styled } from "@mui/system";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
-import { DialogTitle } from "@mui/material";
+import { DialogTitle, Modal } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import {
   StyledBox,
-  StyledMenuItem,
-  StyledMenuButton,
   StyledListItemText,
   StyledSectionSubheading,
-  StyledWebsiteHeading,
-  StyledWebsiteSubheading,
   StyledSectionHeading,
   theme,
-  Listbox,
 } from "../styles/StyledComponentsLibrary";
 import { ThemeProvider } from "@mui/material/styles";
-import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import Checkbox from "@mui/material/Checkbox";
 import LineGraph from "./LineGraph";
 import backgroundImage from "../../assets/gradient.jpg";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import CreateWorkout from "./CreateWorkout";
 
 interface WorkoutDialogProps {
   index: number;
@@ -50,6 +40,12 @@ interface WorkoutState {
   // add other properties as needed
 }
 
+interface ToastProps {
+  message: string;
+  type?: "success" | "error" | "warning" | "info";
+  onClose: () => void;
+}
+
 export default function Dashboard() {
   const [newExercise, setNewExercise] = useState("");
   const [exerciseList, setExerciseList] = useState([]);
@@ -58,16 +54,24 @@ export default function Dashboard() {
   const [workoutList, setWorkoutList] = useState([]);
   const [ongoingWorkout, setOngoingWorkout] = useState([]);
   const [showOngoingWorkout, setShowOngoingWorkout] = useState(false);
-  const [exercisesInOngoingWorkout, setExercisesInOngoingWorkout] = useState(
-    []
-  );
   const [addExerciseDropdown, setAddExerciseDropdown] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [alertClosed, setAlertClosed] = useState(true);
   const [showCopyWorkoutDialog, setShowCopyWorkoutDialog] = useState(false);
   const [completedWorkout, setCompletedWorkout] = useState<WorkoutState>({});
+  const [toast, setToast] = useState<string | null>(null);
+  const [addNewWorkoutModal, setAddNewWorkoutModal] = useState<boolean>(false);
 
   const apiUrl = process.env.REACT_APP_API_URL;
+
+  const Toast: React.FC<ToastProps> = ({ message, type = "info", onClose }) => {
+    return <div className={`toast toast-${type}`}>{message}</div>;
+  };
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 2000);
+  };
 
   // development api url format = http://localhost:4000/get-workouts
   useEffect(() => {
@@ -152,7 +156,7 @@ export default function Dashboard() {
     const resultText: string = await result.text();
     console.log(resultText);
     if (result) {
-      alert("Data saved succesfully!");
+      showToast("Success!");
       setNewExercise("");
     }
   };
@@ -193,6 +197,10 @@ export default function Dashboard() {
       setShowWorkout(!showWorkout);
       alert("Data saved succesfully!");
     }
+  };
+
+  const onAddNewWorkout = async (e) => {
+    e.preventDefault();
   };
 
   // When button is clicked, I want to take the list of
@@ -367,7 +375,6 @@ export default function Dashboard() {
     const resultText = await result.text();
     console.log(resultText);
     if (resultText !== "Delete request failed") {
-      alert("Workout deleted successfully!");
       setWorkoutObject({});
       setShowWorkout(false);
     } else {
@@ -462,11 +469,12 @@ export default function Dashboard() {
           >
             <Checkbox
               icon={<RadioButtonUncheckedIcon />}
-              checkedIcon={<RadioButtonCheckedIcon />}
+              checkedIcon={<CheckCircleIcon />}
               checked={workoutList[index].status === "Completed"}
               style={{ fontSize: "small" }}
               color="secondary"
             />
+            {/* {workoutList[index].status == "Completed" && } */}
             <StyledListItemText primary={workoutList[index].workoutName} />
             <StyledListItemText
               primary={workoutList[index].dateOfWorkout.slice(0, -14)}
@@ -531,31 +539,11 @@ export default function Dashboard() {
         backgroundRepeat: "no-repeat",
       }}
     >
-      <form action="">
-        <div className="pb-8">
-          <TextField
-            type="string"
-            placeholder="Exercise Name"
-            variant="outlined"
-            sx={{ marginRight: 2 }}
-            value={newExercise}
-            onChange={(e) => setNewExercise(e.target.value)}
-          />
-          <Button
-            type="submit"
-            variant="contained"
-            className="bg-indigo-500"
-            onClick={onAddNewExercise}
-          >
-            Add
-          </Button>
-        </div>
-      </form>
       <div className="grid grid-flow-col gap-4">
         <StyledBox>
           <div className="headingRow">
             <StyledSectionHeading variant="h4">Exercises</StyledSectionHeading>
-            <Dropdown>
+            {/* <Dropdown>
               <StyledMenuButton onClick={onAddExerciseButtonClick}>
                 <AddIcon />
               </StyledMenuButton>
@@ -567,9 +555,32 @@ export default function Dashboard() {
                   Add Exercises to Existing Workout
                 </StyledMenuItem>
               </Menu>
-            </Dropdown>
+            </Dropdown> */}
           </div>
-          <Dialog open={dialogOpen}>
+          <form action="">
+            <div className="pb-8">
+              <TextField
+                type="string"
+                placeholder="Exercise Name"
+                variant="outlined"
+                sx={{ marginRight: 2 }}
+                value={newExercise}
+                onChange={(e) => setNewExercise(e.target.value)}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                className="bg-indigo-500"
+                onClick={onAddNewExercise}
+              >
+                Add
+              </Button>
+              {toast && (
+                <Toast message={toast} onClose={() => setToast(null)} />
+              )}
+            </div>
+          </form>
+          {/* <Dialog open={dialogOpen}>
             <DialogActions>
               <StyledBox>
                 <DialogTitle>
@@ -600,9 +611,9 @@ export default function Dashboard() {
                 </List>
               </StyledBox>
             </DialogActions>
-          </Dialog>
+          </Dialog> */}
           <List
-            height={300}
+            height={200}
             width={380}
             itemSize={46}
             itemCount={exerciseList.length}
@@ -613,13 +624,29 @@ export default function Dashboard() {
         </StyledBox>
         <div>
           <StyledBox>
-            <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
+            <div className="headingRow">
+              <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
+              <Button
+                type="submit"
+                variant="contained"
+                className="bg-indigo-500"
+                onClick={() => setAddNewWorkoutModal(true)}
+              >
+                Add New
+              </Button>
+            </div>
             <div className="grid grid-flow-col gap-4">
-              <StyledSectionSubheading>Completed</StyledSectionSubheading>
+              <StyledSectionSubheading>Status</StyledSectionSubheading>
               <StyledSectionSubheading>Name</StyledSectionSubheading>
               <StyledSectionSubheading>Date</StyledSectionSubheading>
               <StyledSectionSubheading>Delete</StyledSectionSubheading>
             </div>
+            <Modal open={addNewWorkoutModal}>
+              <CreateWorkout
+                setAddNewWorkoutModal={setAddNewWorkoutModal}
+                exerciseList={exerciseList}
+              />
+            </Modal>
             <List
               height={300}
               width={400}

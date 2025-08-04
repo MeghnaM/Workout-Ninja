@@ -14,6 +14,7 @@ import { ThemeProvider } from "@mui/material/styles";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import Box from "@mui/material/Box";
+import KeyboardArrowRightIcon from "@mui/icons-material/KeyboardArrowRight";
 
 function ExerciseInList(props) {
   const { index, style, exerciseList, workoutList, setExerciseList } = props;
@@ -80,14 +81,15 @@ function ExerciseInList(props) {
     <ThemeProvider theme={theme}>
       <ListItem style={style} key={index} component="div" disablePadding>
         <ListItemButton onClick={onClickListItemButton}>
-          <Checkbox
+          {/* <Checkbox
             icon={<RadioButtonUncheckedIcon />}
             checkedIcon={<RadioButtonCheckedIcon />}
             checked={exerciseList[index].selected}
             fontSize="small"
             onChange={() => onCheckboxClick(exerciseList[index])}
             color="secondary"
-          />
+          /> */}
+          <KeyboardArrowRightIcon color="primary" />
           <StyledListItemText primary={exerciseList[index].ex.exercise} />
         </ListItemButton>
         <Dialog open={dialogOpen}>
