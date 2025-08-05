@@ -92,6 +92,11 @@ const WorkoutSchema = new Schema(
       type: Date,
       required: true,
     },
+    createdBy: {
+      type: Schema.Types.ObjectId,
+      ref: "User",
+      optional: true,
+    },
   },
   {
     virtuals: {

@@ -3,7 +3,7 @@ import Button from "@mui/material/Button";
 import { FixedSizeList as List } from "react-window";
 import TextField from "@mui/material/TextField";
 import ExerciseInList from "./ExerciseInList";
-import NewWorkout from "./NewWorkout";
+// import NewWorkout from "./NewWorkout";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import DoWorkout from "./DoWorkout";
@@ -60,7 +60,8 @@ export default function Dashboard() {
   const [showCopyWorkoutDialog, setShowCopyWorkoutDialog] = useState(false);
   const [completedWorkout, setCompletedWorkout] = useState<WorkoutState>({});
   const [toast, setToast] = useState<string | null>(null);
-  const [addNewWorkoutModal, setAddNewWorkoutModal] = useState<boolean>(false);
+  const [createNewWorkoutModal, setCreateNewWorkoutModal] =
+    useState<boolean>(false);
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -170,14 +171,14 @@ export default function Dashboard() {
     return tomorrow.toDateString();
   };
 
-  const onCreateNewWorkout = async (e) => {
+  const onCreateNewWorkout = async (e, newWorkoutName, newWorkoutExercises) => {
     e.preventDefault();
     console.log("create new workout was clicked");
     console.log(completedWorkout);
     const clearedWorkout = {
-      workoutName: "New Workout",
+      workoutName: newWorkoutName,
       status: "Not Started",
-      exercises: completedWorkout.exercises,
+      exercises: newWorkoutExercises,
       dateCreated: today(),
       dateOfWorkout: tomorrow(),
     };
@@ -192,9 +193,10 @@ export default function Dashboard() {
     const resultText = await result.text();
     if (resultText !== "Something went wrong") {
       const resultObject = JSON.parse(resultText);
-      console.log(resultObject);
+      console.log("Result Object - ");
+      console.log(resultObject, resultText);
       setWorkoutObject(resultObject);
-      setShowWorkout(!showWorkout);
+      // setShowWorkout(!showWorkout);
       alert("Data saved succesfully!");
     }
   };
@@ -410,7 +412,7 @@ export default function Dashboard() {
   const handleCopyWorkoutDialogAction = (e, option) => {
     if (option === "Yes") {
       console.log("yes was clicked");
-      onCreateNewWorkout(e);
+      // onCreateNewWorkout(e);
     }
     setShowCopyWorkoutDialog(false);
   };
@@ -630,7 +632,7 @@ export default function Dashboard() {
                 type="submit"
                 variant="contained"
                 className="bg-indigo-500"
-                onClick={() => setAddNewWorkoutModal(true)}
+                onClick={() => setCreateNewWorkoutModal(true)}
               >
                 Add New
               </Button>
@@ -641,10 +643,11 @@ export default function Dashboard() {
               <StyledSectionSubheading>Date</StyledSectionSubheading>
               <StyledSectionSubheading>Delete</StyledSectionSubheading>
             </div>
-            <Modal open={addNewWorkoutModal}>
+            <Modal open={createNewWorkoutModal}>
               <CreateWorkout
-                setAddNewWorkoutModal={setAddNewWorkoutModal}
+                setAddNewWorkoutModal={setCreateNewWorkoutModal}
                 exerciseList={exerciseList}
+                onCreateNewWorkout={onCreateNewWorkout}
               />
             </Modal>
             <List
@@ -661,21 +664,21 @@ export default function Dashboard() {
         </div>
       </div>
       <LineGraph width={800} height={500} />
-      {workoutObject && showWorkout && (
+      {/* {workoutObject && showWorkout && (
         <NewWorkout
           workoutObj={workoutObject}
           saveWorkoutInDB={saveWorkoutInDB}
           deleteWorkoutInDB={deleteWorkoutInDB}
         />
-      )}
-      {ongoingWorkout && showOngoingWorkout && (
+      )} */}
+      {/* {ongoingWorkout && showOngoingWorkout && (
         <DoWorkout
           ongoingWorkout={ongoingWorkout}
           setOngoingWorkout={setOngoingWorkout}
           saveWorkoutInDB={saveWorkoutInDB}
           setShowOngoingWorkout={setShowOngoingWorkout}
         />
-      )}
+      )} */}
     </div>
   );
 }
