@@ -80,10 +80,27 @@ const WorkoutSchema = new Schema(
       required: true,
     },
     exercises: [{ type: Schema.Types.ObjectId, ref: "Exercise" }],
+    // Structured data for tracking
+    exerciseData: [
+      {
+        exerciseId: { type: Schema.Types.ObjectId, ref: "Exercise" },
+        sets: [
+          {
+            reps: { type: Number, default: 0 },
+            weight: { type: Number, default: 0 },
+            completed: { type: Boolean, default: false },
+          },
+        ],
+      },
+    ],
+
+    // TODO - remove exercisesCompleted, weights, sets, reps
+    // Keeping for now to maintain backward compatibility
     exercisesCompleted: [],
     weights: [],
     sets: [],
     reps: [],
+
     dateCreated: {
       type: Date,
       required: true,
@@ -95,7 +112,6 @@ const WorkoutSchema = new Schema(
     createdBy: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      optional: true,
     },
   },
   {
@@ -207,13 +223,24 @@ app.post("/register", async (req, resp) => {
 });
 
 app.post("/create-new-workout", async (req, resp) => {
-  console.log("Create new workout was called");
-  console.log(req);
+  console.log("Create new workout was called: ", req.body);
+  console.log("Database connection state:", mongoose.connection.readyState);
+  console.log("Exercises field: ", req.body.exercises);
+  console.log("Type of exercises - ", typeof req.body.exercises);
   try {
     const workout = new Workout(req.body);
+    const validationError = workout.validateSync();
+    if (validationError) {
+      console.log("Validation failed:", validationError.errors);
+      return resp.status(400).send("Validation error");
+    }
+    console.log("Workout object created", workout);
     let result = await workout.save();
+    console.log("Save successful", result);
     result = result.toObject();
+    console.log("Got the result");
     if (result) {
+      console.log("Got a good result, will send back to UI");
       const response = { workout: req.body, id: result._id };
       resp.send(response);
       console.log(result);
@@ -263,6 +290,67 @@ app.put("/update-existing-workout", async (req, resp) => {
     }
   } catch (e) {
     resp.send("Something went wrong");
+  }
+});
+
+// Update workout progress during "do workout"
+// TODO make sure frontend is parsing the different resp codes correctly
+app.put("/update-workout-progress/:id", async (req, resp) => {
+  console.log("Update workout progress called");
+  try {
+    const { id } = req.params;
+    const { exerciseData, status } = req.body;
+
+    const workout = await Workout.findByIdAndUpdate(
+      id,
+      { exerciseData, status },
+      { new: true }
+    );
+
+    resp.json(workout);
+  } catch (error) {
+    console.error(error);
+    resp.status(500).send("Update failed");
+  }
+});
+
+app.get("/exercise-progress/:exerciseId", async (req, resp) => {
+  console.log("Get exercise progress called");
+  try {
+    const { exerciseId } = req.params;
+    const workouts = await Workout.find({
+      "exerciseData.exerciseId": exerciseId,
+      status: "Completed",
+    }).sort({ dateOfWorkout: 1 });
+
+    const progressData = workouts
+      .map((workout) => {
+        const exerciseData = workout.exerciseData.find(
+          (ed) => ed.exerciseId.toString() === exerciseId
+        );
+
+        if (!exerciseData) return null;
+
+        const maxWeight = Math.max(
+          ...exerciseData.sets.map((s) => s.weight || 0)
+        );
+        const totalVolume = exerciseData.sets.reduce(
+          (sum, s) => sum + s.reps * s.weight,
+          0
+        );
+
+        return {
+          date: workout.dateOfWorkout,
+          maxWeight,
+          totalVolume,
+          workoutName: workout.workoutName,
+        };
+      })
+      .filter(Boolean);
+    resp.json(progressData);
+  } catch (error) {
+    console.error(error);
+    resp.status(500).send("Progress fetch failed");
   }
 });
 

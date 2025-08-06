@@ -41,7 +41,7 @@ const series = new Array(lineCount).fill(null).map((_, i) =>
   )
 );
 const allData = series.reduce((rec, d) => rec.concat(d), []);
-console.log("Series", series[0]);
+// console.log("Series", series[0]);
 
 // data accessors
 const getX = (d: DateValue) => d.date;
@@ -119,7 +119,7 @@ const ordinalColorScale = scaleOrdinal({
 const dateRange = exerciseWeightsOverTime["Squat"].map((item) =>
   item.date.toDateString()
 );
-console.log("Getting dates", dateRange);
+// console.log("Getting dates", dateRange);
 const dateScale = scaleBand<string>({
   domain: dateRange,
   padding: 0.2,
@@ -214,8 +214,8 @@ export default function LineGraph({
         {width > 8 &&
           exercises.map((exercise, i) => {
             let lineData: [DateValue] = exerciseWeightsOverTime[exercise] || [];
-            console.log("Line Data", exerciseWeightsOverTime[exercise]);
-            series.map((data) => console.log("Series", data));
+            // console.log("Line Data", exerciseWeightsOverTime[exercise]);
+            // series.map((data) => console.log("Series", data));
             return (
               <Group key={`lines-${i}`} top={i * lineHeight} left={13}>
                 <LinePath<DateValue>

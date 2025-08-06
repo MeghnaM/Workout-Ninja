@@ -76,8 +76,8 @@ export default function Dashboard() {
 
   // development api url format = http://localhost:4000/get-workouts
   useEffect(() => {
-    console.log("Use effect is getting called");
-    console.log("apiUrl", apiUrl);
+    // console.log("Use effect is getting called");
+    // console.log("apiUrl", apiUrl);
     async function getExercises() {
       await fetch(`${apiUrl}/get-exercises`)
         .then((response) => response.json())
@@ -112,7 +112,7 @@ export default function Dashboard() {
         .catch((error) => console.error(error));
     }
 
-    console.log(workoutList);
+    // console.log(`Workout List: ${workoutList}`);
     getExercises();
     getWorkouts();
   }, [newExercise, workoutObject, alertClosed]);
@@ -173,32 +173,57 @@ export default function Dashboard() {
 
   const onCreateNewWorkout = async (e, newWorkoutName, newWorkoutExercises) => {
     e.preventDefault();
-    console.log("create new workout was clicked");
-    console.log(completedWorkout);
-    const clearedWorkout = {
-      workoutName: newWorkoutName,
-      status: "Not Started",
-      exercises: newWorkoutExercises,
-      dateCreated: today(),
-      dateOfWorkout: tomorrow(),
-    };
+    console.log("Create new workout was clicked!");
 
-    let result = await fetch(`${apiUrl}/create-new-workout`, {
-      method: "post",
-      body: JSON.stringify({ ...clearedWorkout }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const resultText = await result.text();
-    if (resultText !== "Something went wrong") {
-      const resultObject = JSON.parse(resultText);
-      console.log("Result Object - ");
-      console.log(resultObject, resultText);
-      setWorkoutObject(resultObject);
-      // setShowWorkout(!showWorkout);
-      alert("Data saved succesfully!");
+    try {
+      const newWorkout = {
+        workoutName: newWorkoutName,
+        status: "Not Started",
+        exercises: newWorkoutExercises,
+        exerciseData: [],
+        dateCreated: today(),
+        dateOfWorkout: tomorrow(),
+      };
+
+      const result = await fetch(`${apiUrl}/create-new-workout`, {
+        method: "POST",
+        body: JSON.stringify(newWorkout),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      const contentType = result.headers.get("content-type");
+      let responseData;
+      if (contentType && contentType.includes("application/json")) {
+        responseData = await result.json();
+      } else {
+        responseData = await result.text();
+      }
+
+      if (!result.ok) {
+        const errorMessage =
+          responseData.error ||
+          responseData.message ||
+          responseData ||
+          "Unknown error";
+        throw new Error(`${errorMessage}`);
+      }
+
+      // Success
+      console.log("Workout created: ", responseData);
+      setWorkoutObject(responseData);
+      // Close the modal
+      setCreateNewWorkoutModal(false);
+      // Show success toast
+    } catch (error) {
+      console.error("Create workout error:", error);
+      showToast(`Error: ${error.message}`);
+    } finally {
+      // TODO close the create workout modal
     }
+
+    // setShowWorkout(!showWorkout);
   };
 
   const onAddNewWorkout = async (e) => {
@@ -482,12 +507,12 @@ export default function Dashboard() {
               primary={workoutList[index].dateOfWorkout.slice(0, -14)}
             />
           </ListItemButton>
-          <IconButton
+          {/* <IconButton
             sx={{ color: theme.palette.secondary.main, paddingRight: 3 }}
             onClick={() => deleteWorkoutInDB(workoutList[index]._id)}
           >
             <CloseIcon />
-          </IconButton>
+          </IconButton> */}
 
           <Dialog open={showCopyWorkoutDialog}>
             <DialogTitle>
@@ -641,7 +666,7 @@ export default function Dashboard() {
               <StyledSectionSubheading>Status</StyledSectionSubheading>
               <StyledSectionSubheading>Name</StyledSectionSubheading>
               <StyledSectionSubheading>Date</StyledSectionSubheading>
-              <StyledSectionSubheading>Delete</StyledSectionSubheading>
+              {/* <StyledSectionSubheading>Delete</StyledSectionSubheading> */}
             </div>
             <Modal open={createNewWorkoutModal}>
               <CreateWorkout
