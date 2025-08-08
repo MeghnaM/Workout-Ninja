@@ -14,11 +14,19 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import TextField from "@mui/material/TextField";
+import { create } from "domain";
 
 interface ToastProps {
   message: string;
   type?: "success" | "error" | "warning" | "info";
   onClose: () => void;
+}
+
+interface ExerciseData {
+  [index: number]: {
+    sets: number;
+    reps: number;
+  };
 }
 
 // Modal that contains -
@@ -30,6 +38,7 @@ export default function CreateWorkout(props) {
   const [selectedExercises, setSelectedExercises] = useState<Set<number>>(
     new Set()
   );
+  const [exerciseData, setExerciseData] = useState<ExerciseData>({});
   const [workoutName, setWorkoutName] = useState<string>("");
   const [toast, setToast] = useState<string | null>(null);
 
@@ -60,12 +69,44 @@ export default function CreateWorkout(props) {
       const exerciseIds = Array.from(selectedExercises).map(
         (index) => exerciseList[index]._id
       );
-      onCreateNewWorkout(e, workoutName, exerciseIds);
+      const exerciseData = Array.from(selectedExercises).map((index) => {
+        const exId = exerciseList[index]._id;
+        // sets = list of length reps, where each element in the list is an object
+        // reps = reps, weight = 0
+        // what's the data that's tracking in the frontend? just sets and reps, just sets and reps
+        // for that index. ok and what do we send to the backend? a list of id, sets and reps
+        // so a list of ids, sets is a list of length reps where each element is 2 objects - reps and weight
+        const sets = Array.from(exerciseData).map((ex) => {
+          return { reps: ex[index].reps, weight: 0 };
+        });
+        return { exerciseId: exId, sets: sets };
+      });
+      onCreateNewWorkout(e, workoutName, exerciseIds, exerciseData);
     }
   };
 
   const exerciseRow = React.forwardRef<HTMLDivElement, any>((props, ref) => {
     const { index, style } = props;
+
+    const handleSetsChange = (e, index) => {
+      setExerciseData({
+        ...exerciseData,
+        [index]: {
+          sets: e.target.value,
+          reps: exerciseData[index]?.reps || 0,
+        },
+      });
+    };
+
+    const handleRepsChange = (e, index) => {
+      setExerciseData({
+        ...exerciseData,
+        [index]: {
+          reps: e.target.value,
+          sets: exerciseData[index]?.sets || 0,
+        },
+      });
+    };
 
     const handleExerciseClick = () => {
       setSelectedExercises((exercises) => {
@@ -95,6 +136,20 @@ export default function CreateWorkout(props) {
               primary={exerciseList[index].ex.exercise}
             />
           </ListItemButton>
+          <TextField
+            id="sets"
+            label="sets"
+            variant="filled"
+            value={exerciseData[index]?.sets}
+            onChange={handleSetsChange}
+          />
+          <TextField
+            id="reps"
+            label="reps"
+            variant="filled"
+            value={exerciseData[index]?.reps}
+            onChange={handleRepsChange}
+          />
         </ListItem>
       </div>
     );
@@ -103,9 +158,6 @@ export default function CreateWorkout(props) {
   return (
     <ThemeProvider theme={theme}>
       <StyledBox>
-        <StyledSectionSubheading variant="h4">
-          New Workout
-        </StyledSectionSubheading>
         <TextField
           id="workout-name"
           label="Workout Name"

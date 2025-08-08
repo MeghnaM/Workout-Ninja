@@ -81,6 +81,10 @@ const WorkoutSchema = new Schema(
     },
     exercises: [{ type: Schema.Types.ObjectId, ref: "Exercise" }],
     // Structured data for tracking
+    // sets = list of reps, weight, completed  - no
+    // I need sets = [reps, weight], completed outside to show if I've completed the exercise
+    // Future - add the following to track completion of a set, so within sets,
+    // and completion of the exercise, so within the exercise as well - completed: { type: Boolean, default: false },
     exerciseData: [
       {
         exerciseId: { type: Schema.Types.ObjectId, ref: "Exercise" },
@@ -88,7 +92,6 @@ const WorkoutSchema = new Schema(
           {
             reps: { type: Number, default: 0 },
             weight: { type: Number, default: 0 },
-            completed: { type: Boolean, default: false },
           },
         ],
       },

@@ -171,7 +171,12 @@ export default function Dashboard() {
     return tomorrow.toDateString();
   };
 
-  const onCreateNewWorkout = async (e, newWorkoutName, newWorkoutExercises) => {
+  const onCreateNewWorkout = async (
+    e,
+    newWorkoutName,
+    newWorkoutExercises,
+    newWorkoutExerciseData
+  ) => {
     e.preventDefault();
     console.log("Create new workout was clicked!");
 
@@ -180,7 +185,7 @@ export default function Dashboard() {
         workoutName: newWorkoutName,
         status: "Not Started",
         exercises: newWorkoutExercises,
-        exerciseData: [],
+        exerciseData: newWorkoutExerciseData,
         dateCreated: today(),
         dateOfWorkout: tomorrow(),
       };
@@ -415,7 +420,7 @@ export default function Dashboard() {
   };
 
   const startWorkout = (index) => {
-    console.log("Button to start workout was clicked");
+    console.log("Button to do workout was clicked");
     // If a workout is already in progress, then don't open another one
     // if (!showOngoingWorkout) {
     //   alert("Please close or complete the current workout before starting another one.")
