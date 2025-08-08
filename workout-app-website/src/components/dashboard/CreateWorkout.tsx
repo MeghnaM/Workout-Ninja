@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   StyledBox,
   StyledSectionSubheading,
@@ -85,28 +85,28 @@ export default function CreateWorkout(props) {
     }
   };
 
+  const handleSetsChange = (index, value) => {
+    setExerciseData({
+      ...exerciseData,
+      [index]: {
+        sets: value,
+        reps: exerciseData[index]?.reps || 0,
+      },
+    });
+  };
+
+  const handleRepsChange = (index, value) => {
+    setExerciseData({
+      ...exerciseData,
+      [index]: {
+        reps: value,
+        sets: exerciseData[index]?.sets || 0,
+      },
+    });
+  };
+
   const exerciseRow = React.forwardRef<HTMLDivElement, any>((props, ref) => {
     const { index, style } = props;
-
-    const handleSetsChange = (e, index) => {
-      setExerciseData({
-        ...exerciseData,
-        [index]: {
-          sets: e.target.value,
-          reps: exerciseData[index]?.reps || 0,
-        },
-      });
-    };
-
-    const handleRepsChange = (e, index) => {
-      setExerciseData({
-        ...exerciseData,
-        [index]: {
-          reps: e.target.value,
-          sets: exerciseData[index]?.sets || 0,
-        },
-      });
-    };
 
     const handleExerciseClick = () => {
       setSelectedExercises((exercises) => {
@@ -141,19 +141,79 @@ export default function CreateWorkout(props) {
             label="sets"
             variant="filled"
             value={exerciseData[index]?.sets}
-            onChange={handleSetsChange}
+            onChange={(e) => handleSetsChange(index, e.target.value)}
           />
           <TextField
             id="reps"
             label="reps"
             variant="filled"
             value={exerciseData[index]?.reps}
-            onChange={handleRepsChange}
+            onChange={(e) => handleRepsChange(index, e.target.value)}
           />
         </ListItem>
       </div>
     );
   });
+
+  const scrollableExerciseList = () => {
+    return (
+      <div
+        style={{
+          height: 200,
+          width: 400,
+          overflowY: "auto",
+          border: "1px solid #ccc",
+          borderRadius: "4px",
+        }}
+      >
+        {exerciseList.map((exercise, index) => {
+          return (
+            <div key={exercise._id || index}>
+              <ListItem component="div" disablePadding>
+                <ListItemButton
+                  onClick={() => {
+                    setSelectedExercises((exercises) => {
+                      const selected = new Set(exercises);
+                      if (selectedExercises.has(index)) {
+                        selected.delete(index);
+                      } else {
+                        selected.add(index);
+                      }
+                      return selected;
+                    });
+                  }}
+                >
+                  <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+                    {selectedExercises.has(index) ? (
+                      <RadioButtonCheckedIcon />
+                    ) : (
+                      <RadioButtonUncheckedIcon />
+                    )}
+                  </ListItemIcon>
+                  <StyledListItemText
+                    sx={{ color: theme.palette.primary.main }}
+                    primary={exerciseList[index].ex.exercise}
+                  />
+                </ListItemButton>
+                <TextField
+                  label="sets"
+                  variant="filled"
+                  value={exerciseData[index]?.sets || ""}
+                  onChange={(e) => handleSetsChange(index, e.target.value)}
+                />
+                <TextField
+                  label="reps"
+                  variant="filled"
+                  value={exerciseData[index]?.reps || ""}
+                  onChange={(e) => handleRepsChange(index, e.target.value)}
+                />
+              </ListItem>
+            </div>
+          );
+        })}
+      </div>
+    );
+  };
 
   return (
     <ThemeProvider theme={theme}>
@@ -164,15 +224,72 @@ export default function CreateWorkout(props) {
           variant="outlined"
           onChange={(e) => setWorkoutName(e.target.value)}
         />
-        <List
-          height={200}
+
+        <div
+          style={{
+            height: 200,
+            width: 400,
+            overflowY: "auto",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+          }}
+        >
+          {exerciseList.map((exercise, index) => {
+            return (
+              <div key={exercise._id || index}>
+                <ListItem component="div" disablePadding>
+                  <ListItemButton
+                    onClick={() => {
+                      setSelectedExercises((exercises) => {
+                        const selected = new Set(exercises);
+                        if (selectedExercises.has(index)) {
+                          selected.delete(index);
+                        } else {
+                          selected.add(index);
+                        }
+                        return selected;
+                      });
+                    }}
+                  >
+                    <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+                      {selectedExercises.has(index) ? (
+                        <RadioButtonCheckedIcon />
+                      ) : (
+                        <RadioButtonUncheckedIcon />
+                      )}
+                    </ListItemIcon>
+                    <StyledListItemText
+                      sx={{ color: theme.palette.primary.main }}
+                      primary={exerciseList[index].ex.exercise}
+                    />
+                  </ListItemButton>
+                  <TextField
+                    label="sets"
+                    variant="filled"
+                    value={exerciseData[index]?.sets || ""}
+                    onChange={(e) => handleSetsChange(index, e.target.value)}
+                  />
+                  <TextField
+                    label="reps"
+                    variant="filled"
+                    value={exerciseData[index]?.reps || ""}
+                    onChange={(e) => handleRepsChange(index, e.target.value)}
+                  />
+                </ListItem>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* <List
+          height={300}
           width={400}
-          itemSize={46}
+          itemSize={100}
           itemCount={exerciseList.length}
           overscanCount={5}
         >
           {exerciseRow}
-        </List>
+        </List> */}
         <Button onClick={(e) => onCreateWorkoutClick(e)}>Create</Button>
         <Button onClick={onCancelClick}>Cancel</Button>
         {toast && <Toast message={toast} onClose={() => setToast(null)} />}
