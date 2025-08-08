@@ -69,19 +69,19 @@ export default function CreateWorkout(props) {
       const exerciseIds = Array.from(selectedExercises).map(
         (index) => exerciseList[index]._id
       );
-      const exerciseData = Array.from(selectedExercises).map((index) => {
-        const exId = exerciseList[index]._id;
-        // sets = list of length reps, where each element in the list is an object
-        // reps = reps, weight = 0
-        // what's the data that's tracking in the frontend? just sets and reps, just sets and reps
-        // for that index. ok and what do we send to the backend? a list of id, sets and reps
-        // so a list of ids, sets is a list of length reps where each element is 2 objects - reps and weight
-        const sets = Array.from(exerciseData).map((ex) => {
-          return { reps: ex[index].reps, weight: 0 };
-        });
-        return { exerciseId: exId, sets: sets };
-      });
-      onCreateNewWorkout(e, workoutName, exerciseIds, exerciseData);
+      const exerciseDataForBackend = Array.from(selectedExercises).map(
+        (index) => {
+          const exId = exerciseList[index]._id;
+          const numberOfSets = exerciseData[index]?.sets || 3;
+          const repsPerSet = exerciseData[index]?.reps || 10;
+          const sets = Array.from({ length: numberOfSets }).map(() => ({
+            reps: repsPerSet,
+            weight: 0,
+          }));
+          return { exerciseId: exId, sets: sets };
+        }
+      );
+      onCreateNewWorkout(e, workoutName, exerciseIds, exerciseDataForBackend);
     }
   };
 
@@ -105,115 +105,55 @@ export default function CreateWorkout(props) {
     });
   };
 
-  const exerciseRow = React.forwardRef<HTMLDivElement, any>((props, ref) => {
-    const { index, style } = props;
+  // const exerciseRow = React.forwardRef<HTMLDivElement, any>((props, ref) => {
+  //   const { index, style } = props;
 
-    const handleExerciseClick = () => {
-      setSelectedExercises((exercises) => {
-        const selected = new Set(exercises);
-        if (selectedExercises.has(index)) {
-          selected.delete(index);
-        } else {
-          selected.add(index);
-        }
-        return selected;
-      });
-    };
+  //   const handleExerciseClick = () => {
+  //     setSelectedExercises((exercises) => {
+  //       const selected = new Set(exercises);
+  //       if (selectedExercises.has(index)) {
+  //         selected.delete(index);
+  //       } else {
+  //         selected.add(index);
+  //       }
+  //       return selected;
+  //     });
+  //   };
 
-    return (
-      <div ref={ref} style={style}>
-        <ListItem key={index} component="div" disablePadding>
-          <ListItemButton onClick={handleExerciseClick}>
-            <ListItemIcon sx={{ color: theme.palette.primary.main }}>
-              {selectedExercises.has(index) ? (
-                <RadioButtonCheckedIcon />
-              ) : (
-                <RadioButtonUncheckedIcon />
-              )}
-            </ListItemIcon>
-            <StyledListItemText
-              sx={{ color: theme.palette.primary.main }}
-              primary={exerciseList[index].ex.exercise}
-            />
-          </ListItemButton>
-          <TextField
-            id="sets"
-            label="sets"
-            variant="filled"
-            value={exerciseData[index]?.sets}
-            onChange={(e) => handleSetsChange(index, e.target.value)}
-          />
-          <TextField
-            id="reps"
-            label="reps"
-            variant="filled"
-            value={exerciseData[index]?.reps}
-            onChange={(e) => handleRepsChange(index, e.target.value)}
-          />
-        </ListItem>
-      </div>
-    );
-  });
-
-  const scrollableExerciseList = () => {
-    return (
-      <div
-        style={{
-          height: 200,
-          width: 400,
-          overflowY: "auto",
-          border: "1px solid #ccc",
-          borderRadius: "4px",
-        }}
-      >
-        {exerciseList.map((exercise, index) => {
-          return (
-            <div key={exercise._id || index}>
-              <ListItem component="div" disablePadding>
-                <ListItemButton
-                  onClick={() => {
-                    setSelectedExercises((exercises) => {
-                      const selected = new Set(exercises);
-                      if (selectedExercises.has(index)) {
-                        selected.delete(index);
-                      } else {
-                        selected.add(index);
-                      }
-                      return selected;
-                    });
-                  }}
-                >
-                  <ListItemIcon sx={{ color: theme.palette.primary.main }}>
-                    {selectedExercises.has(index) ? (
-                      <RadioButtonCheckedIcon />
-                    ) : (
-                      <RadioButtonUncheckedIcon />
-                    )}
-                  </ListItemIcon>
-                  <StyledListItemText
-                    sx={{ color: theme.palette.primary.main }}
-                    primary={exerciseList[index].ex.exercise}
-                  />
-                </ListItemButton>
-                <TextField
-                  label="sets"
-                  variant="filled"
-                  value={exerciseData[index]?.sets || ""}
-                  onChange={(e) => handleSetsChange(index, e.target.value)}
-                />
-                <TextField
-                  label="reps"
-                  variant="filled"
-                  value={exerciseData[index]?.reps || ""}
-                  onChange={(e) => handleRepsChange(index, e.target.value)}
-                />
-              </ListItem>
-            </div>
-          );
-        })}
-      </div>
-    );
-  };
+  //   return (
+  //     <div ref={ref} style={style}>
+  //       <ListItem key={index} component="div" disablePadding>
+  //         <ListItemButton onClick={handleExerciseClick}>
+  //           <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+  //             {selectedExercises.has(index) ? (
+  //               <RadioButtonCheckedIcon />
+  //             ) : (
+  //               <RadioButtonUncheckedIcon />
+  //             )}
+  //           </ListItemIcon>
+  //           <StyledListItemText
+  //             sx={{ color: theme.palette.primary.main }}
+  //             primary={exerciseList[index].ex.exercise}
+  //           />
+  //         </ListItemButton>
+  //         <TextField
+  //           id="sets"
+  //           label="sets"
+  //           variant="filled"
+  //           value={exerciseData[index]?.sets}
+  //           onChange={(e) => handleSetsChange(index, e.target.value)}
+  //         />
+  //         <TextField
+  //           id="reps"
+  //           label="reps"
+  //           variant="filled"
+  //           value={exerciseData[index]?.reps}
+  //           onChange={(e) => handleRepsChange(index, e.target.value)}
+  //         />
+  //       </ListItem>
+  //     </div>
+  //   );
+  // });
 
   return (
     <ThemeProvider theme={theme}>
