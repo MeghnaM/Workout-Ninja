@@ -55,6 +55,18 @@ export default function CreateWorkout(props) {
     return <div className={`toast toast-${type}`}>{message}</div>;
   };
 
+  const setsOrRepsMissing = (): Boolean => {
+    if (selectedExercises.size !== Object.keys(exerciseData).length) {
+      return true;
+    }
+    for (const index in Object.keys(exerciseData)) {
+      if (exerciseData[index].sets === 0 || exerciseData[index].reps === 0) {
+        return false;
+      }
+    }
+    return false;
+  };
+
   // Verify that name is not empty
   // Send a call to the DB with the selected exercises + user
   // How is New Workout setting "selected" on exercises?
@@ -64,6 +76,8 @@ export default function CreateWorkout(props) {
       showToast("Workout name is required.", "error");
     } else if (selectedExercises.size === 0) {
       showToast("Please select at least one exercise.", "error");
+    } else if (setsOrRepsMissing) {
+      showToast("Please make sure all selected exercises have sets and reps.");
     } else {
       console.log("Workout can be added to db.");
       const exerciseIds = Array.from(selectedExercises).map(
