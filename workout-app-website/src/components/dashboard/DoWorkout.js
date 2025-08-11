@@ -21,6 +21,12 @@ import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "../styles/StyledComponentsLibrary";
 import { flexDirection } from "@mui/system";
 
+// interface ToastProps {
+//   message: string;
+//   type?: "success" | "error" | "warning" | "info";
+//   onClose: () => void;
+// }
+
 function DoWorkout(props) {
   const {
     ongoingWorkout,
@@ -39,6 +45,7 @@ function DoWorkout(props) {
   //   reps: "",
   //   weight: "",
   // }));
+  const [toast, setToast] = useState("");
   const exercisesAndData = ongoingWorkout.exerciseData.map((ex) => ({
     id: ex.exerciseId._id,
     exerciseName: ex.exerciseId.exercise,
@@ -58,6 +65,19 @@ function DoWorkout(props) {
   useEffect(() => {
     console.log(exerciseData);
   }, [exerciseData]);
+
+  const showToast = (message: string, type?: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 2000);
+  };
+
+  // const Toast: React.FC<ToastProps> = ({ message, type = "info", onClose }) => {
+  //   return <div className={`toast toast-${type}`}>{message}</div>;
+  // };
+
+  const Toast = ({ message, type = "info", onClose }) => {
+    return <div className={`toast toast-${type}`}>{message}</div>;
+  };
 
   // Create a new object with the updated workoutName, workoutDate
   // and the completed list of exercises along with sets, reps and weight
@@ -103,7 +123,7 @@ function DoWorkout(props) {
       setOngoingWorkout(completedWorkout);
       saveWorkoutInDB(completedWorkout, completedWorkout._id);
     } else {
-      alert(
+      showToast(
         "Please make sure the workout has a name and a date, and that every completed exercise has the sets, reps and weight fields filled out."
       );
     }
@@ -176,7 +196,6 @@ function DoWorkout(props) {
   const displayExercise = useCallback(
     (props) => {
       const { index } = props;
-      console.log(`Rendering exercise ${index}`);
       // sets = number of fields, each field = reps (non-editable), weight (editable)
       return (
         <ListItem key={index} component="div" disablePadding>
@@ -222,17 +241,14 @@ function DoWorkout(props) {
                   label="Weight"
                   value={set.weight || ""}
                   sx={{ maxWidth: 65 }}
-                  onChange={(e) => {
-                    console.log(
-                      `Weight changed for exercise ${index}, set ${setIndex}`
-                    );
+                  onChange={(e) =>
                     updateExerciseWeights(
                       index,
                       setIndex,
                       "weight",
                       e.target.value
-                    );
-                  }}
+                    )
+                  }
                 />
               </div>
             ))}
