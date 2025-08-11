@@ -1,3 +1,4 @@
+import React, { useCallback, memo } from "react";
 import TextField from "@mui/material/TextField";
 import { useState, useEffect } from "react";
 import Button from "@mui/material/Button";
@@ -9,7 +10,7 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import Checkbox from "@mui/material/Checkbox";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
-import { DialogTitle } from "@mui/material";
+import { DialogTitle, Typography } from "@mui/material";
 import {
   StyledBox,
   StyledSectionHeading,
@@ -18,6 +19,7 @@ import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "../styles/StyledComponentsLibrary";
+import { flexDirection } from "@mui/system";
 
 function DoWorkout(props) {
   const {
@@ -41,16 +43,16 @@ function DoWorkout(props) {
     id: ex.exerciseId._id,
     exerciseName: ex.exerciseId.exercise,
     completed: false,
-    sets: ex.sets.length,
-    reps: ex.sets[0].reps,
-    weight: ex.sets[0].weight,
+    sets: ex.sets,
+    // reps: ex.sets[0].reps,
+    // weight: ex.sets[0].weight,
   }));
   const [exerciseData, setExerciseData] = useState(exercisesAndData);
   const [workoutName, setWorkoutName] = useState(ongoingWorkout.workoutName);
-  // const [workoutDate, setWorkoutDate] = useState < String > "";
-  const [workoutDate, setWorkoutDate] = useState(
-    ongoingWorkout.dateOfWorkout.slice(0, -14)
-  );
+  const [workoutDate, setWorkoutDate] = useState("");
+  // const [workoutDate, setWorkoutDate] = useState(
+  //   ongoingWorkout.dateOfWorkout.slice(0, -14)
+  // );
   const [closeAlert, setCloseAlert] = useState(false);
 
   useEffect(() => {
@@ -108,23 +110,48 @@ function DoWorkout(props) {
   };
 
   // Update exercise with auxillary data
-  const updateExerciseData = (id, field, value) => {
-    // Map over the list of exercises
-    // Find the exercise with this id, update the corresponding field and value
-    // Put the exercise back into the list
-    console.log(exerciseData);
-    const updatedExerciseData = exerciseData.map((exercise) => {
-      if (exercise.id === id) {
-        const updatedExercise = {
-          ...exercise,
-          [field]: value,
+  const updateExerciseWeights = useCallback(
+    (exerciseIndex, setIndex, field, value) => {
+      // Map over the list of exercises
+      // Find the exercise with this id, update the corresponding field and value
+      // Put the exercise back into the list
+      // console.log("Here is the current exercise data - ", exerciseData);
+      // const updatedExerciseData = exerciseData.map((exercise) => {
+      //   if (exercise.id === id) {
+      //     const updatedExercise = {
+      //       ...exercise,
+      //       [field]: value,
+      //     };
+      //     return updatedExercise;
+      //   }
+      //   return exercise;
+      // });
+      // setExerciseData(updatedExerciseData);
+
+      setExerciseData((prevData) => {
+        const newData = [...prevData];
+        newData[exerciseIndex] = {
+          ...newData[exerciseIndex],
+          sets: newData[exerciseIndex].sets.map((set, index) =>
+            index === setIndex ? { ...set, [field]: value } : set
+          ),
         };
-        return updatedExercise;
-      }
-      return exercise;
+        return newData;
+      });
+    },
+    []
+  );
+
+  const updateExerciseCompleted = useCallback((exerciseIndex, value) => {
+    setExerciseData((prevData) => {
+      const newData = [...prevData];
+      newData[exerciseIndex] = {
+        ...newData[exerciseIndex],
+        completed: value,
+      };
+      return newData;
     });
-    setExerciseData(updatedExerciseData);
-  };
+  }, []);
 
   const onClose = (e) => {
     e.preventDefault();
@@ -146,63 +173,80 @@ function DoWorkout(props) {
     // setCloseAlert(false);
   };
 
-  const displayExercise = (props) => {
-    const { index } = props;
-
-    return (
-      <ListItem key={index} component="div" disablePadding>
-        <ListItemButton>
-          <ListItemIcon>
-            <Checkbox
-              icon={<RadioButtonUncheckedIcon />}
-              checkedIcon={<RadioButtonCheckedIcon />}
-              checked={exerciseData[index].completed}
-              onChange={(e) =>
-                updateExerciseData(
-                  exerciseData[index].id,
-                  "completed",
-                  !exerciseData[index].completed
-                )
-              }
-              fontSize="small"
+  const displayExercise = useCallback(
+    (props) => {
+      const { index } = props;
+      console.log(`Rendering exercise ${index}`);
+      // sets = number of fields, each field = reps (non-editable), weight (editable)
+      return (
+        <ListItem key={index} component="div" disablePadding>
+          <ListItemButton>
+            <ListItemIcon>
+              <Checkbox
+                icon={<RadioButtonUncheckedIcon />}
+                checkedIcon={<RadioButtonCheckedIcon />}
+                checked={exerciseData[index].completed}
+                onChange={(e) =>
+                  updateExerciseCompleted(index, !exerciseData[index].completed)
+                }
+                fontSize="small"
+              />
+            </ListItemIcon>
+            <ListItemText
+              sx={{ color: theme.palette.primary.main, width: 100 }}
+              primary={exerciseData[index].exerciseName}
             />
-          </ListItemIcon>
-          <ListItemText
-            sx={{ color: theme.palette.primary.main, width: 200 }}
-            primary={exerciseData[index].exerciseName}
-          />
-          <TextField
+            {/* <TextField
             label="Sets"
             defaultValue={exerciseData[index].sets}
             sx={{ maxWidth: 200 }}
             onChange={(e) =>
               updateExerciseData(exerciseData[index].id, "sets", e.target.value)
             }
-          />
-          <TextField
+          /> */}
+            {/* <TextField
             label="Reps"
             defaultValue={exerciseData[index].reps}
             sx={{ maxWidth: 200 }}
             onChange={(e) =>
               updateExerciseData(exerciseData[index].id, "reps", e.target.value)
             }
-          />
-          <TextField
-            label="Weight"
-            defaultValue={exerciseData[index].weight}
-            sx={{ maxWidth: 200 }}
-            onChange={(e) =>
-              updateExerciseData(
-                exerciseData[index].id,
-                "weight",
-                e.target.value
-              )
-            }
-          />
-        </ListItemButton>
-      </ListItem>
-    );
-  };
+          /> */}
+            {(exerciseData[index]?.sets || []).map((set, setIndex) => (
+              <div
+                key={setIndex}
+                style={{ display: "flex", flexDirection: "column" }}
+              >
+                <Typography>{set.reps}</Typography>
+                <TextField
+                  label="Weight"
+                  value={set.weight || ""}
+                  sx={{ maxWidth: 65 }}
+                  onChange={(e) => {
+                    console.log(
+                      `Weight changed for exercise ${index}, set ${setIndex}`
+                    );
+                    updateExerciseWeights(
+                      index,
+                      setIndex,
+                      "weight",
+                      e.target.value
+                    );
+                  }}
+                />
+              </div>
+            ))}
+          </ListItemButton>
+        </ListItem>
+      );
+    },
+    [
+      exerciseData,
+      updateExerciseCompleted,
+      updateExerciseWeights,
+      theme.palette.primary.main,
+    ]
+  );
 
   const regex = /^\d{4}-\d{2}-\d{2}$/; // YYYY-MM-DD format
   const formIsValid = () => {
@@ -227,12 +271,10 @@ function DoWorkout(props) {
   return (
     <ThemeProvider theme={theme}>
       <StyledBox>
-        <StyledSectionHeading variant="h4">
-          Current Workout
-        </StyledSectionHeading>
+        <StyledSectionHeading variant="h4">{workoutName}</StyledSectionHeading>
         <form onSubmit={onCompleteWorkout}>
           <div className="workoutDisplayRow">
-            <TextField
+            {/* <TextField
               required
               id="outlined-required"
               label="Workout Name"
@@ -242,30 +284,37 @@ function DoWorkout(props) {
               }
               defaultValue={workoutName}
               onChange={(e) => setWorkoutName(e.target.value)}
-            />
+            /> */}
+
             <TextField
               required
               id="outlined-required"
               label="Workout Date"
-              error={!regex.test(workoutDate)}
-              helperText={
-                !regex.test(workoutDate) ? "Date format - YYYY-MM-DD" : ""
-              }
+              // error={!regex.test(workoutDate)}
+              // helperText={
+              //   !regex.test(workoutDate) ? "Date format - YYYY-MM-DD" : ""
+              // }
+              placeholder="YYYY-MM-DD"
               defaultValue={workoutDate}
               onChange={(e) => setWorkoutDate(e.target.value)}
             />
           </div>
+          <div style={{ height: 210, overflow: "auto" }}>
+            {exerciseData.map((exercise, index) =>
+              displayExercise({ index, key: index, style: {} })
+            )}
+          </div>
 
-          <List
+          {/* <List
             height={210}
             width={400}
             itemSize={46}
-            itemCount={exerciseData.length}
+            itemCount={exerciseData?.length || 0}
             overscanCount={5}
             sx={{ listStyleType: "disc" }}
           >
             {displayExercise}
-          </List>
+          </List> */}
 
           <div className="workoutDisplayRow">
             <Button variant="contained" onClick={onClose}>
