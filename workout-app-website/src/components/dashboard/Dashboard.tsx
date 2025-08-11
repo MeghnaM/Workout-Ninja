@@ -55,7 +55,7 @@ export default function Dashboard() {
   const [ongoingWorkout, setOngoingWorkout] = useState([]);
   const [showOngoingWorkout, setShowOngoingWorkout] = useState(false);
   const [addExerciseDropdown, setAddExerciseDropdown] = useState(false);
-  const [dialogOpen, setDialogOpen] = useState(false);
+  const [doWorkoutModal, setDoWorkoutModal] = useState<boolean>(false);
   const [alertClosed, setAlertClosed] = useState(true);
   const [showCopyWorkoutDialog, setShowCopyWorkoutDialog] = useState(false);
   const [completedWorkout, setCompletedWorkout] = useState<WorkoutState>({});
@@ -231,138 +231,6 @@ export default function Dashboard() {
     // setShowWorkout(!showWorkout);
   };
 
-  const onAddNewWorkout = async (e) => {
-    e.preventDefault();
-  };
-
-  // When button is clicked, I want to take the list of
-  // exercises whose checkbox has been checked off
-  // and send those to the db using the api call
-  // and then set all the selected booleans to false
-  const onAddExerciseToNewWorkout = async (e) => {
-    e.preventDefault();
-    // Map over the selected exercises and just keep the exercise itself
-    // since that's the format that the db expects
-    const selectedExercises = exerciseList.filter(
-      (exercise) => exercise.selected
-    );
-    const exercises = selectedExercises.map((ex) => ex.ex);
-
-    if (exercises.length === 0) {
-      alert("Please select some exercises first.");
-    } else {
-      let result = await fetch(`${apiUrl}/create-new-workout`, {
-        method: "post",
-        body: JSON.stringify({
-          workoutName: "New Workout",
-          status: "Not Started",
-          exercises: exercises,
-          dateCreated: today(),
-          dateOfWorkout: tomorrow(),
-        }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const resultText: string = await result.text();
-      if (resultText !== "Something went wrong") {
-        const resultObject = JSON.parse(resultText);
-        console.log(resultObject);
-        setWorkoutObject(resultObject);
-        setShowWorkout(!showWorkout);
-        alert("Data saved succesfully!");
-
-        // Once the data has been saved in the db,
-        // set all the exercises to have selected boolean as false
-        const updatedExerciseList = exerciseList.map((exercise) => {
-          if (exercise.selected) return { ...exercise, selected: false };
-          return exercise;
-        });
-        setExerciseList(updatedExerciseList);
-      }
-    }
-  };
-  //else {
-  //   alert("Please save existing workout before creating a new one.")
-  // }
-  //
-
-  const onWorkoutNameClick = async (e, index) => {
-    e.preventDefault();
-    console.log("Add to existing workout was clicked");
-    setDialogOpen(false);
-
-    // Map over the selected exercises and just keep the exercise itself
-    // since that's the format that the db expects
-    const selectedExercises = exerciseList.filter(
-      (exercise) => exercise.selected
-    );
-    const exercises = selectedExercises.map((ex) => ex.ex);
-
-    const workout = workoutList[index];
-    console.log(workout);
-    // Create a new list of exercises that includes the exercises
-    // that were already part of this workout and the new ones I want to add
-    const updatedExerciseList = [...exercises, ...workout.exercises];
-    console.log(updatedExerciseList);
-
-    // Make api call to update existing workout
-    let result = await fetch(`${apiUrl}/update-existing-workout`, {
-      method: "put",
-      body: JSON.stringify({
-        id: workout._id,
-        workout: {
-          workoutName: workout.workoutName,
-          status: workout.status,
-          exercises: updatedExerciseList,
-          dateCreated: workout.dateCreated,
-          dateOfWorkout: workout.dateOfWorkout,
-        },
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const resultText: string = await result.text();
-    if (resultText !== "Something went wrong") {
-      const resultObject = JSON.parse(resultText);
-      console.log(resultObject);
-      alert("Data saved succesfully!");
-      setAlertClosed(!alertClosed);
-
-      // Once the data has been saved in the db,
-      // set all the exercises to have selected boolean as false
-      const updatedExerciseList = exerciseList.map((exercise) => {
-        if (exercise.selected) return { ...exercise, selected: false };
-        return exercise;
-      });
-      setExerciseList(updatedExerciseList);
-    }
-  };
-
-  const handleDialogClose = () => {
-    setDialogOpen(false);
-  };
-
-  const onAddExerciseToExistingWorkout = async (e) => {
-    e.preventDefault();
-    console.log("Add exercise to existing workout was clicked");
-    // Map over the selected exercises and just keep the exercise itself
-    // since that's the format that the db expects
-    const selectedExercises = exerciseList.filter(
-      (exercise) => exercise.selected
-    );
-    const exercises = selectedExercises.map((ex) => ex.ex);
-
-    if (exercises.length === 0) {
-      alert("Please select some exercises first.");
-    } else {
-      console.log("In the else block");
-      // Display dialog with list of workout
-      setDialogOpen(true);
-    }
-  };
-
   // Takes a workout and an id
   // Calls update workout function from api
   // If func call is successful then returns success
@@ -414,29 +282,30 @@ export default function Dashboard() {
     }
   };
 
-  const onAddExerciseButtonClick = () => {
-    console.log("Show add exercise dropdown");
-    setAddExerciseDropdown(!addExerciseDropdown);
-  };
-
   const startWorkout = (index) => {
     console.log("Button to do workout was clicked");
-    // If a workout is already in progress, then don't open another one
+    console.log("Workout -", workoutList[index]);
+    setOngoingWorkout(workoutList[index]);
+    setDoWorkoutModal(true);
+
+    // // If a workout is already in progress, then don't open another one
     // if (!showOngoingWorkout) {
-    //   alert("Please close or complete the current workout before starting another one.")
+    //   alert(
+    //     "Please close or complete the current workout before starting another one."
+    //   );
     // }
-    // If the workout is not yet completed, then the user should be able to start it
-    if (workoutList[index].status !== "Completed") {
-      setShowOngoingWorkout(true);
-      setOngoingWorkout(workoutList[index]);
-    }
-    // Otherwise, show a popup that offers the option to duplicate the workout
-    // Which creates a new workout in the database, with the same exercises,
-    // but a new date, no sets and reps and weight, and status = not started
-    else if (workoutList[index].status === "Completed") {
-      setCompletedWorkout(workoutList[index]);
-      setShowCopyWorkoutDialog(true);
-    }
+    // // If the workout is not yet completed, then the user should be able to start it
+    // if (workoutList[index].status !== "Completed") {
+    //   setShowOngoingWorkout(true);
+    //   setOngoingWorkout(workoutList[index]);
+    // }
+    // // Otherwise, show a popup that offers the option to duplicate the workout
+    // // Which creates a new workout in the database, with the same exercises,
+    // // but a new date, no sets and reps and weight, and status = not started
+    // else if (workoutList[index].status === "Completed") {
+    //   setCompletedWorkout(workoutList[index]);
+    //   setShowCopyWorkoutDialog(true);
+    // }
   };
 
   const handleCopyWorkoutDialogAction = (e, option) => {
@@ -445,44 +314,6 @@ export default function Dashboard() {
       // onCreateNewWorkout(e);
     }
     setShowCopyWorkoutDialog(false);
-  };
-
-  const WorkoutDialogInExerciseListForwardRef = forwardRef<
-    HTMLButtonElement,
-    WorkoutDialogProps
-  >((props, ref) => {
-    const { index, style, ...otherProps } = props;
-    return (
-      <ListItem style={style} key={index} component="div" disablePadding>
-        <ListItemButton
-          component="button"
-          ref={ref}
-          onClick={(e) => onWorkoutNameClick(e, index)}
-          {...otherProps}
-        >
-          <StyledListItemText
-            primary={
-              workoutList[index].workoutName +
-              " " +
-              workoutList[index].dateOfWorkout.slice(0, -14)
-            }
-          />
-        </ListItemButton>
-      </ListItem>
-    );
-  });
-
-  const exDialogRef = useRef(null);
-
-  const renderWorkoutInExerciseListDialog = (props) => {
-    const { index, style } = props;
-    return (
-      <WorkoutDialogInExerciseListForwardRef
-        index={index}
-        style={style}
-        ref={exDialogRef}
-      />
-    );
   };
 
   const WorkoutListForwardRef = forwardRef<
@@ -508,9 +339,9 @@ export default function Dashboard() {
             />
             {/* {workoutList[index].status == "Completed" && } */}
             <StyledListItemText primary={workoutList[index].workoutName} />
-            <StyledListItemText
+            {/* <StyledListItemText
               primary={workoutList[index].dateOfWorkout.slice(0, -14)}
-            />
+            /> */}
           </ListItemButton>
           {/* <IconButton
             sx={{ color: theme.palette.secondary.main, paddingRight: 3 }}
@@ -575,19 +406,6 @@ export default function Dashboard() {
         <StyledBox>
           <div className="headingRow">
             <StyledSectionHeading variant="h4">Exercises</StyledSectionHeading>
-            {/* <Dropdown>
-              <StyledMenuButton onClick={onAddExerciseButtonClick}>
-                <AddIcon />
-              </StyledMenuButton>
-              <Menu slots={{ listbox: Listbox }}>
-                <StyledMenuItem onClick={onAddExerciseToNewWorkout}>
-                  Add Exercises to New Workout
-                </StyledMenuItem>
-                <StyledMenuItem onClick={onAddExerciseToExistingWorkout}>
-                  Add Exercises to Existing Workout
-                </StyledMenuItem>
-              </Menu>
-            </Dropdown> */}
           </div>
           <form action="">
             <div className="pb-8">
@@ -612,7 +430,72 @@ export default function Dashboard() {
               )}
             </div>
           </form>
-          {/* <Dialog open={dialogOpen}>
+          <List
+            height={200}
+            width={380}
+            itemSize={46}
+            itemCount={exerciseList.length}
+            overscanCount={5}
+          >
+            {renderExercise}
+          </List>
+        </StyledBox>
+        <div>
+          <StyledBox>
+            <div className="headingRow">
+              <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
+              <Button
+                type="submit"
+                variant="contained"
+                className="bg-indigo-500"
+                onClick={() => setCreateNewWorkoutModal(true)}
+              >
+                Add New
+              </Button>
+            </div>
+            <div className="grid grid-flow-col gap-4">
+              <StyledSectionSubheading>Status</StyledSectionSubheading>
+              <StyledSectionSubheading>Name</StyledSectionSubheading>
+              {/* <StyledSectionSubheading>Date</StyledSectionSubheading> */}
+              {/* <StyledSectionSubheading>Delete</StyledSectionSubheading> */}
+            </div>
+            <Modal open={doWorkoutModal}>
+              <DoWorkout
+                ongoingWorkout={ongoingWorkout}
+                setOngoingWorkout={setOngoingWorkout}
+                saveWorkoutInDB={saveWorkoutInDB}
+                setShowOngoingWorkout={setShowOngoingWorkout}
+                setDoWorkoutModal={setDoWorkoutModal}
+              />
+            </Modal>
+            <Modal open={createNewWorkoutModal}>
+              <CreateWorkout
+                setAddNewWorkoutModal={setCreateNewWorkoutModal}
+                exerciseList={exerciseList}
+                onCreateNewWorkout={onCreateNewWorkout}
+              />
+            </Modal>
+            <List
+              height={300}
+              width={400}
+              itemSize={46}
+              itemCount={workoutList.length}
+              workoutListForwardRef={WorkoutListForwardRef}
+              overscanCount={5}
+            >
+              {renderWorkout}
+            </List>
+          </StyledBox>
+        </div>
+      </div>
+      <LineGraph width={800} height={500} />
+    </div>
+  );
+}
+
+// Extras
+{
+  /* <Dialog open={dialogOpen}>
             <DialogActions>
               <StyledBox>
                 <DialogTitle>
@@ -643,72 +526,202 @@ export default function Dashboard() {
                 </List>
               </StyledBox>
             </DialogActions>
-          </Dialog> */}
-          <List
-            height={200}
-            width={380}
-            itemSize={46}
-            itemCount={exerciseList.length}
-            overscanCount={5}
-          >
-            {renderExercise}
-          </List>
-        </StyledBox>
-        <div>
-          <StyledBox>
-            <div className="headingRow">
-              <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
-              <Button
-                type="submit"
-                variant="contained"
-                className="bg-indigo-500"
-                onClick={() => setCreateNewWorkoutModal(true)}
-              >
-                Add New
-              </Button>
-            </div>
-            <div className="grid grid-flow-col gap-4">
-              <StyledSectionSubheading>Status</StyledSectionSubheading>
-              <StyledSectionSubheading>Name</StyledSectionSubheading>
-              <StyledSectionSubheading>Date</StyledSectionSubheading>
-              {/* <StyledSectionSubheading>Delete</StyledSectionSubheading> */}
-            </div>
-            <Modal open={createNewWorkoutModal}>
-              <CreateWorkout
-                setAddNewWorkoutModal={setCreateNewWorkoutModal}
-                exerciseList={exerciseList}
-                onCreateNewWorkout={onCreateNewWorkout}
-              />
-            </Modal>
-            <List
-              height={300}
-              width={400}
-              itemSize={46}
-              itemCount={workoutList.length}
-              workoutListForwardRef={WorkoutListForwardRef}
-              overscanCount={5}
-            >
-              {renderWorkout}
-            </List>
-          </StyledBox>
-        </div>
-      </div>
-      <LineGraph width={800} height={500} />
-      {/* {workoutObject && showWorkout && (
+          </Dialog> */
+}
+
+{
+  /* {workoutObject && showWorkout && (
         <NewWorkout
           workoutObj={workoutObject}
           saveWorkoutInDB={saveWorkoutInDB}
           deleteWorkoutInDB={deleteWorkoutInDB}
         />
-      )} */}
-      {/* {ongoingWorkout && showOngoingWorkout && (
-        <DoWorkout
-          ongoingWorkout={ongoingWorkout}
-          setOngoingWorkout={setOngoingWorkout}
-          saveWorkoutInDB={saveWorkoutInDB}
-          setShowOngoingWorkout={setShowOngoingWorkout}
-        />
-      )} */}
-    </div>
-  );
+      )} */
 }
+
+{
+  /* <Dropdown>
+              <StyledMenuButton onClick={onAddExerciseButtonClick}>
+                <AddIcon />
+              </StyledMenuButton>
+              <Menu slots={{ listbox: Listbox }}>
+                <StyledMenuItem onClick={onAddExerciseToNewWorkout}>
+                  Add Exercises to New Workout
+                </StyledMenuItem>
+                <StyledMenuItem onClick={onAddExerciseToExistingWorkout}>
+                  Add Exercises to Existing Workout
+                </StyledMenuItem>
+              </Menu>
+            </Dropdown> */
+}
+
+// const WorkoutDialogInExerciseListForwardRef = forwardRef<
+//   HTMLButtonElement,
+//   WorkoutDialogProps
+// >((props, ref) => {
+//   const { index, style, ...otherProps } = props;
+//   return (
+//     <ListItem style={style} key={index} component="div" disablePadding>
+//       <ListItemButton
+//         component="button"
+//         ref={ref}
+//         onClick={(e) => onWorkoutNameClick(e, index)}
+//         {...otherProps}
+//       >
+//         <StyledListItemText
+//           primary={
+//             workoutList[index].workoutName +
+//             " " +
+//             workoutList[index].dateOfWorkout.slice(0, -14)
+//           }
+//         />
+//       </ListItemButton>
+//     </ListItem>
+//   );
+// });
+
+// const exDialogRef = useRef(null);
+
+// const renderWorkoutInExerciseListDialog = (props) => {
+//   const { index, style } = props;
+//   return (
+//     <WorkoutDialogInExerciseListForwardRef
+//       index={index}
+//       style={style}
+//       ref={exDialogRef}
+//     />
+//   );
+// };
+
+// const onWorkoutNameClick = async (e, index) => {
+//   e.preventDefault();
+//   console.log("Add to existing workout was clicked");
+//   setDialogOpen(false);
+
+//   // Map over the selected exercises and just keep the exercise itself
+//   // since that's the format that the db expects
+//   const selectedExercises = exerciseList.filter(
+//     (exercise) => exercise.selected
+//   );
+//   const exercises = selectedExercises.map((ex) => ex.ex);
+
+//   const workout = workoutList[index];
+//   console.log(workout);
+//   // Create a new list of exercises that includes the exercises
+//   // that were already part of this workout and the new ones I want to add
+//   const updatedExerciseList = [...exercises, ...workout.exercises];
+//   console.log(updatedExerciseList);
+
+//   // Make api call to update existing workout
+//   let result = await fetch(`${apiUrl}/update-existing-workout`, {
+//     method: "put",
+//     body: JSON.stringify({
+//       id: workout._id,
+//       workout: {
+//         workoutName: workout.workoutName,
+//         status: workout.status,
+//         exercises: updatedExerciseList,
+//         dateCreated: workout.dateCreated,
+//         dateOfWorkout: workout.dateOfWorkout,
+//       },
+//     }),
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   });
+//   const resultText: string = await result.text();
+//   if (resultText !== "Something went wrong") {
+//     const resultObject = JSON.parse(resultText);
+//     console.log(resultObject);
+//     alert("Data saved succesfully!");
+//     setAlertClosed(!alertClosed);
+
+//     // Once the data has been saved in the db,
+//     // set all the exercises to have selected boolean as false
+//     const updatedExerciseList = exerciseList.map((exercise) => {
+//       if (exercise.selected) return { ...exercise, selected: false };
+//       return exercise;
+//     });
+//     setExerciseList(updatedExerciseList);
+//   }
+// };
+
+// const handleDialogClose = () => {
+//   setDialogOpen(false);
+// };
+
+// const onAddExerciseToExistingWorkout = async (e) => {
+//   e.preventDefault();
+//   console.log("Add exercise to existing workout was clicked");
+//   // Map over the selected exercises and just keep the exercise itself
+//   // since that's the format that the db expects
+//   const selectedExercises = exerciseList.filter(
+//     (exercise) => exercise.selected
+//   );
+//   const exercises = selectedExercises.map((ex) => ex.ex);
+
+//   if (exercises.length === 0) {
+//     alert("Please select some exercises first.");
+//   } else {
+//     console.log("In the else block");
+//     // Display dialog with list of workout
+//     setDialogOpen(true);
+//   }
+// };
+
+// When button is clicked, I want to take the list of
+// exercises whose checkbox has been checked off
+// and send those to the db using the api call
+// and then set all the selected booleans to false
+// const onAddExerciseToNewWorkout = async (e) => {
+//   e.preventDefault();
+//   // Map over the selected exercises and just keep the exercise itself
+//   // since that's the format that the db expects
+//   const selectedExercises = exerciseList.filter(
+//     (exercise) => exercise.selected
+//   );
+//   const exercises = selectedExercises.map((ex) => ex.ex);
+
+//   if (exercises.length === 0) {
+//     alert("Please select some exercises first.");
+//   } else {
+//     let result = await fetch(`${apiUrl}/create-new-workout`, {
+//       method: "post",
+//       body: JSON.stringify({
+//         workoutName: "New Workout",
+//         status: "Not Started",
+//         exercises: exercises,
+//         dateCreated: today(),
+//         dateOfWorkout: tomorrow(),
+//       }),
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     });
+//     const resultText: string = await result.text();
+//     if (resultText !== "Something went wrong") {
+//       const resultObject = JSON.parse(resultText);
+//       console.log(resultObject);
+//       setWorkoutObject(resultObject);
+//       setShowWorkout(!showWorkout);
+//       alert("Data saved succesfully!");
+
+//       // Once the data has been saved in the db,
+//       // set all the exercises to have selected boolean as false
+//       const updatedExerciseList = exerciseList.map((exercise) => {
+//         if (exercise.selected) return { ...exercise, selected: false };
+//         return exercise;
+//       });
+//       setExerciseList(updatedExerciseList);
+//     }
+//   }
+// };
+//else {
+//   alert("Please save existing workout before creating a new one.")
+// }
+// //
+
+// const onAddExerciseButtonClick = () => {
+//   console.log("Show add exercise dropdown");
+//   setAddExerciseDropdown(!addExerciseDropdown);
+// };

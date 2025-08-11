@@ -87,7 +87,11 @@ const WorkoutSchema = new Schema(
     // and completion of the exercise, so within the exercise as well - completed: { type: Boolean, default: false },
     exerciseData: [
       {
-        exerciseId: { type: Schema.Types.ObjectId, ref: "Exercise" },
+        exerciseId: {
+          type: Schema.Types.ObjectId,
+          ref: "Exercise",
+          required: true,
+        },
         sets: [
           {
             reps: { type: Number, default: 0 },
@@ -170,11 +174,11 @@ app.get("/get-exercise-by-id", async (req, resp) => {
 });
 
 app.get("/get-exercises", async (req, resp) => {
-  console.log("Get exercises was called");
+  // console.log("Get exercises was called");
   try {
-    console.log("Inside the try block for get exercises");
+    // console.log("Inside the try block for get exercises");
     const exerciseCollection = await Exercise.find();
-    console.log(JSON.stringify(exerciseCollection));
+    // console.log(JSON.stringify(exerciseCollection));
     resp.send(JSON.stringify(exerciseCollection));
   } catch (error) {
     console.log(error);
@@ -185,8 +189,11 @@ app.get("/get-exercises", async (req, resp) => {
 app.get("/get-workouts", async (req, resp) => {
   console.log("Get workouts was called");
   try {
-    const workoutCollection = await Workout.find().populate("exercises");
-    console.log(JSON.stringify(workoutCollection));
+    const workoutCollection = await Workout.find()
+      .populate("exercises")
+      .populate("exerciseData.exerciseId");
+    console.log("Following is the populated workout collection - ");
+    console.log(JSON.stringify(workoutCollection, null, 2));
     resp.send(JSON.stringify(workoutCollection));
   } catch (error) {
     console.log(error);

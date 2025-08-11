@@ -25,19 +25,29 @@ function DoWorkout(props) {
     setOngoingWorkout,
     saveWorkoutInDB,
     setShowOngoingWorkout,
+    setDoWorkoutModal,
   } = props;
   // Create a list of exercises that has the following properties -
   // id, exercise name, completed, sets, reps, weight
-  const exercisesAndData = ongoingWorkout.exercises.map((exercise) => ({
-    id: exercise._id,
-    exerciseName: exercise.exercise,
+  // const exercisesAndData = ongoingWorkout.exercises.map((exercise) => ({
+  //   id: exercise._id,
+  //   exerciseName: exercise.exercise,
+  //   completed: false,
+  //   sets: "",
+  //   reps: "",
+  //   weight: "",
+  // }));
+  const exercisesAndData = ongoingWorkout.exerciseData.map((ex) => ({
+    id: ex.exerciseId._id,
+    exerciseName: ex.exerciseId.exercise,
     completed: false,
-    sets: "",
-    reps: "",
-    weight: "",
+    sets: ex.sets.length,
+    reps: ex.sets[0].reps,
+    weight: ex.sets[0].weight,
   }));
   const [exerciseData, setExerciseData] = useState(exercisesAndData);
   const [workoutName, setWorkoutName] = useState(ongoingWorkout.workoutName);
+  // const [workoutDate, setWorkoutDate] = useState < String > "";
   const [workoutDate, setWorkoutDate] = useState(
     ongoingWorkout.dateOfWorkout.slice(0, -14)
   );
@@ -118,8 +128,9 @@ function DoWorkout(props) {
 
   const onClose = (e) => {
     e.preventDefault();
+    setDoWorkoutModal(false);
     console.log("Close without saving");
-    setCloseAlert(true);
+    // setCloseAlert(true);
   };
 
   // Handles clicks on buttons within the close dialog
@@ -132,7 +143,7 @@ function DoWorkout(props) {
     }
     // If choice is No, then we don't need to do anything
     // and simply close the alert
-    setCloseAlert(false);
+    // setCloseAlert(false);
   };
 
   const displayExercise = (props) => {
@@ -260,7 +271,7 @@ function DoWorkout(props) {
             <Button variant="contained" onClick={onClose}>
               Close
             </Button>
-            <Dialog open={closeAlert}>
+            {/* <Dialog open={closeAlert}>
               <DialogTitle>
                 {"No changes will be saved. Close anyway?"}
               </DialogTitle>
@@ -275,7 +286,7 @@ function DoWorkout(props) {
                   No
                 </Button>
               </DialogActions>
-            </Dialog>
+            </Dialog> */}
             <Button type="submit" variant="contained">
               Complete Workout
             </Button>

@@ -59,11 +59,26 @@ export default function CreateWorkout(props) {
     if (selectedExercises.size !== Object.keys(exerciseData).length) {
       return true;
     }
-    for (const index in Object.keys(exerciseData)) {
-      if (exerciseData[index].sets === 0 || exerciseData[index].reps === 0) {
-        return false;
+    for (const index of Array.from(selectedExercises)) {
+      const data = exerciseData[index];
+
+      // If no data exists, or sets/reps are missing/zero
+      if (
+        !data ||
+        !data.sets ||
+        !data.reps ||
+        data.sets <= 0 ||
+        data.reps <= 0
+      ) {
+        console.log(`Missing data for selected exercise ${index}:`, data);
+        return true;
       }
     }
+    // for (const index in Object.keys(exerciseData)) {
+    //   if (exerciseData[index].sets === 0 || exerciseData[index].reps === 0) {
+    //     return false;
+    //   }
+    // }
     return false;
   };
 
@@ -76,7 +91,7 @@ export default function CreateWorkout(props) {
       showToast("Workout name is required.", "error");
     } else if (selectedExercises.size === 0) {
       showToast("Please select at least one exercise.", "error");
-    } else if (setsOrRepsMissing) {
+    } else if (setsOrRepsMissing()) {
       showToast("Please make sure all selected exercises have sets and reps.");
     } else {
       console.log("Workout can be added to db.");
@@ -85,7 +100,11 @@ export default function CreateWorkout(props) {
       );
       const exerciseDataForBackend = Array.from(selectedExercises).map(
         (index) => {
-          const exId = exerciseList[index]._id;
+          console.log(
+            "Here is the exercise information - ",
+            exerciseList[index].ex._id
+          );
+          const exId = exerciseList[index].ex._id;
           const numberOfSets = exerciseData[index]?.sets || 3;
           const repsPerSet = exerciseData[index]?.reps || 10;
           const sets = Array.from({ length: numberOfSets }).map(() => ({
@@ -94,6 +113,10 @@ export default function CreateWorkout(props) {
           }));
           return { exerciseId: exId, sets: sets };
         }
+      );
+      console.log(
+        "Here is the exercise data on the frontend - ",
+        exerciseDataForBackend
       );
       onCreateNewWorkout(e, workoutName, exerciseIds, exerciseDataForBackend);
     }
