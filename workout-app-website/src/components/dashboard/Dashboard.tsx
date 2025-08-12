@@ -9,7 +9,7 @@ import ListItemButton from "@mui/material/ListItemButton";
 import DoWorkout from "./DoWorkout";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
-import { DialogTitle, Modal } from "@mui/material";
+import { DialogTitle, Modal, Typography } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
@@ -336,6 +336,7 @@ export default function Dashboard() {
               style={{ fontSize: "small" }}
               color="secondary"
             />
+
             {/* {workoutList[index].status == "Completed" && } */}
             <StyledListItemText primary={workoutList[index].workoutName} />
             {/* <StyledListItemText
@@ -458,6 +459,16 @@ export default function Dashboard() {
               {/* <StyledSectionSubheading>Date</StyledSectionSubheading> */}
               {/* <StyledSectionSubheading>Delete</StyledSectionSubheading> */}
             </div>
+            <List
+              height={300}
+              width={400}
+              itemSize={46}
+              itemCount={workoutList.length}
+              workoutListForwardRef={WorkoutListForwardRef}
+              overscanCount={5}
+            >
+              {renderWorkout}
+            </List>
             <Modal open={doWorkoutModal}>
               <DoWorkout
                 ongoingWorkout={ongoingWorkout}
@@ -474,16 +485,6 @@ export default function Dashboard() {
                 onCreateNewWorkout={onCreateNewWorkout}
               />
             </Modal>
-            <List
-              height={300}
-              width={400}
-              itemSize={46}
-              itemCount={workoutList.length}
-              workoutListForwardRef={WorkoutListForwardRef}
-              overscanCount={5}
-            >
-              {renderWorkout}
-            </List>
           </StyledBox>
         </div>
       </div>
