@@ -118,7 +118,6 @@ export default function LoginForm(props: Props) {
     setIsSubmitting(true);
     try {
       await signInWithEmailAndPassword(auth, formData.email, formData.password);
-      console.log("Form data:", formData);
       navigate("/dashboard", { replace: true });
       console.log("navigate called");
     } catch (error) {
