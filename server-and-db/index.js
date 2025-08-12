@@ -98,6 +98,10 @@ const WorkoutSchema = new Schema(
             weight: { type: Number, default: 0 },
           },
         ],
+        completed: {
+          type: Boolean,
+          required: true,
+        },
       },
     ],
 
@@ -234,30 +238,62 @@ app.post("/register", async (req, resp) => {
 
 app.post("/create-new-workout", async (req, resp) => {
   console.log("Create new workout was called: ", req.body);
-  console.log("Database connection state:", mongoose.connection.readyState);
-  console.log("Exercises field: ", req.body.exercises);
-  console.log("Type of exercises - ", typeof req.body.exercises);
+  // console.log("Database connection state:", mongoose.connection.readyState);
+  // console.log("Exercises field: ", req.body.exercises);
+  // console.log("Type of exercises - ", typeof req.body.exercises);
+
+  console.log("=== REQUEST EXERCISE DATA ===");
+  console.log(
+    "exerciseData from request:",
+    JSON.stringify(req.body.exerciseData, null, 2)
+  );
+
   try {
     const workout = new Workout(req.body);
+    console.log("=== WORKOUT OBJECT BEFORE SAVE ===");
+    console.log(
+      "exerciseData in workout object:",
+      JSON.stringify(workout.exerciseData, null, 2)
+    );
+
     const validationError = workout.validateSync();
     if (validationError) {
       console.log("Validation failed:", validationError.errors);
       return resp.status(400).send("Validation error");
     }
-    console.log("Workout object created", workout);
+    // console.log("Workout object created", workout);
     let result = await workout.save();
-    console.log("Save successful", result);
-    result = result.toObject();
-    console.log("Got the result");
-    if (result) {
-      console.log("Got a good result, will send back to UI");
-      const response = { workout: req.body, id: result._id };
-      resp.send(response);
-      console.log(result);
-    } else {
-      console.log("Workout exists in DB");
-    }
+    console.log("=== SAVED WORKOUT ===");
+    console.log(
+      "exerciseData after save:",
+      JSON.stringify(result.exerciseData, null, 2)
+    );
+
+    // Populate the exerciseId fields before sending back to frontend
+    result = await Workout.findById(result._id)
+      .populate("exercises")
+      .populate("exerciseData.exerciseId");
+
+    console.log("=== POPULATED WORKOUT ===");
+    console.log(
+      "exerciseData after populate:",
+      JSON.stringify(result.exerciseData, null, 2)
+    );
+    resp.send({ workout: result, id: result._id });
+
+    // console.log("Save successful", result);
+    // result = result.toObject();
+    // console.log("Got the result");
+    // if (result) {
+    //   console.log("Got a good result, will send back to UI");
+    //   const response = { workout: req.body, id: result._id };
+    //   resp.send(response);
+    //   console.log(result);
+    // } else {
+    //   console.log("Workout exists in DB");
+    // }
   } catch (e) {
+    console.log("Error saving workout:", e);
     resp.send("Something went wrong");
   }
 });

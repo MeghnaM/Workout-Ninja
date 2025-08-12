@@ -26,6 +26,7 @@ import LineGraph from "./LineGraph";
 import backgroundImage from "../../assets/gradient.jpg";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import CreateWorkout from "./CreateWorkout";
+import { error } from "console";
 
 interface WorkoutDialogProps {
   index: number;
@@ -112,7 +113,6 @@ export default function Dashboard() {
         .catch((error) => console.error(error));
     }
 
-    // console.log(`Workout List: ${workoutList}`);
     getExercises();
     getWorkouts();
   }, [newExercise, workoutObject, alertClosed]);
@@ -253,9 +253,8 @@ export default function Dashboard() {
     console.log("Saved workout from DB -");
     console.log(resultText);
     if (resultText !== "Something went wrong") {
-      alert("Workout saved!");
       setWorkoutObject({});
-      setShowWorkout(false);
+      setDoWorkoutModal(false);
       if (ongoingWorkout) setShowOngoingWorkout(false);
     } else {
       alert("Something went wrong");

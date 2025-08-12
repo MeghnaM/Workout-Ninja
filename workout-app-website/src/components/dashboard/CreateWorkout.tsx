@@ -111,7 +111,7 @@ export default function CreateWorkout(props) {
             reps: repsPerSet,
             weight: 0,
           }));
-          return { exerciseId: exId, sets: sets };
+          return { exerciseId: exId, sets: sets, completed: false };
         }
       );
       console.log(

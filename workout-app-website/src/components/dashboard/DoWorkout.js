@@ -35,38 +35,40 @@ function DoWorkout(props) {
     setShowOngoingWorkout,
     setDoWorkoutModal,
   } = props;
-  // Create a list of exercises that has the following properties -
-  // id, exercise name, completed, sets, reps, weight
-  // const exercisesAndData = ongoingWorkout.exercises.map((exercise) => ({
-  //   id: exercise._id,
-  //   exerciseName: exercise.exercise,
-  //   completed: false,
-  //   sets: "",
-  //   reps: "",
-  //   weight: "",
-  // }));
+
   const [toast, setToast] = useState("");
-  const exercisesAndData = ongoingWorkout.exerciseData.map((ex) => ({
-    id: ex.exerciseId._id,
-    exerciseName: ex.exerciseId.exercise,
-    completed: false,
-    sets: ex.sets,
-    // reps: ex.sets[0].reps,
-    // weight: ex.sets[0].weight,
-  }));
-  const [exerciseData, setExerciseData] = useState(exercisesAndData);
+  console.log("=== DOWORKOUT DEBUG ===");
+  console.log("Full ongoingWorkout:", JSON.stringify(ongoingWorkout, null, 2));
+  console.log("exerciseData array:", ongoingWorkout.exerciseData);
+
+  if (ongoingWorkout.exerciseData && ongoingWorkout.exerciseData.length > 0) {
+    ongoingWorkout.exerciseData.forEach((ex, index) => {
+      console.log(`Exercise ${index}:`, ex);
+      console.log(`exerciseId type:`, typeof ex.exerciseId);
+      console.log(`exerciseId value:`, ex.exerciseId);
+    });
+  }
+  const exercisesAndData = ongoingWorkout.exerciseData.map((ex) => {
+    return {
+      id: ex.exerciseId._id,
+      exerciseId: ex.exerciseId,
+      exerciseName: ex.exerciseId.exercise,
+      completed: ex.completed,
+      sets: ex.sets,
+    };
+  });
+  const [workoutExerciseData, setWorkoutExerciseData] =
+    useState(exercisesAndData);
   const [workoutName, setWorkoutName] = useState(ongoingWorkout.workoutName);
-  const [workoutDate, setWorkoutDate] = useState("");
-  // const [workoutDate, setWorkoutDate] = useState(
-  //   ongoingWorkout.dateOfWorkout.slice(0, -14)
-  // );
-  const [closeAlert, setCloseAlert] = useState(false);
+  const [workoutDate, setWorkoutDate] = useState(
+    ongoingWorkout.dateOfWorkout.slice(0, -14)
+  );
 
   useEffect(() => {
-    console.log(exerciseData);
-  }, [exerciseData]);
+    console.log(workoutExerciseData);
+  }, [workoutExerciseData]);
 
-  const showToast = (message: string, type?: string) => {
+  const showToast = (message) => {
     setToast(message);
     setTimeout(() => setToast(null), 2000);
   };
@@ -86,39 +88,17 @@ function DoWorkout(props) {
     e.preventDefault();
     console.log("Complete workout was clicked");
 
-    // Create objects for weights, sets, reps and exercisesCompleted
-    // Don't need a separate object for exercises because the existing workout has that already
-    const weights = exerciseData.map((data) => ({
-      id: data.id,
-      weight: data.weight,
-    }));
-    const sets = exerciseData.map((data) => ({
-      id: data.id,
-      sets: data.sets,
-    }));
-    const reps = exerciseData.map((data) => ({
-      id: data.id,
-      reps: data.reps,
-    }));
-    const exercisesCompleted = exerciseData.map((data) => ({
-      id: data.id,
-      completed: data.completed,
-    }));
-
     // Check form validity
     if (formIsValid) {
       // Create a new workout object with the exercises and data,
       // as well as the new workout name and date
       const completedWorkout = {
         ...ongoingWorkout,
-        workoutName: workoutName,
         dateOfWorkout: workoutDate,
-        weights: weights,
-        sets: sets,
-        reps: reps,
-        exercisesCompleted: exercisesCompleted,
+        exerciseData: workoutExerciseData,
         status: "Completed",
       };
+
       // Call saveWorkoutInDB with the completed workout
       setOngoingWorkout(completedWorkout);
       saveWorkoutInDB(completedWorkout, completedWorkout._id);
@@ -129,26 +109,9 @@ function DoWorkout(props) {
     }
   };
 
-  // Update exercise with auxillary data
   const updateExerciseWeights = useCallback(
     (exerciseIndex, setIndex, field, value) => {
-      // Map over the list of exercises
-      // Find the exercise with this id, update the corresponding field and value
-      // Put the exercise back into the list
-      // console.log("Here is the current exercise data - ", exerciseData);
-      // const updatedExerciseData = exerciseData.map((exercise) => {
-      //   if (exercise.id === id) {
-      //     const updatedExercise = {
-      //       ...exercise,
-      //       [field]: value,
-      //     };
-      //     return updatedExercise;
-      //   }
-      //   return exercise;
-      // });
-      // setExerciseData(updatedExerciseData);
-
-      setExerciseData((prevData) => {
+      setWorkoutExerciseData((prevData) => {
         const newData = [...prevData];
         newData[exerciseIndex] = {
           ...newData[exerciseIndex],
@@ -163,7 +126,7 @@ function DoWorkout(props) {
   );
 
   const updateExerciseCompleted = useCallback((exerciseIndex, value) => {
-    setExerciseData((prevData) => {
+    setWorkoutExerciseData((prevData) => {
       const newData = [...prevData];
       newData[exerciseIndex] = {
         ...newData[exerciseIndex],
@@ -204,16 +167,19 @@ function DoWorkout(props) {
               <Checkbox
                 icon={<RadioButtonUncheckedIcon />}
                 checkedIcon={<RadioButtonCheckedIcon />}
-                checked={exerciseData[index].completed}
+                checked={workoutExerciseData[index].completed}
                 onChange={(e) =>
-                  updateExerciseCompleted(index, !exerciseData[index].completed)
+                  updateExerciseCompleted(
+                    index,
+                    !workoutExerciseData[index].completed
+                  )
                 }
                 fontSize="small"
               />
             </ListItemIcon>
             <ListItemText
               sx={{ color: theme.palette.primary.main, width: 100 }}
-              primary={exerciseData[index].exerciseName}
+              primary={workoutExerciseData[index].exerciseName}
             />
             {/* <TextField
             label="Sets"
@@ -231,7 +197,7 @@ function DoWorkout(props) {
               updateExerciseData(exerciseData[index].id, "reps", e.target.value)
             }
           /> */}
-            {(exerciseData[index]?.sets || []).map((set, setIndex) => (
+            {(workoutExerciseData[index]?.sets || []).map((set, setIndex) => (
               <div
                 key={setIndex}
                 style={{ display: "flex", flexDirection: "column" }}
@@ -257,7 +223,7 @@ function DoWorkout(props) {
       );
     },
     [
-      exerciseData,
+      workoutExerciseData,
       updateExerciseCompleted,
       updateExerciseWeights,
       theme.palette.primary.main,
@@ -270,7 +236,7 @@ function DoWorkout(props) {
     // Form is valid if workout has a name and the date is in the correct format
     if (workoutName.length > 0 && regex.test(workoutDate)) {
       // And if for every checked off exercise, sets, reps and weight is populated
-      exerciseData.map((exercise) => {
+      workoutExerciseData.map((exercise) => {
         if (
           exercise.completed &&
           exercise.sets.length > 0 &&
@@ -316,42 +282,14 @@ function DoWorkout(props) {
             />
           </div>
           <div style={{ height: 210, overflow: "auto" }}>
-            {exerciseData.map((exercise, index) =>
+            {workoutExerciseData.map((exercise, index) =>
               displayExercise({ index, key: index, style: {} })
             )}
           </div>
-
-          {/* <List
-            height={210}
-            width={400}
-            itemSize={46}
-            itemCount={exerciseData?.length || 0}
-            overscanCount={5}
-            sx={{ listStyleType: "disc" }}
-          >
-            {displayExercise}
-          </List> */}
-
           <div className="workoutDisplayRow">
             <Button variant="contained" onClick={onClose}>
               Close
             </Button>
-            {/* <Dialog open={closeAlert}>
-              <DialogTitle>
-                {"No changes will be saved. Close anyway?"}
-              </DialogTitle>
-              <DialogActions>
-                <Button
-                  onClick={(e) => closeDialog(e.target.textContent)}
-                  autoFocus
-                >
-                  Yes
-                </Button>
-                <Button onClick={(e) => closeDialog(e.target.textContent)}>
-                  No
-                </Button>
-              </DialogActions>
-            </Dialog> */}
             <Button type="submit" variant="contained">
               Complete Workout
             </Button>
