@@ -175,7 +175,6 @@ export default function LineGraph({
   // chart data shape =
   // {exerciseName: array[date, value]}
   // get completed workouts, get exercise data
-  // we want date and max value - so
   const chartData = () => {
     const completedWorkouts = workoutList.filter(
       (workout) => workout.status === "Completed"
