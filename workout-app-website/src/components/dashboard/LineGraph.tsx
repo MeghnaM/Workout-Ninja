@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { extent, max } from "@visx/vendor/d3-array";
 import * as allCurves from "@visx/curve";
@@ -59,6 +59,7 @@ export type CurveProps = {
   width: 800;
   height: 500;
   showControls?: boolean;
+  workoutList: any[];
 };
 
 const values = generateDateValue(25, 1 / 72).sort(
@@ -76,38 +77,8 @@ interface ExerciseWeights {
 // How do I create an object of type DateValue without generating it?
 const exerciseWeightsOverTime = {
   Squat: values,
-  // ["2025-04-14", "65"],
-  // ["2025-04-18", "85"],
-  // ["2025-04-23", "85"],
-  // ["2025-04-26", "90"],
-  // ["2025-04-30", "95"],
-  // ["2025-05-01", "100"],
-  // ["2025-05-05", "95"],
-  // ["2025-05-08", "95"],
-  // ["2025-05-10", "100"],
   Deadlift: values2,
-  // ["2025-04-08", "65"],
-  // ["2025-04-12", "80"],
-  // ["2025-04-18", "85"],
-  // ["2025-04-21", "85"],
-  // ["2025-04-26", "90"],
-  // ["2025-04-29", "90"],
-  // ["2025-05-02", "75"],
-  // ["2025-05-03", "75"],
-  // ["2025-05-11", "95"],
-  // ["2025-05-17", "85"],
-
   "Bench Press": values,
-  // ["2025-04-03", "65"],
-  // ["2025-04-07", "65"],
-  // ["2025-04-10", "85"],
-  // ["2025-04-20", "90"],
-  // ["2025-04-28", "90"],
-  // ["2025-04-29", "95"],
-  // ["2025-05-02", "90"],
-  // ["2025-05-05", "95"],
-  // ["2025-05-08", "90"],
-  // ["2025-05-10", "100"],
 };
 
 const ordinalColorScale = scaleOrdinal({
@@ -147,11 +118,18 @@ export default function LineGraph({
   width,
   height,
   showControls = true,
+  workoutList = [],
 }: CurveProps) {
   const [curveType, setCurveType] = useState<CurveType>("curveNatural");
   const [showPoints, setShowPoints] = useState<boolean>(true);
   const svgHeight = showControls ? height - 40 : height;
   const lineHeight = svgHeight / lineCount;
+
+  useEffect(() => {
+    console.log("===Use Effect: Line Graph===");
+    console.log("Workout List from DB - ", workoutList);
+    console.log("Dummy chart data - ", exerciseWeightsOverTime);
+  });
 
   // update scale output ranges
   xScale.range([0, width - 50]);
@@ -193,6 +171,20 @@ export default function LineGraph({
   const margin = { top: 40, right: 0, bottom: 0, left: 0 };
   const yMax = height - margin.top - 100;
   const purple3 = "#a44afe";
+
+  // chart data shape =
+  // {exerciseName: array[date, value]}
+  // get completed workouts, get exercise data
+  // we want date and max value - so
+  const chartData = () => {
+    const completedWorkouts = workoutList.filter(
+      (workout) => workout.status === "Completed"
+    );
+    const exerciseData = {};
+    completedWorkouts.forEach((workout) => {
+      const workoutDate = new Date(workout.dateOfWorkout);
+    });
+  };
 
   return (
     <div

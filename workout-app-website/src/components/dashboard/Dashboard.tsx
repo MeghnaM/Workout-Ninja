@@ -488,7 +488,7 @@ export default function Dashboard() {
           </StyledBox>
         </div>
       </div>
-      <LineGraph width={800} height={500} />
+      <LineGraph width={800} height={500} workoutList={workoutList} />
     </div>
   );
 }
