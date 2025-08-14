@@ -81,11 +81,6 @@ const exerciseWeightsOverTime = {
   "Bench Press": values,
 };
 
-const ordinalColorScale = scaleOrdinal({
-  domain: exercises,
-  range: ["#66d981", "#71f5ef", "#4899f1", "#7d81f6"],
-});
-
 // now for some data manipulation to create the dates
 const dateRange = exerciseWeightsOverTime["Squat"].map((item) =>
   item.date.toDateString()
@@ -122,18 +117,13 @@ export default function LineGraph({
 }: CurveProps) {
   const [curveType, setCurveType] = useState<CurveType>("curveNatural");
   const [showPoints, setShowPoints] = useState<boolean>(true);
-  const svgHeight = showControls ? height - 40 : height;
-  const lineHeight = svgHeight / lineCount;
+  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
     console.log("===Use Effect: Line Graph===");
-    console.log("Workout List from DB - ", workoutList);
     console.log("Dummy chart data - ", exerciseWeightsOverTime);
+    console.log("Exercise Data in correct format -", lineSeriesData());
   });
-
-  // update scale output ranges
-  xScale.range([0, width - 50]);
-  yScale.range([lineHeight - 2, 0]);
 
   function LegendDemo({
     title,
@@ -174,16 +164,64 @@ export default function LineGraph({
 
   // chart data shape =
   // {exerciseName: array[date, value]}
-  // get completed workouts, get exercise data
-  const chartData = () => {
+  // get completed workouts, get exercise data - date, highest weight, exercise name
+  const lineSeriesData = () => {
     const completedWorkouts = workoutList.filter(
       (workout) => workout.status === "Completed"
     );
-    const exerciseData = {};
-    completedWorkouts.forEach((workout) => {
+    const exerciseData = completedWorkouts.flatMap((workout) => {
       const workoutDate = new Date(workout.dateOfWorkout);
+      return workout.exerciseData.map((exercise) => {
+        const exerciseName = exercise.exerciseId.exercise;
+        const highestWeight = Math.max(
+          ...exercise.sets.map((set) => set.weight || 0)
+        );
+        return {
+          name: exerciseName,
+          date: workoutDate,
+          weight: highestWeight,
+        };
+      });
     });
+    const lineData = exerciseData.reduce((acc, exercise) => {
+      if (!acc[exercise.name]) {
+        acc[exercise.name] = [];
+      }
+      acc[exercise.name].push({
+        date: exercise.date,
+        value: exercise.weight,
+      });
+      return acc;
+    }, {}); // Initial value is empty accumulator {}
+    return lineData;
   };
+
+  // EXERCISE DATA
+  const lineData = lineSeriesData();
+  const allRealData = Object.values(lineData).flat();
+  console.log("ALL REAL DATA", allRealData);
+  const realXDomain = extent(allRealData, (d) => (d as any).date) as [
+    Date,
+    Date
+  ];
+  const realYDomain = [0, max(allRealData, (d) => (d as any).value) as number];
+
+  xScale.domain(realXDomain);
+  yScale.domain(realYDomain);
+  const ordinalColorScale = scaleOrdinal({
+    domain: Object.keys(lineData),
+    range: ["#66d981", "#71f5ef", "#4899f1", "#7d81f6"],
+  });
+  const svgHeight = showControls ? height - 40 : height;
+  // const lineHeight = svgHeight / Object.keys(lineData).length;
+  const lineHeight = 50;
+  // update scale output ranges
+  xScale.range([0, width - 50]);
+  yScale.range([lineHeight - 5, 5]);
+
+  console.log("xScale domain:", xScale.domain());
+  console.log("yScale domain:", yScale.domain());
+  console.log("lineHeight:", lineHeight);
 
   return (
     <div
@@ -192,6 +230,7 @@ export default function LineGraph({
         backgroundColor: "#faf2e1",
         width: 800,
         height: 800,
+        margin: 50,
       }}
     >
       <StyledSectionHeading variant="h4">
@@ -203,18 +242,21 @@ export default function LineGraph({
       <svg width={800} height={600}>
         <MarkerCircle id="marker-circle" fill="#333" size={2} refX={2} />
         {width > 8 &&
-          exercises.map((exercise, i) => {
-            let lineData: [DateValue] = exerciseWeightsOverTime[exercise] || [];
+          Object.keys(lineData).map((exerciseName, i) => {
+            const exerciseData = lineData[exerciseName] || [];
+
+            // let lineData = lineSeriesData() || [];
+            // let lineData: [DateValue] = exerciseWeightsOverTime[exercise] || [];
             // console.log("Line Data", exerciseWeightsOverTime[exercise]);
             // series.map((data) => console.log("Series", data));
             return (
               <Group key={`lines-${i}`} top={i * lineHeight} left={13}>
                 <LinePath<DateValue>
                   curve={allCurves[curveType]}
-                  data={lineData}
+                  data={exerciseData}
                   x={(d) => xScale(getX(d)) ?? 0}
                   y={(d) => yScale(getY(d)) ?? 0}
-                  stroke={ordinalColorScale(exercise)}
+                  stroke={ordinalColorScale(exerciseName)}
                   strokeWidth={2}
                   shapeRendering="geometricPrecision"
                   markerMid="url(#marker-circle)"
