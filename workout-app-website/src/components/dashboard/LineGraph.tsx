@@ -5,6 +5,9 @@ import * as allCurves from "@visx/curve";
 import { Group } from "@visx/group";
 import { LinePath } from "@visx/shape";
 import { scaleTime, scaleLinear, scaleOrdinal, scaleBand } from "@visx/scale";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import InputLabel from "@mui/material/InputLabel";
+import MenuItem from "@mui/material/MenuItem";
 import {
   MarkerArrow,
   MarkerCross,
@@ -21,40 +24,6 @@ import { AxisBottom } from "@visx/axis";
 
 type CurveType = keyof typeof allCurves;
 
-const curveTypes = Object.keys(allCurves);
-const exercises: string[] = [
-  "Squat",
-  "Deadlift",
-  "Bench Press",
-  "Front Rack Backward Lunge",
-];
-
-// Series is an array of length lineCount, where each element is of type
-// DateValue which means it has a date and a time. Ok.
-// The function genDateValue generates a date value, but I want to use my
-// own data so I can just create objects using the DateValue interface.
-const lineCount = exercises.length;
-const series = new Array(lineCount).fill(null).map((_, i) =>
-  // vary each series value deterministically
-  generateDateValue(25, /* seed= */ i / 72).sort(
-    (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
-  )
-);
-const allData = series.reduce((rec, d) => rec.concat(d), []);
-// console.log("Series", series[0]);
-
-// data accessors
-const getX = (d: DateValue) => d.date;
-const getY = (d: DateValue) => d.value;
-
-// scales
-const xScale = scaleTime<number>({
-  domain: extent(allData, getX) as [Date, Date],
-});
-const yScale = scaleLinear<number>({
-  domain: [0, max(allData, getY) as number],
-});
-
 export type CurveProps = {
   width: 800;
   height: 500;
@@ -62,34 +31,10 @@ export type CurveProps = {
   workoutList: any[];
 };
 
-const values = generateDateValue(25, 1 / 72).sort(
-  (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
-);
-const values2 = generateDateValue(25).sort(
-  (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
-);
-
 // defining a named tuple array in typescript, ? means optional
 interface ExerciseWeights {
   [exercise: string]: DateValue;
 }
-
-// How do I create an object of type DateValue without generating it?
-const exerciseWeightsOverTime = {
-  Squat: values,
-  Deadlift: values2,
-  "Bench Press": values,
-};
-
-// now for some data manipulation to create the dates
-const dateRange = exerciseWeightsOverTime["Squat"].map((item) =>
-  item.date.toDateString()
-);
-// console.log("Getting dates", dateRange);
-const dateScale = scaleBand<string>({
-  domain: dateRange,
-  padding: 0.2,
-});
 
 // Todo - for AxisBottom
 // const parseDate = timeParse("%Y-%m-%d");
@@ -115,13 +60,13 @@ export default function LineGraph({
   showControls = true,
   workoutList = [],
 }: CurveProps) {
-  const [curveType, setCurveType] = useState<CurveType>("curveNatural");
+  const [curveType, setCurveType] = useState<CurveType>("curveLinear");
   const [showPoints, setShowPoints] = useState<boolean>(true);
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
     console.log("===Use Effect: Line Graph===");
-    console.log("Dummy chart data - ", exerciseWeightsOverTime);
+    // console.log("Dummy chart data - ", exerciseWeightsOverTime);
     console.log("Exercise Data in correct format -", lineSeriesData());
   });
 
@@ -199,12 +144,29 @@ export default function LineGraph({
   // EXERCISE DATA
   const lineData = lineSeriesData();
   const allRealData = Object.values(lineData).flat();
-  console.log("ALL REAL DATA", allRealData);
+  const [exercises, setExercises] = useState(Object.keys(lineData));
+  // const [selectedExercise, setSelectedExercise]
+  const [dateWindows, setDateWindows] = useState(
+    Object.keys(lineData).map((exercise, _) => lineData[exercise].date)
+  );
+
   const realXDomain = extent(allRealData, (d) => (d as any).date) as [
     Date,
     Date
   ];
   const realYDomain = [0, max(allRealData, (d) => (d as any).value) as number];
+
+  // data accessors
+  const getX = (d: DateValue) => d.date;
+  const getY = (d: DateValue) => d.value;
+
+  // scales
+  const xScale = scaleTime<number>({
+    domain: extent(allRealData, getX) as [Date, Date],
+  });
+  const yScale = scaleLinear<number>({
+    domain: [0, max(allRealData, getY) as number],
+  });
 
   xScale.domain(realXDomain);
   yScale.domain(realYDomain);
@@ -214,14 +176,67 @@ export default function LineGraph({
   });
   const svgHeight = showControls ? height - 40 : height;
   // const lineHeight = svgHeight / Object.keys(lineData).length;
-  const lineHeight = 50;
+  const lineHeight = 150;
+
   // update scale output ranges
   xScale.range([0, width - 50]);
   yScale.range([lineHeight - 5, 5]);
 
-  console.log("xScale domain:", xScale.domain());
-  console.log("yScale domain:", yScale.domain());
-  console.log("lineHeight:", lineHeight);
+  const values = generateDateValue(25, 1 / 72).sort(
+    (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
+  );
+  const values2 = generateDateValue(25).sort(
+    (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
+  );
+  const exerciseWeightsOverTime = {
+    Squat: values,
+    Deadlift: values2,
+    "Bench Press": values,
+  };
+  // const dateRange = exerciseWeightsOverTime["Squat"].map((item) => ...)
+  const dateRange = (lineData[0] ? lineData[0] : []).map((item) =>
+    item.date.toDateString()
+  );
+  // console.log("Getting dates", dateRange);
+  const dateScale = scaleBand<string>({
+    domain: dateRange,
+    padding: 0.2,
+  });
+
+  // OLD FUNCTIONS
+
+  const curveTypes = Object.keys(allCurves);
+  // const exercises: string[] = [
+  //   "Squat",
+  //   "Deadlift",
+  //   "Bench Press",
+  //   "Front Rack Backward Lunge",
+  // ];
+
+  // Series is an array of length lineCount, where each element is of type
+  // DateValue which means it has a date and a time. Ok.
+  // The function genDateValue generates a date value, but I want to use my
+  // own data so I can just create objects using the DateValue interface.
+  // const lineCount = exercises.length;
+
+  // const series = new Array(lineCount).fill(null).map((_, i) =>
+  //   // vary each series value deterministically
+  //   generateDateValue(25, /* seed= */ i / 72).sort(
+  //     (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
+  //   )
+  // );
+  // const allData = series.reduce((rec, d) => rec.concat(d), []);
+  // console.log("Series", series[0]);
+
+  // now for some data manipulation to create the dates
+  // const dateRange = exerciseWeightsOverTime["Squat"].map((item) =>
+  //   item.date.toDateString()
+  // );
+  // // console.log("Getting dates", dateRange);
+  // const dateScale = scaleBand<string>({
+  //   domain: dateRange,
+  //   padding: 0.2,
+  // });
 
   return (
     <div
@@ -239,28 +254,89 @@ export default function LineGraph({
       <LegendDemo title="Exercises">
         <LegendOrdinal scale={ordinalColorScale}></LegendOrdinal>
       </LegendDemo>
+      <div>
+        <label>
+          Exercises &nbsp;
+          <select
+          // TODO Dropdown where you can select multiple exercises and maybe the top panel shows
+          // either the 3-5 selected exercises or the count of the selected exercises
+          // onChange={(e) => setExercises((prev) => [...prev, e.target.value])}
+          // value={exercises}
+          >
+            {curveTypes.map((curve) => (
+              <option key={curve} value={curve}>
+                {curve}
+              </option>
+            ))}
+          </select>
+        </label>
+        &nbsp;
+        {/* <label> */}
+        {/* Date Range &nbsp; */}
+        <InputLabel id="demo-simple-select-label">Date Range</InputLabel>
+        <Select
+          labelId="demo-simple-select-label"
+          id="demo-simple-select"
+          value={dateWindows}
+          label="Age"
+          // onChange={handleChange}
+        >
+          <MenuItem value={10}>Last 30 Days (1 month)</MenuItem>
+          <MenuItem value={20}>Last 60 Days (2 months)</MenuItem>
+          <MenuItem value={30}>Last 90 Days (3 months)</MenuItem>
+          <MenuItem value={30}>Last 180 days (6 months)</MenuItem>
+        </Select>
+        {/* <select
+            onChange={(e) => setCurveType(e.target.value as CurveType)}
+            value={curveType}
+          >
+            {curveTypes.map((curve) => (
+              <option key={curve} value={curve}>
+                {curve}
+              </option>
+            ))}
+          </select> */}
+        {/* </label> */}
+        <br />
+      </div>
       <svg width={800} height={600}>
         <MarkerCircle id="marker-circle" fill="#333" size={2} refX={2} />
         {width > 8 &&
           Object.keys(lineData).map((exerciseName, i) => {
             const exerciseData = lineData[exerciseName] || [];
 
-            // let lineData = lineSeriesData() || [];
-            // let lineData: [DateValue] = exerciseWeightsOverTime[exercise] || [];
-            // console.log("Line Data", exerciseWeightsOverTime[exercise]);
-            // series.map((data) => console.log("Series", data));
+            // console.log(`EXERCISES = ${exercises}`);
+            console.log(`DATE WINDOWS - ${exerciseData[0]}`);
+            console.log(`Exercise ${i}: ${exerciseName}`);
+            console.log(`- Data points: ${exerciseData.length}`);
+            console.log(` - Top position: ${i * lineHeight}`);
+            console.log(`- Color ${ordinalColorScale(exerciseName)}`);
             return (
+              // let lineData = lineSeriesData() || [];
+              // let lineData: [DateValue] = exerciseWeightsOverTime[exercise] || [];
+              // console.log("Line Data", exerciseWeightsOverTime[exercise]);
+              // series.map((data) => console.log("Series", data));
               <Group key={`lines-${i}`} top={i * lineHeight} left={13}>
-                <LinePath<DateValue>
-                  curve={allCurves[curveType]}
-                  data={exerciseData}
-                  x={(d) => xScale(getX(d)) ?? 0}
-                  y={(d) => yScale(getY(d)) ?? 0}
-                  stroke={ordinalColorScale(exerciseName)}
-                  strokeWidth={2}
-                  shapeRendering="geometricPrecision"
-                  markerMid="url(#marker-circle)"
-                />
+                {exerciseData.length === 1 ? (
+                  // Draw a circle for single data point
+                  <circle
+                    cx={xScale(getX(exerciseData[0]))}
+                    cy={yScale(getY(exerciseData[0]))}
+                    r={3}
+                    fill={ordinalColorScale(exerciseName)}
+                  />
+                ) : (
+                  <LinePath<DateValue>
+                    curve={allCurves[curveType]}
+                    data={exerciseData}
+                    x={(d) => xScale(getX(d)) ?? 0}
+                    y={(d) => yScale(getY(d)) ?? 0}
+                    stroke={ordinalColorScale(exerciseName)}
+                    strokeWidth={2}
+                    shapeRendering="geometricPrecision"
+                    markerMid="url(#marker-circle)"
+                  />
+                )}
               </Group>
             );
           })}
