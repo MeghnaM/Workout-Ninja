@@ -8,6 +8,10 @@ import { scaleTime, scaleLinear, scaleOrdinal, scaleBand } from "@visx/scale";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import InputLabel from "@mui/material/InputLabel";
 import MenuItem from "@mui/material/MenuItem";
+import Chip from "@mui/material/Chip";
+import Box from "@mui/material/Box";
+import OutlinedInput from "@mui/material/OutlinedInput";
+import { Theme, useTheme } from "@mui/material/styles";
 import {
   MarkerArrow,
   MarkerCross,
@@ -60,6 +64,7 @@ export default function LineGraph({
   showControls = true,
   workoutList = [],
 }: CurveProps) {
+  const theme = useTheme();
   const [curveType, setCurveType] = useState<CurveType>("curveLinear");
   const [showPoints, setShowPoints] = useState<boolean>(true);
   const [chartData, setChartData] = useState([]);
@@ -144,11 +149,8 @@ export default function LineGraph({
   // EXERCISE DATA
   const lineData = lineSeriesData();
   const allRealData = Object.values(lineData).flat();
-  const [exercises, setExercises] = useState(Object.keys(lineData));
   // const [selectedExercise, setSelectedExercise]
-  const [dateWindows, setDateWindows] = useState(
-    Object.keys(lineData).map((exercise, _) => lineData[exercise].date)
-  );
+  const [dateWindow, setDateWindow] = useState<number>(30);
 
   const realXDomain = extent(allRealData, (d) => (d as any).date) as [
     Date,
@@ -238,6 +240,51 @@ export default function LineGraph({
   //   padding: 0.2,
   // });
 
+  // Date Window Select
+  const handleDateWindowChange = (e) => {
+    setDateWindow(e.target.value);
+    // TODO - update the graph with data points that fall within this window
+    // Get today's date, subtract 30, filter the data points, set state
+  };
+
+  // Exercises Multi Select
+  const ITEM_HEIGHT = 48;
+  const ITEM_PADDING_TOP = 8;
+  const MenuProps = {
+    PaperProps: {
+      style: {
+        maxHeight: ITEM_HEIGHT * 4.5 + ITEM_PADDING_TOP,
+        width: 250,
+      },
+    },
+  };
+  const [exercises, setExercises] = useState<string[]>(Object.keys(lineData));
+  const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
+  const maxSelections = 5;
+  const handleExerciseSelectionChange = (
+    event: SelectChangeEvent<typeof selectedExercises>
+  ) => {
+    const {
+      target: { value },
+    } = event;
+    setSelectedExercises(
+      // On autofill we get a stringified value.
+      typeof value === "string" ? value.split(",") : value
+    );
+  };
+
+  function getStyles(
+    name: string,
+    selectedExercises: readonly string[],
+    theme: Theme
+  ) {
+    return {
+      fontWeight: selectedExercises.includes(name)
+        ? theme.typography.fontWeightMedium
+        : theme.typography.fontWeightRegular,
+    };
+  }
+
   return (
     <div
       className="exercises-and-weight-line-graph"
@@ -254,50 +301,62 @@ export default function LineGraph({
       <LegendDemo title="Exercises">
         <LegendOrdinal scale={ordinalColorScale}></LegendOrdinal>
       </LegendDemo>
-      <div>
-        <label>
-          Exercises &nbsp;
-          <select
-          // TODO Dropdown where you can select multiple exercises and maybe the top panel shows
-          // either the 3-5 selected exercises or the count of the selected exercises
-          // onChange={(e) => setExercises((prev) => [...prev, e.target.value])}
-          // value={exercises}
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <InputLabel id="exercises-multiselect">Exercises</InputLabel>
+          <Select
+            labelId="exercises-multiselect"
+            id="exercises-multiselect-label"
+            multiple
+            value={selectedExercises}
+            onChange={handleExerciseSelectionChange}
+            input={
+              <OutlinedInput
+                id="exercises-multiselect-chip"
+                label="Exercises"
+              />
+            }
+            renderValue={(selected) => (
+              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                {selected.map((value) => (
+                  <Chip key={value} label={value} />
+                ))}
+              </Box>
+            )}
+            MenuProps={MenuProps}
           >
-            {curveTypes.map((curve) => (
-              <option key={curve} value={curve}>
-                {curve}
-              </option>
+            {Object.keys(lineData).map((name) => (
+              <MenuItem
+                key={name}
+                value={name}
+                style={getStyles(name, selectedExercises, theme)}
+                disabled={
+                  selectedExercises.length >= maxSelections &&
+                  !selectedExercises.includes(name)
+                }
+              >
+                {name}
+              </MenuItem>
             ))}
-          </select>
-        </label>
-        &nbsp;
-        {/* <label> */}
-        {/* Date Range &nbsp; */}
-        <InputLabel id="demo-simple-select-label">Date Range</InputLabel>
-        <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={dateWindows}
-          label="Age"
-          // onChange={handleChange}
-        >
-          <MenuItem value={10}>Last 30 Days (1 month)</MenuItem>
-          <MenuItem value={20}>Last 60 Days (2 months)</MenuItem>
-          <MenuItem value={30}>Last 90 Days (3 months)</MenuItem>
-          <MenuItem value={30}>Last 180 days (6 months)</MenuItem>
-        </Select>
-        {/* <select
-            onChange={(e) => setCurveType(e.target.value as CurveType)}
-            value={curveType}
+          </Select>
+        </div>
+
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          <InputLabel id="date-window-select-label">Date Range</InputLabel>
+          <Select
+            labelId="date-window-select"
+            id="date-window-select"
+            value={dateWindow}
+            label="Age"
+            onChange={handleDateWindowChange}
           >
-            {curveTypes.map((curve) => (
-              <option key={curve} value={curve}>
-                {curve}
-              </option>
-            ))}
-          </select> */}
-        {/* </label> */}
-        <br />
+            <MenuItem value={30}>Last 30 Days (1 month)</MenuItem>
+            <MenuItem value={60}>Last 60 Days (2 months)</MenuItem>
+            <MenuItem value={90}>Last 90 Days (3 months)</MenuItem>
+            <MenuItem value={180}>Last 180 days (6 months)</MenuItem>
+          </Select>
+          <br />
+        </div>
       </div>
       <svg width={800} height={600}>
         <MarkerCircle id="marker-circle" fill="#333" size={2} refX={2} />
@@ -361,4 +420,23 @@ export default function LineGraph({
       `}</style>
     </div>
   );
+}
+
+{
+  /* &nbsp;
+          <select
+          // TODO Multi Select Chip for multiple exercises
+          // TODO Dropdown where you can select multiple exercises and maybe the top panel shows
+          // either the 3-5 selected exercises or the count of the selected exercises
+          // onChange={(e) => setExercises((prev) => [...prev, e.target.value])}
+          // value={exercises}
+          >
+            {Object.keys(lineData).map((exercise) => (
+              <option key={exercise} value={exercise}>
+                {exercise}
+              </option>
+            ))}
+          </select>
+        </label>
+        &nbsp; */
 }
