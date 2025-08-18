@@ -12,6 +12,9 @@ import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { Theme, useTheme } from "@mui/material/styles";
+import cityTemperature, {
+  CityTemperature,
+} from "@visx/mock-data/lib/mocks/cityTemperature";
 import {
   MarkerArrow,
   MarkerCross,
@@ -24,7 +27,7 @@ import generateDateValue, {
 } from "@visx/mock-data/lib/generators/genDateValue";
 import { StyledSectionHeading } from "../styles/StyledComponentsLibrary";
 import { LegendOrdinal } from "@visx/legend";
-import { AxisBottom } from "@visx/axis";
+import { AxisBottom, AxisLeft } from "@visx/axis";
 
 type CurveType = keyof typeof allCurves;
 
@@ -35,29 +38,6 @@ export type CurveProps = {
   workoutList: any[];
 };
 
-// defining a named tuple array in typescript, ? means optional
-interface ExerciseWeights {
-  [exercise: string]: DateValue;
-}
-
-// Todo - for AxisBottom
-// const parseDate = timeParse("%Y-%m-%d");
-// const format = timeFormat("%b %d");
-// const formatDate = (date: string) => format(parseDate(date) as Date);
-// // accessors
-// const getDate = (d: CityTemperature) => d.date;
-// // scales
-// const dateScale = scaleBand<string>({
-//   domain: data.map(getDate),
-//   padding: 0.2,
-// });
-
-// LinePath takes data of type DateValue - which means the date is a Date, and
-// the value is a number. That fits the data I want so I can use DateValue too.
-// Now let's make my series data look like the series data in the example.
-
-// LinePath - the values are plotted, not the dates.
-
 export default function LineGraph({
   width,
   height,
@@ -66,8 +46,6 @@ export default function LineGraph({
 }: CurveProps) {
   const theme = useTheme();
   const [curveType, setCurveType] = useState<CurveType>("curveLinear");
-  const [showPoints, setShowPoints] = useState<boolean>(true);
-  const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
     console.log("===Use Effect: Line Graph===");
@@ -108,8 +86,8 @@ export default function LineGraph({
     );
   }
 
-  const margin = { top: 40, right: 0, bottom: 0, left: 0 };
-  const yMax = height - margin.top - 100;
+  // const margin = { top: 40, right: 0, bottom: 0, left: 0 };
+  // const yMax = height - margin.top - 100;
   const purple3 = "#a44afe";
 
   // chart data shape =
@@ -146,17 +124,44 @@ export default function LineGraph({
     return lineData;
   };
 
+  // TEST DATA
+  // accessors
+  const date = (d: CityTemperature) => new Date(d.date).valueOf();
+  const ny = (d: CityTemperature) => Number(d["New York"]);
+  const sf = (d: CityTemperature) => Number(d["San Francisco"]);
+  // scales
+  const timeScale = scaleTime<number>({
+    domain: [
+      Math.min(...cityTemperature.map(date)),
+      Math.max(...cityTemperature.map(date)),
+    ],
+  });
+  const temperatureScale = scaleLinear<number>({
+    domain: [
+      Math.min(...cityTemperature.map((d) => Math.min(ny(d), sf(d)))),
+      Math.max(...cityTemperature.map((d) => Math.max(ny(d), sf(d)))),
+    ],
+    nice: true,
+  });
+  const margin = { top: 40, right: 30, bottom: 50, left: 40 };
+
+  // bounds
+  const xMax = width - margin.left - margin.right;
+  const yMax = height - margin.top - margin.bottom;
+
+  timeScale.range([0, xMax]);
+  temperatureScale.range([yMax, 0]);
+
   // EXERCISE DATA
   const lineData = lineSeriesData();
-  const allRealData = Object.values(lineData).flat();
-  // const [selectedExercise, setSelectedExercise]
+  const allData = Object.values(lineData).flat();
   const [dateWindow, setDateWindow] = useState<number>(30);
+  const [exercises, setExercises] = useState<string[]>(Object.keys(lineData));
+  const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
+  const maxSelections = 5;
 
-  const realXDomain = extent(allRealData, (d) => (d as any).date) as [
-    Date,
-    Date
-  ];
-  const realYDomain = [0, max(allRealData, (d) => (d as any).value) as number];
+  const xDomain = extent(allData, (d) => (d as any).date) as [Date, Date];
+  const yDomain = [0, max(allData, (d) => (d as any).value) as number];
 
   // data accessors
   const getX = (d: DateValue) => d.date;
@@ -164,14 +169,14 @@ export default function LineGraph({
 
   // scales
   const xScale = scaleTime<number>({
-    domain: extent(allRealData, getX) as [Date, Date],
+    domain: extent(allData, getX) as [Date, Date],
   });
   const yScale = scaleLinear<number>({
-    domain: [0, max(allRealData, getY) as number],
+    domain: [0, max(allData, getY) as number],
   });
 
-  xScale.domain(realXDomain);
-  yScale.domain(realYDomain);
+  xScale.domain(xDomain);
+  yScale.domain(yDomain);
   const ordinalColorScale = scaleOrdinal({
     domain: Object.keys(lineData),
     range: ["#66d981", "#71f5ef", "#4899f1", "#7d81f6"],
@@ -184,18 +189,6 @@ export default function LineGraph({
   xScale.range([0, width - 50]);
   yScale.range([lineHeight - 5, 5]);
 
-  const values = generateDateValue(25, 1 / 72).sort(
-    (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
-  );
-  const values2 = generateDateValue(25).sort(
-    (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
-  );
-  const exerciseWeightsOverTime = {
-    Squat: values,
-    Deadlift: values2,
-    "Bench Press": values,
-  };
-  // const dateRange = exerciseWeightsOverTime["Squat"].map((item) => ...)
   const dateRange = (lineData[0] ? lineData[0] : []).map((item) =>
     item.date.toDateString()
   );
@@ -205,46 +198,11 @@ export default function LineGraph({
     padding: 0.2,
   });
 
-  // OLD FUNCTIONS
-
-  const curveTypes = Object.keys(allCurves);
-  // const exercises: string[] = [
-  //   "Squat",
-  //   "Deadlift",
-  //   "Bench Press",
-  //   "Front Rack Backward Lunge",
-  // ];
-
-  // Series is an array of length lineCount, where each element is of type
-  // DateValue which means it has a date and a time. Ok.
-  // The function genDateValue generates a date value, but I want to use my
-  // own data so I can just create objects using the DateValue interface.
-  // const lineCount = exercises.length;
-
-  // const series = new Array(lineCount).fill(null).map((_, i) =>
-  //   // vary each series value deterministically
-  //   generateDateValue(25, /* seed= */ i / 72).sort(
-  //     (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
-  //   )
-  // );
-  // const allData = series.reduce((rec, d) => rec.concat(d), []);
-  // console.log("Series", series[0]);
-
-  // now for some data manipulation to create the dates
-  // const dateRange = exerciseWeightsOverTime["Squat"].map((item) =>
-  //   item.date.toDateString()
-  // );
-  // // console.log("Getting dates", dateRange);
-  // const dateScale = scaleBand<string>({
-  //   domain: dateRange,
-  //   padding: 0.2,
-  // });
-
   // Date Window Select
   const handleDateWindowChange = (e) => {
     setDateWindow(e.target.value);
     // TODO - update the graph with data points that fall within this window
-    // Get today's date, subtract 30, filter the data points, set state
+    // Get today's date, subtract event value, filter the data points, set state
   };
 
   // Exercises Multi Select
@@ -258,9 +216,6 @@ export default function LineGraph({
       },
     },
   };
-  const [exercises, setExercises] = useState<string[]>(Object.keys(lineData));
-  const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
-  const maxSelections = 5;
   const handleExerciseSelectionChange = (
     event: SelectChangeEvent<typeof selectedExercises>
   ) => {
@@ -359,6 +314,24 @@ export default function LineGraph({
         </div>
       </div>
       <svg width={800} height={600}>
+        <rect x={0} y={0} width={width} height={height} rx={14} />
+        <line x1={10} x2={10} y1={10} y2={yMax} stroke="#e0e0e0" />
+
+        <AxisBottom
+          top={yMax}
+          scale={timeScale}
+          numTicks={width > 520 ? 10 : 5}
+          stroke="white"
+          tickStroke="white"
+          labelProps={{ stroke: "white" }}
+        />
+        <AxisLeft top={700} left={50} scale={temperatureScale} />
+        <text x="-70" y="25" transform="rotate(-90)" fontSize={10} fill="white">
+          Weight (lbs)
+        </text>
+        <text x="730" y="460" fontSize={10} fill="white">
+          Date
+        </text>
         <MarkerCircle id="marker-circle" fill="#333" size={2} refX={2} />
         {width > 8 &&
           Object.keys(lineData).map((exerciseName, i) => {
@@ -399,18 +372,6 @@ export default function LineGraph({
               </Group>
             );
           })}
-        <AxisBottom
-          top={yMax + margin.top}
-          scale={dateScale}
-          // tickFormat={formatDate}
-          stroke={purple3}
-          tickStroke={purple3}
-          tickLabelProps={{
-            fill: purple3,
-            fontSize: 11,
-            textAnchor: "middle",
-          }}
-        />
       </svg>
 
       <style>{`
@@ -440,3 +401,73 @@ export default function LineGraph({
         </label>
         &nbsp; */
 }
+
+// OLD FUNCTIONS
+// const curveTypes = Object.keys(allCurves);
+// const exercises: string[] = [
+//   "Squat",
+//   "Deadlift",
+//   "Bench Press",
+//   "Front Rack Backward Lunge",
+// ];
+
+// Series is an array of length lineCount, where each element is of type
+// DateValue which means it has a date and a time. Ok.
+// The function genDateValue generates a date value, but I want to use my
+// own data so I can just create objects using the DateValue interface.
+// const lineCount = exercises.length;
+
+// const series = new Array(lineCount).fill(null).map((_, i) =>
+//   // vary each series value deterministically
+//   generateDateValue(25, /* seed= */ i / 72).sort(
+//     (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
+//   )
+// );
+// const allData = series.reduce((rec, d) => rec.concat(d), []);
+// console.log("Series", series[0]);
+
+// now for some data manipulation to create the dates
+// const dateRange = exerciseWeightsOverTime["Squat"].map((item) =>
+//   item.date.toDateString()
+// );
+// // console.log("Getting dates", dateRange);
+// const dateScale = scaleBand<string>({
+//   domain: dateRange,
+//   padding: 0.2,
+// });
+
+// defining a named tuple array in typescript, ? means optional
+// interface ExerciseWeights {
+//   [exercise: string]: DateValue;
+// }
+
+// Todo - for AxisBottom
+// const parseDate = timeParse("%Y-%m-%d");
+// const format = timeFormat("%b %d");
+// const formatDate = (date: string) => format(parseDate(date) as Date);
+// // accessors
+// const getDate = (d: CityTemperature) => d.date;
+// // scales
+// const dateScale = scaleBand<string>({
+//   domain: data.map(getDate),
+//   padding: 0.2,
+// });
+
+// LinePath takes data of type DateValue - which means the date is a Date, and
+// the value is a number. That fits the data I want so I can use DateValue too.
+// Now let's make my series data look like the series data in the example.
+
+// LinePath - the values are plotted, not the dates.
+
+// const values = generateDateValue(25, 1 / 72).sort(
+//   (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
+// );
+// const values2 = generateDateValue(25).sort(
+//   (a: DateValue, b: DateValue) => a.date.getTime() - b.date.getTime()
+// );
+// const exerciseWeightsOverTime = {
+//   Squat: values,
+//   Deadlift: values2,
+//   "Bench Press": values,
+// };
+// const dateRange = exerciseWeightsOverTime["Squat"].map((item) => ...)
