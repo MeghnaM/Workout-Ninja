@@ -51,6 +51,8 @@ export default function LineGraph({
     console.log("===Use Effect: Line Graph===");
     // console.log("Dummy chart data - ", exerciseWeightsOverTime);
     console.log("Exercise Data in correct format -", lineSeriesData());
+    console.log("All data", allData);
+    // console.log("Scales -", timeScale, xScale);
   });
 
   function LegendDemo({
@@ -85,10 +87,6 @@ export default function LineGraph({
       </div>
     );
   }
-
-  // const margin = { top: 40, right: 0, bottom: 0, left: 0 };
-  // const yMax = height - margin.top - 100;
-  const purple3 = "#a44afe";
 
   // chart data shape =
   // {exerciseName: array[date, value]}
@@ -130,27 +128,29 @@ export default function LineGraph({
   const ny = (d: CityTemperature) => Number(d["New York"]);
   const sf = (d: CityTemperature) => Number(d["San Francisco"]);
   // scales
-  const timeScale = scaleTime<number>({
-    domain: [
-      Math.min(...cityTemperature.map(date)),
-      Math.max(...cityTemperature.map(date)),
-    ],
-  });
-  const temperatureScale = scaleLinear<number>({
-    domain: [
-      Math.min(...cityTemperature.map((d) => Math.min(ny(d), sf(d)))),
-      Math.max(...cityTemperature.map((d) => Math.max(ny(d), sf(d)))),
-    ],
-    nice: true,
-  });
-  const margin = { top: 40, right: 30, bottom: 50, left: 40 };
+  // const timeScale = scaleTime<number>({
+  //   domain: [
+  //     Math.min(...cityTemperature.map(date)),
+  //     Math.max(...cityTemperature.map(date)),
+  //   ],
+  // });
+  // const temperatureScale = scaleLinear<number>({
+  //   domain: [
+  //     Math.min(...cityTemperature.map((d) => Math.min(ny(d), sf(d)))),
+  //     Math.max(...cityTemperature.map((d) => Math.max(ny(d), sf(d)))),
+  //   ],
+  //   nice: true,
+  // });
+  // const margin = { top: 40, right: 0, bottom: 0, left: 0 };
+  // const yMax = height - margin.top - 100;
 
   // bounds
+  const margin = { top: 40, right: 30, bottom: 50, left: 40 };
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
 
-  timeScale.range([0, xMax]);
-  temperatureScale.range([yMax, 0]);
+  // timeScale.range([0, xMax]);
+  // temperatureScale.range([yMax, 0]);
 
   // EXERCISE DATA
   const lineData = lineSeriesData();
@@ -170,6 +170,7 @@ export default function LineGraph({
   // scales
   const xScale = scaleTime<number>({
     domain: extent(allData, getX) as [Date, Date],
+    // domain: [allData.flatMap((date, _) => date)],
   });
   const yScale = scaleLinear<number>({
     domain: [0, max(allData, getY) as number],
@@ -186,8 +187,10 @@ export default function LineGraph({
   const lineHeight = 150;
 
   // update scale output ranges
-  xScale.range([0, width - 50]);
-  yScale.range([lineHeight - 5, 5]);
+  // xScale.range([0, width - 50]);
+  // yScale.range([lineHeight - 5, 5]);
+  xScale.range([0, xMax]);
+  yScale.range([yMax, 0]);
 
   const dateRange = (lineData[0] ? lineData[0] : []).map((item) =>
     item.date.toDateString()
@@ -239,6 +242,9 @@ export default function LineGraph({
         : theme.typography.fontWeightRegular,
     };
   }
+
+  // POSITIONS
+  const left = 30;
 
   return (
     <div
@@ -315,60 +321,47 @@ export default function LineGraph({
       </div>
       <svg width={800} height={600}>
         <rect x={0} y={0} width={width} height={height} rx={14} />
-        <line x1={10} x2={10} y1={10} y2={yMax} stroke="#e0e0e0" />
-
         <AxisBottom
-          top={yMax}
-          scale={timeScale}
-          numTicks={width > 520 ? 10 : 5}
+          left={left}
+          top={450}
+          scale={xScale}
+          numTicks={10}
           stroke="white"
           tickStroke="white"
-          labelProps={{ stroke: "white" }}
+          tickLabelProps={{ fill: "white" }}
         />
-        <AxisLeft top={700} left={50} scale={temperatureScale} />
-        <text x="-70" y="25" transform="rotate(-90)" fontSize={10} fill="white">
+        <AxisLeft
+          top={40}
+          left={left}
+          scale={yScale}
+          stroke="white"
+          tickStroke="white"
+          tickLabelProps={{ fill: "white" }}
+        />
+        <text x="-70" y="50" transform="rotate(-90)" fontSize={10} fill="white">
           Weight (lbs)
         </text>
-        <text x="730" y="460" fontSize={10} fill="white">
+        <text x="730" y="430" fontSize={10} fill="white">
           Date
         </text>
-        <MarkerCircle id="marker-circle" fill="#333" size={2} refX={2} />
+        <MarkerCircle id="marker-circle" fill="#fff" size={2} refX={2} />
         {width > 8 &&
           Object.keys(lineData).map((exerciseName, i) => {
             const exerciseData = lineData[exerciseName] || [];
-
-            // console.log(`EXERCISES = ${exercises}`);
-            console.log(`DATE WINDOWS - ${exerciseData[0]}`);
-            console.log(`Exercise ${i}: ${exerciseName}`);
-            console.log(`- Data points: ${exerciseData.length}`);
-            console.log(` - Top position: ${i * lineHeight}`);
-            console.log(`- Color ${ordinalColorScale(exerciseName)}`);
             return (
-              // let lineData = lineSeriesData() || [];
-              // let lineData: [DateValue] = exerciseWeightsOverTime[exercise] || [];
-              // console.log("Line Data", exerciseWeightsOverTime[exercise]);
-              // series.map((data) => console.log("Series", data));
-              <Group key={`lines-${i}`} top={i * lineHeight} left={13}>
-                {exerciseData.length === 1 ? (
-                  // Draw a circle for single data point
-                  <circle
-                    cx={xScale(getX(exerciseData[0]))}
-                    cy={yScale(getY(exerciseData[0]))}
-                    r={3}
-                    fill={ordinalColorScale(exerciseName)}
-                  />
-                ) : (
-                  <LinePath<DateValue>
-                    curve={allCurves[curveType]}
-                    data={exerciseData}
-                    x={(d) => xScale(getX(d)) ?? 0}
-                    y={(d) => yScale(getY(d)) ?? 0}
-                    stroke={ordinalColorScale(exerciseName)}
-                    strokeWidth={2}
-                    shapeRendering="geometricPrecision"
-                    markerMid="url(#marker-circle)"
-                  />
-                )}
+              <Group key={`lines-${i}`} top={i * lineHeight} left={left + 1}>
+                <LinePath<DateValue>
+                  curve={allCurves[curveType]}
+                  data={exerciseData}
+                  x={(d) => xScale(getX(d)) ?? 0}
+                  y={(d) => yScale(getY(d)) ?? 0}
+                  stroke={ordinalColorScale(exerciseName)}
+                  strokeWidth={2}
+                  markerMid="url(#marker-circle)"
+                  markerStart="url(#marker-circle)"
+                  markerEnd="url(#marker-circle)"
+                  shapeRendering="geometricPrecision"
+                />
               </Group>
             );
           })}
@@ -383,6 +376,45 @@ export default function LineGraph({
   );
 }
 
+// console.log(`EXERCISES = ${exercises}`);
+// console.log(`DATE WINDOWS - ${exerciseData[0]}`);
+// console.log(`Exercise ${i}: ${exerciseName}`);
+// console.log(`- Data points: ${exerciseData.length}`);
+// console.log(` - Top position: ${i * lineHeight}`);
+// console.log(`- Color ${ordinalColorScale(exerciseName)}`);
+// let lineData = lineSeriesData() || [];
+// let lineData: [DateValue] = exerciseWeightsOverTime[exercise] || [];
+// console.log("Line Data", exerciseWeightsOverTime[exercise]);
+// series.map((data) => console.log("Series", data));
+{
+  /* <line x1={20} x2={20} y1={10} y2={yMax} stroke="#e0e0e0" /> */
+}
+{
+  /* {exerciseData.map((d, j) => (
+                  <circle
+                    key={i + j}
+                    r={3}
+                    cx={xScale(getX(d))}
+                    cy={yScale(getY(d))}
+                    stroke="white"
+                    fill="white"
+                  />
+                ))} */
+}
+{
+  /* {exerciseData.length === 1 ? (
+                  // Draw a circle for single data point
+                  <circle
+                    cx={xScale(getX(exerciseData[0]))}
+                    cy={yScale(getY(exerciseData[0]))}
+                    r={3}
+                    fill={ordinalColorScale(exerciseName)}
+                  />
+                ) : ( */
+}
+{
+  /* )} */
+}
 {
   /* &nbsp;
           <select
