@@ -46,14 +46,15 @@ export default function LineGraph({
 }: CurveProps) {
   const theme = useTheme();
   const [curveType, setCurveType] = useState<CurveType>("curveLinear");
+  const [dateWindow, setDateWindow] = useState<number>(30);
 
   useEffect(() => {
-    console.log("===Use Effect: Line Graph===");
-    // console.log("Dummy chart data - ", exerciseWeightsOverTime);
-    console.log("Exercise Data in correct format -", lineSeriesData());
-    console.log("All data", allData);
-    // console.log("Scales -", timeScale, xScale);
-  });
+    const filteredData = getFilteredLineData();
+    setExercises(Object.keys(filteredData));
+    // console.log("===Use Effect: Line Graph===");
+    // console.log("Exercise Data in correct format -", lineSeriesData());
+    // console.log("Selected Exercises", selectedExercises);
+  }, [workoutList, dateWindow]);
 
   function LegendDemo({
     title,
@@ -122,40 +123,29 @@ export default function LineGraph({
     return lineData;
   };
 
-  // TEST DATA
-  // accessors
-  const date = (d: CityTemperature) => new Date(d.date).valueOf();
-  const ny = (d: CityTemperature) => Number(d["New York"]);
-  const sf = (d: CityTemperature) => Number(d["San Francisco"]);
-  // scales
-  // const timeScale = scaleTime<number>({
-  //   domain: [
-  //     Math.min(...cityTemperature.map(date)),
-  //     Math.max(...cityTemperature.map(date)),
-  //   ],
-  // });
-  // const temperatureScale = scaleLinear<number>({
-  //   domain: [
-  //     Math.min(...cityTemperature.map((d) => Math.min(ny(d), sf(d)))),
-  //     Math.max(...cityTemperature.map((d) => Math.max(ny(d), sf(d)))),
-  //   ],
-  //   nice: true,
-  // });
-  // const margin = { top: 40, right: 0, bottom: 0, left: 0 };
-  // const yMax = height - margin.top - 100;
-
   // bounds
   const margin = { top: 40, right: 30, bottom: 50, left: 40 };
   const xMax = width - margin.left - margin.right;
   const yMax = height - margin.top - margin.bottom;
 
-  // timeScale.range([0, xMax]);
-  // temperatureScale.range([yMax, 0]);
+  const getFilteredLineData = () => {
+    const baseData = lineSeriesData();
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - dateWindow);
+
+    const filteredData = {};
+    Object.keys(baseData).forEach((exercise) => {
+      filteredData[exercise] = baseData[exercise]
+        .filter((dataPoint) => dataPoint.date >= cutoffDate)
+        .sort((a, b) => a.date.getTime() - b.date.getTime());
+    });
+    return filteredData;
+  };
 
   // EXERCISE DATA
-  const lineData = lineSeriesData();
+  // const lineData = lineSeriesData();
+  const lineData = getFilteredLineData();
   const allData = Object.values(lineData).flat();
-  const [dateWindow, setDateWindow] = useState<number>(30);
   const [exercises, setExercises] = useState<string[]>(Object.keys(lineData));
   const [selectedExercises, setSelectedExercises] = useState<string[]>([]);
   const maxSelections = 5;
@@ -179,12 +169,10 @@ export default function LineGraph({
   xScale.domain(xDomain);
   yScale.domain(yDomain);
   const ordinalColorScale = scaleOrdinal({
-    domain: Object.keys(lineData),
+    // domain: Object.keys(lineData),
+    domain: selectedExercises,
     range: ["#66d981", "#71f5ef", "#4899f1", "#7d81f6"],
   });
-  const svgHeight = showControls ? height - 40 : height;
-  // const lineHeight = svgHeight / Object.keys(lineData).length;
-  const lineHeight = 150;
 
   // update scale output ranges
   // xScale.range([0, width - 50]);
@@ -195,11 +183,6 @@ export default function LineGraph({
   const dateRange = (lineData[0] ? lineData[0] : []).map((item) =>
     item.date.toDateString()
   );
-  // console.log("Getting dates", dateRange);
-  const dateScale = scaleBand<string>({
-    domain: dateRange,
-    padding: 0.2,
-  });
 
   // Date Window Select
   const handleDateWindowChange = (e) => {
@@ -245,6 +228,7 @@ export default function LineGraph({
 
   // POSITIONS
   const left = 30;
+  const bottomAxisTicks = () => (dateWindow > 60 ? 10 : 5);
 
   return (
     <div
@@ -325,7 +309,7 @@ export default function LineGraph({
           left={left}
           top={450}
           scale={xScale}
-          numTicks={10}
+          numTicks={bottomAxisTicks()}
           stroke="white"
           tickStroke="white"
           tickLabelProps={{ fill: "white" }}
@@ -346,10 +330,11 @@ export default function LineGraph({
         </text>
         <MarkerCircle id="marker-circle" fill="#fff" size={2} refX={2} />
         {width > 8 &&
-          Object.keys(lineData).map((exerciseName, i) => {
+          // Object.keys(lineData).map((exerciseName, i) => {
+          selectedExercises.map((exerciseName, i) => {
             const exerciseData = lineData[exerciseName] || [];
             return (
-              <Group key={`lines-${i}`} top={i * lineHeight} left={left + 1}>
+              <Group key={`lines-${i}`} top={margin.top} left={left + 1}>
                 <LinePath<DateValue>
                   curve={allCurves[curveType]}
                   data={exerciseData}
@@ -503,3 +488,37 @@ export default function LineGraph({
 //   "Bench Press": values,
 // };
 // const dateRange = exerciseWeightsOverTime["Squat"].map((item) => ...)
+
+// TEST DATA
+// accessors
+// const date = (d: CityTemperature) => new Date(d.date).valueOf();
+// const ny = (d: CityTemperature) => Number(d["New York"]);
+// const sf = (d: CityTemperature) => Number(d["San Francisco"]);
+// scales
+// const timeScale = scaleTime<number>({
+//   domain: [
+//     Math.min(...cityTemperature.map(date)),
+//     Math.max(...cityTemperature.map(date)),
+//   ],
+// });
+// const temperatureScale = scaleLinear<number>({
+//   domain: [
+//     Math.min(...cityTemperature.map((d) => Math.min(ny(d), sf(d)))),
+//     Math.max(...cityTemperature.map((d) => Math.max(ny(d), sf(d)))),
+//   ],
+//   nice: true,
+// });
+// const margin = { top: 40, right: 0, bottom: 0, left: 0 };
+// const yMax = height - margin.top - 100;
+
+// timeScale.range([0, xMax]);
+// temperatureScale.range([yMax, 0]);
+
+// console.log("Getting dates", dateRange);
+// const dateScale = scaleBand<string>({
+//   domain: dateRange,
+//   padding: 0.2,
+// });
+//   const svgHeight = showControls ? height - 40 : height;
+// const lineHeight = svgHeight / Object.keys(lineData).length;
+// const lineHeight = 150;
