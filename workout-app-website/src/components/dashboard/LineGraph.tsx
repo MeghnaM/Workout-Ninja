@@ -46,14 +46,17 @@ export default function LineGraph({
 }: CurveProps) {
   const theme = useTheme();
   const [curveType, setCurveType] = useState<CurveType>("curveLinear");
-  const [dateWindow, setDateWindow] = useState<number>(30);
+  const [dateWindow, setDateWindow] = useState<number>(60);
 
   useEffect(() => {
     const filteredData = getFilteredLineData();
-    setExercises(Object.keys(filteredData));
-    // console.log("===Use Effect: Line Graph===");
-    // console.log("Exercise Data in correct format -", lineSeriesData());
-    // console.log("Selected Exercises", selectedExercises);
+    const availableExercises = Object.keys(filteredData);
+    setExercises(availableExercises);
+    // Only set defaults if none are selected yet
+    if (selectedExercises.length === 0 && availableExercises.length > 0) {
+      setSelectedExercises(availableExercises.slice(0, 3)); // Select first 3
+    }
+    console.log("Exercise Data in correct format -", lineSeriesData());
   }, [workoutList, dateWindow]);
 
   function LegendDemo({
@@ -140,6 +143,10 @@ export default function LineGraph({
         .sort((a, b) => a.date.getTime() - b.date.getTime());
     });
     return filteredData;
+  };
+
+  const getDefaultSelectedExercises = (data) => {
+    return Object.keys(data).slice(0, 2);
   };
 
   // EXERCISE DATA
