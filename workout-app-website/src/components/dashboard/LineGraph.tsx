@@ -11,7 +11,8 @@ import MenuItem from "@mui/material/MenuItem";
 import Chip from "@mui/material/Chip";
 import Box from "@mui/material/Box";
 import OutlinedInput from "@mui/material/OutlinedInput";
-import { Theme, useTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
+import { theme } from "../styles/StyledComponentsLibrary.js";
 import cityTemperature, {
   CityTemperature,
 } from "@visx/mock-data/lib/mocks/cityTemperature";
@@ -44,7 +45,7 @@ export default function LineGraph({
   showControls = true,
   workoutList = [],
 }: CurveProps) {
-  const theme = useTheme();
+  // const theme = useTheme();
   const [curveType, setCurveType] = useState<CurveType>("curveLinear");
   const [dateWindow, setDateWindow] = useState<number>(60);
 
@@ -75,7 +76,7 @@ export default function LineGraph({
             line-height: 0.9em;
             color:rgb(0, 140, 255);
             font-size: 10px;
-            font-family: arial;
+            font-family: 'Lato', sans-serif;
             padding: 10px 10px;
             float: left;
             border: 1px solid rgba(0, 110, 255, 0.3);
@@ -221,11 +222,7 @@ export default function LineGraph({
     );
   };
 
-  function getStyles(
-    name: string,
-    selectedExercises: readonly string[],
-    theme: Theme
-  ) {
+  function getStyles(name: string, selectedExercises: readonly string[]) {
     return {
       fontWeight: selectedExercises.includes(name)
         ? theme.typography.fontWeightMedium
@@ -238,133 +235,142 @@ export default function LineGraph({
   const bottomAxisTicks = () => (dateWindow > 60 ? 10 : 5);
 
   return (
-    <div
-      className="exercises-and-weight-line-graph"
-      style={{
-        backgroundColor: "#faf2e1",
-        width: 800,
-        height: 800,
-        margin: 50,
-      }}
-    >
-      <StyledSectionHeading variant="h4">
-        Progressive Overload
-      </StyledSectionHeading>
-      <LegendDemo title="Exercises">
-        <LegendOrdinal scale={ordinalColorScale}></LegendOrdinal>
-      </LegendDemo>
-      <div style={{ display: "flex", flexDirection: "row" }}>
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <InputLabel id="exercises-multiselect">Exercises</InputLabel>
-          <Select
-            labelId="exercises-multiselect"
-            id="exercises-multiselect-label"
-            multiple
-            value={selectedExercises}
-            onChange={handleExerciseSelectionChange}
-            input={
-              <OutlinedInput
-                id="exercises-multiselect-chip"
-                label="Exercises"
-              />
-            }
-            renderValue={(selected) => (
-              <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
-                {selected.map((value) => (
-                  <Chip key={value} label={value} />
-                ))}
-              </Box>
-            )}
-            MenuProps={MenuProps}
-          >
-            {Object.keys(lineData).map((name) => (
-              <MenuItem
-                key={name}
-                value={name}
-                style={getStyles(name, selectedExercises, theme)}
-                disabled={
-                  selectedExercises.length >= maxSelections &&
-                  !selectedExercises.includes(name)
-                }
-              >
-                {name}
-              </MenuItem>
-            ))}
-          </Select>
-        </div>
-
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <InputLabel id="date-window-select-label">Date Range</InputLabel>
-          <Select
-            labelId="date-window-select"
-            id="date-window-select"
-            value={dateWindow}
-            label="Age"
-            onChange={handleDateWindowChange}
-          >
-            <MenuItem value={30}>Last 30 Days (1 month)</MenuItem>
-            <MenuItem value={60}>Last 60 Days (2 months)</MenuItem>
-            <MenuItem value={90}>Last 90 Days (3 months)</MenuItem>
-            <MenuItem value={180}>Last 180 days (6 months)</MenuItem>
-          </Select>
-          <br />
-        </div>
-      </div>
-      <svg width={800} height={600}>
-        <rect x={0} y={0} width={width} height={height} rx={14} />
-        <AxisBottom
-          left={left}
-          top={450}
-          scale={xScale}
-          numTicks={bottomAxisTicks()}
-          stroke="white"
-          tickStroke="white"
-          tickLabelProps={{ fill: "white" }}
-        />
-        <AxisLeft
-          top={40}
-          left={left}
-          scale={yScale}
-          stroke="white"
-          tickStroke="white"
-          tickLabelProps={{ fill: "white" }}
-        />
-        <text x="-70" y="50" transform="rotate(-90)" fontSize={10} fill="white">
-          Weight (lbs)
-        </text>
-        <text x="730" y="430" fontSize={10} fill="white">
-          Date
-        </text>
-        <MarkerCircle id="marker-circle" fill="#fff" size={2} refX={2} />
-        {width > 8 &&
-          // Object.keys(lineData).map((exerciseName, i) => {
-          selectedExercises.map((exerciseName, i) => {
-            const exerciseData = lineData[exerciseName] || [];
-            return (
-              <Group key={`lines-${i}`} top={margin.top} left={left + 1}>
-                <LinePath<DateValue>
-                  curve={allCurves[curveType]}
-                  data={exerciseData}
-                  x={(d) => xScale(getX(d)) ?? 0}
-                  y={(d) => yScale(getY(d)) ?? 0}
-                  stroke={ordinalColorScale(exerciseName)}
-                  strokeWidth={2}
-                  markerMid="url(#marker-circle)"
-                  markerStart="url(#marker-circle)"
-                  markerEnd="url(#marker-circle)"
-                  shapeRendering="geometricPrecision"
+    <ThemeProvider theme={theme}>
+      <div
+        className="exercises-and-weight-line-graph"
+        style={{
+          backgroundColor: theme.palette.background.main,
+          width: 1000,
+          height: 800,
+          padding: 50,
+          borderRadius: 50,
+        }}
+      >
+        <StyledSectionHeading variant="h4">
+          Progressive Overload
+        </StyledSectionHeading>
+        <LegendDemo title="Exercises">
+          <LegendOrdinal scale={ordinalColorScale}></LegendOrdinal>
+        </LegendDemo>
+        <div style={{ display: "flex", flexDirection: "row" }}>
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <InputLabel id="exercises-multiselect">Exercises</InputLabel>
+            <Select
+              labelId="exercises-multiselect"
+              id="exercises-multiselect-label"
+              multiple
+              value={selectedExercises}
+              onChange={handleExerciseSelectionChange}
+              input={
+                <OutlinedInput
+                  id="exercises-multiselect-chip"
+                  label="Exercises"
                 />
-              </Group>
-            );
-          })}
-      </svg>
+              }
+              renderValue={(selected) => (
+                <Box sx={{ display: "flex", flexWrap: "wrap", gap: 0.5 }}>
+                  {selected.map((value) => (
+                    <Chip key={value} label={value} />
+                  ))}
+                </Box>
+              )}
+              MenuProps={MenuProps}
+            >
+              {Object.keys(lineData).map((name) => (
+                <MenuItem
+                  key={name}
+                  value={name}
+                  style={getStyles(name, selectedExercises)}
+                  disabled={
+                    selectedExercises.length >= maxSelections &&
+                    !selectedExercises.includes(name)
+                  }
+                >
+                  {name}
+                </MenuItem>
+              ))}
+            </Select>
+          </div>
 
-      <style>{`
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <InputLabel id="date-window-select-label">Date Range</InputLabel>
+            <Select
+              labelId="date-window-select"
+              id="date-window-select"
+              value={dateWindow}
+              label="Age"
+              onChange={handleDateWindowChange}
+            >
+              <MenuItem value={30}>Last 30 Days (1 month)</MenuItem>
+              <MenuItem value={60}>Last 60 Days (2 months)</MenuItem>
+              <MenuItem value={90}>Last 90 Days (3 months)</MenuItem>
+              <MenuItem value={180}>Last 180 days (6 months)</MenuItem>
+            </Select>
+            <br />
+          </div>
+        </div>
+        <svg width={800} height={600}>
+          <rect x={0} y={0} width={width} height={height} rx={14} />
+          <AxisBottom
+            left={left}
+            top={450}
+            scale={xScale}
+            numTicks={bottomAxisTicks()}
+            stroke="white"
+            tickStroke="white"
+            tickLabelProps={{ fill: "white" }}
+          />
+          <AxisLeft
+            top={40}
+            left={left}
+            scale={yScale}
+            stroke="white"
+            tickStroke="white"
+            tickLabelProps={{ fill: "white" }}
+          />
+          <text
+            x="-70"
+            y="50"
+            transform="rotate(-90)"
+            fontSize={10}
+            fill="white"
+          >
+            Weight (lbs)
+          </text>
+          <text x="730" y="430" fontSize={10} fill="white">
+            Date
+          </text>
+          <MarkerCircle id="marker-circle" fill="#fff" size={2} refX={2} />
+          {width > 8 &&
+            // Object.keys(lineData).map((exerciseName, i) => {
+            selectedExercises.map((exerciseName, i) => {
+              const exerciseData = lineData[exerciseName] || [];
+              return (
+                <Group key={`lines-${i}`} top={margin.top} left={left + 1}>
+                  <LinePath<DateValue>
+                    curve={allCurves[curveType]}
+                    data={exerciseData}
+                    x={(d) => xScale(getX(d)) ?? 0}
+                    y={(d) => yScale(getY(d)) ?? 0}
+                    stroke={ordinalColorScale(exerciseName)}
+                    strokeWidth={2}
+                    markerMid="url(#marker-circle)"
+                    markerStart="url(#marker-circle)"
+                    markerEnd="url(#marker-circle)"
+                    shapeRendering="geometricPrecision"
+                  />
+                </Group>
+              );
+            })}
+        </svg>
+
+        <style>{`
         .visx-curves-demo label {
           font-size: 12px;
         }
       `}</style>
-    </div>
+      </div>
+    </ThemeProvider>
   );
 }
 

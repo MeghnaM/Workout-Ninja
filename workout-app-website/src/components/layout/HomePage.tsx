@@ -5,9 +5,7 @@ import ProfilePage from "../profile/ProfilePage";
 import Header from "./Header";
 import { Typography } from "@mui/material";
 import { Routes, Route } from "react-router-dom";
-
-// TODO Make sure that once we have navigated here we cannot navigate back
-// to the auth pages - I think we can keep a history object and use that
+import backgroundImage from "../../assets/gradient.jpg";
 
 // Props - current user firebase info and mongodb info
 
@@ -15,7 +13,13 @@ function HomePage() {
   return (
     <div
       className="app-container"
-      style={{ display: "flex", flexDirection: "row" }}
+      style={{
+        display: "flex",
+        flexDirection: "row",
+        backgroundImage: `url(${backgroundImage})`,
+        backgroundSize: "cover",
+        backgroundRepeat: "no-repeat",
+      }}
     >
       <LeftSidebar />
       <main

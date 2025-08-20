@@ -13,6 +13,18 @@ export const colors = {
   "purple-vivid-800": "#580A94",
   "purple-vivid-900": "#44056E",
 
+  // pink vivid
+  "pink-vivid-050": "#FFE3EC",
+  "pink-vivid-100": "#FFB8D2",
+  "pink-vivid-200": "#FF8CBA",
+  "pink-vivid-300": "#F364A2",
+  "pink-vivid-400": "#E8368F",
+  "pink-vivid-500": "#DA127D",
+  "pink-vivid-600": "#BC0A6F",
+  "pink-vivid-700": "#A30664",
+  "pink-vivid-800": "#870557",
+  "pink-vivid-900": "#620042",
+
   "yellow-vivid-050": "#FFFBEA",
   "yellow-vivid-100": "#FFF3C4",
   "yellow-vivid-200": "#FCE588",
@@ -23,6 +35,30 @@ export const colors = {
   "yellow-vivid-700": "#CB6E17",
   "yellow-vivid-800": "#B44D12",
   "yellow-vivid-900": "#8D2B0B",
+
+  // orange
+  "orange-050": "#FFEFE6",
+  "orange-100": "#FFD3BA",
+  "orange-200": "#FAB38B",
+  "orange-300": "#EF8E58",
+  "orange-400": "#E67635",
+  "orange-500": "#C65D21",
+  "orange-600": "#AB4E19",
+  "orange-700": "#8C3D10",
+  "orange-800": "#77340D",
+  "orange-900": "#572508",
+
+  // orange vivid
+  "orange-vivid-050": "#FFE8D9",
+  "orange-vivid-100": "#FFD0B5",
+  "orange-vivid-200": "#FFB088",
+  "orange-vivid-300": "#FF9466",
+  "orange-vivid-400": "#F9703E",
+  "orange-vivid-500": "#F35627",
+  "orange-vivid-600": "#DE3A11",
+  "orange-vivid-700": "#C52707",
+  "orange-vivid-800": "#AD1D07",
+  "orange-vivid-900": "#841003",
 
   // Neutrals
   "warm-grey-050": "#FAF9F7",
@@ -48,14 +84,15 @@ export const colors = {
   "cyan-800": "#0A6C74",
   "cyan-900": "#044E54",
 
-  "lime-green-050": "#F2FDE0",
-  "lime-green-100": "#E2F7C2",
-  "lime-green-200": "#C7EA8F",
-  "lime-green-300": "#ABDB5E",
-  "lime-green-400": "#94C843",
-  "lime-green-500": "#7BB026",
-  "lime-green-600": "#63921A",
-  "lime-green-700": "#507712",
-  "lime-green-800": "#42600C",
-  "lime-green-900": "#2B4005",
+  // green vivid
+  "green-vivid-050": "#E3F9E5",
+  "green-vivid-100": "#C1F2C7",
+  "green-vivid-200": "#91E697",
+  "green-vivid-300": "#51CA58",
+  "green-vivid-400": "#31B237",
+  "green-vivid-500": "#18981D",
+  "green-vivid-600": "#0F8613",
+  "green-vivid-700": "#0E7817",
+  "green-vivid-800": "#07600E",
+  "green-vivid-900": "#014807",
 };

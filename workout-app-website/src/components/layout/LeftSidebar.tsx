@@ -20,12 +20,23 @@ function LeftSidebar() {
   const handleProfileClick = () => navigate("/profile");
 
   return (
-    <div style={{ width: "250px", background: "#f5f5f5", height: "100vh" }}>
-      <ul>
-        <Typography>Welcome, {user.displayName}</Typography>
-        <Button onClick={handleDashboardClick}>Dashboard</Button>
-        <Button onClick={handleProfileClick}>Profile</Button>
-      </ul>
+    <div
+      style={{
+        width: "15%",
+        // background: "#f5f5f5",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <Typography style={{ fontFamily: "Lato" }}>
+        Welcome, {user.displayName}
+      </Typography>
+      <Button style={{ fontFamily: "Lato" }} onClick={handleDashboardClick}>
+        Dashboard
+      </Button>
+      <Button style={{ fontFamily: "Lato" }} onClick={handleProfileClick}>
+        Profile
+      </Button>
     </div>
   );
 }

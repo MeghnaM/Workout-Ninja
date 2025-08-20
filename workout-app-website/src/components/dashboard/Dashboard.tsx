@@ -394,14 +394,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div
-      className="App"
-      style={{
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-      }}
-    >
+    <div className="App">
       <div className="grid grid-flow-col gap-4">
         <StyledBox>
           <div className="headingRow">
@@ -421,6 +414,7 @@ export default function Dashboard() {
                 type="submit"
                 variant="contained"
                 className="bg-indigo-500"
+                style={{ borderRadius: 20 }}
                 onClick={onAddNewExercise}
               >
                 Add
@@ -448,17 +442,18 @@ export default function Dashboard() {
                 type="submit"
                 variant="contained"
                 className="bg-indigo-500"
+                style={{ borderRadius: 20 }}
                 onClick={() => setCreateNewWorkoutModal(true)}
               >
                 Add New
               </Button>
             </div>
-            <div className="grid grid-flow-col gap-4">
+            {/* <div className="grid grid-flow-col gap-4">
               <StyledSectionSubheading>Status</StyledSectionSubheading>
               <StyledSectionSubheading>Name</StyledSectionSubheading>
               {/* <StyledSectionSubheading>Date</StyledSectionSubheading> */}
-              {/* <StyledSectionSubheading>Delete</StyledSectionSubheading> */}
-            </div>
+            {/* <StyledSectionSubheading>Delete</StyledSectionSubheading> */}
+            {/* </div> */}
             <List
               height={300}
               width={400}
@@ -488,7 +483,9 @@ export default function Dashboard() {
           </StyledBox>
         </div>
       </div>
-      <LineGraph width={800} height={500} workoutList={workoutList} />
+      <div style={{ width: 1000, height: 800, margin: 50 }}>
+        <LineGraph width={800} height={500} workoutList={workoutList} />
+      </div>
     </div>
   );
 }
