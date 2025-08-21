@@ -35,6 +35,7 @@ type CurveType = keyof typeof allCurves;
 export type CurveProps = {
   width: 800;
   height: 500;
+
   showControls?: boolean;
   workoutList: any[];
 };

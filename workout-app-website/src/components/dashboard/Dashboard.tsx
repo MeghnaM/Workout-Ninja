@@ -394,7 +394,7 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="App">
+    <div style={{ height: "100%" }}>
       <div className="grid grid-flow-col gap-4">
         <StyledBox>
           <div className="headingRow">
@@ -483,7 +483,7 @@ export default function Dashboard() {
           </StyledBox>
         </div>
       </div>
-      <div style={{ width: 1000, height: 800, margin: 50 }}>
+      <div style={{ margin: 50 }}>
         <LineGraph width={800} height={500} workoutList={workoutList} />
       </div>
     </div>

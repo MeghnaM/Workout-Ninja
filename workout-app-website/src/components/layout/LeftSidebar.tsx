@@ -27,13 +27,19 @@ function LeftSidebar() {
         flexDirection: "column",
       }}
     >
-      <Typography style={{ fontFamily: "Lato" }}>
+      <Typography style={{ fontFamily: "Lato", fontWeight: "bold" }}>
         Welcome, {user.displayName}
       </Typography>
-      <Button style={{ fontFamily: "Lato" }} onClick={handleDashboardClick}>
+      <Button
+        style={{ fontFamily: "Lato", fontWeight: "bold" }}
+        onClick={handleDashboardClick}
+      >
         Dashboard
       </Button>
-      <Button style={{ fontFamily: "Lato" }} onClick={handleProfileClick}>
+      <Button
+        style={{ fontFamily: "Lato", fontWeight: "bold" }}
+        onClick={handleProfileClick}
+      >
         Profile
       </Button>
     </div>

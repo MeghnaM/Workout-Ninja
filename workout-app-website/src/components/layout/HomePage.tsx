@@ -19,12 +19,19 @@ function HomePage() {
         backgroundImage: `url(${backgroundImage})`,
         backgroundSize: "cover",
         backgroundRepeat: "no-repeat",
+        height: "100vh",
+        overflow: "auto",
       }}
     >
       <LeftSidebar />
       <main
         className="main-content"
-        style={{ display: "flex", flexDirection: "column" }}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          height: "100%",
+        }}
       >
         <Header />
         <Routes>
