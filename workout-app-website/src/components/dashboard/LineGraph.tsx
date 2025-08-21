@@ -35,7 +35,6 @@ type CurveType = keyof typeof allCurves;
 export type CurveProps = {
   width: 800;
   height: 500;
-
   showControls?: boolean;
   workoutList: any[];
 };
@@ -241,10 +240,11 @@ export default function LineGraph({
         className="exercises-and-weight-line-graph"
         style={{
           backgroundColor: theme.palette.background.main,
-          width: 1000,
-          height: 800,
+          width: 900,
+          height: 850,
           padding: 50,
           borderRadius: 50,
+          margin: 50,
         }}
       >
         <StyledSectionHeading variant="h4">
@@ -253,7 +253,7 @@ export default function LineGraph({
         <LegendDemo title="Exercises">
           <LegendOrdinal scale={ordinalColorScale}></LegendOrdinal>
         </LegendDemo>
-        <div style={{ display: "flex", flexDirection: "row" }}>
+        <div>
           <div style={{ display: "flex", flexDirection: "column" }}>
             <InputLabel id="exercises-multiselect">Exercises</InputLabel>
             <Select

@@ -401,7 +401,15 @@ export default function Dashboard() {
             <StyledSectionHeading variant="h4">Exercises</StyledSectionHeading>
           </div>
           <form action="">
-            <div className="pb-8">
+            <div
+              className="pb-8"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: 0,
+              }}
+            >
               <TextField
                 type="string"
                 placeholder="Exercise Name"
@@ -436,7 +444,10 @@ export default function Dashboard() {
         </StyledBox>
         <div>
           <StyledBox>
-            <div className="headingRow">
+            <div
+              className="headingRow"
+              style={{ display: "flex", alignItems: "center" }}
+            >
               <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
               <Button
                 type="submit"
@@ -483,7 +494,7 @@ export default function Dashboard() {
           </StyledBox>
         </div>
       </div>
-      <div style={{ margin: 50 }}>
+      <div>
         <LineGraph width={800} height={500} workoutList={workoutList} />
       </div>
     </div>
