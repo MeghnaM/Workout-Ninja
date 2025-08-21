@@ -23,7 +23,6 @@ function LeftSidebar() {
     <div
       style={{
         width: "15%",
-        // background: "#f5f5f5",
         display: "flex",
         flexDirection: "column",
       }}

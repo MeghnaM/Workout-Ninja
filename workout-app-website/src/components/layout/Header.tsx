@@ -3,7 +3,11 @@ import { StyledWebsiteHeading } from "../styles/StyledComponentsLibrary";
 
 function Header() {
   return (
-    <StyledWebsiteHeading variant="h2" color="primary">
+    <StyledWebsiteHeading
+      style={{ display: "flex", alignSelf: "center", padding: "2%" }}
+      variant="h2"
+      color="primary"
+    >
       Workout Ninja
     </StyledWebsiteHeading>
   );
