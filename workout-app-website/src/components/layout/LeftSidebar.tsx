@@ -28,7 +28,7 @@ function LeftSidebar() {
       }}
     >
       <Typography style={{ fontFamily: "Lato", fontWeight: "bold" }}>
-        Welcome, {user.displayName}
+        Workout Ninja
       </Typography>
       <Button
         style={{ fontFamily: "Lato", fontWeight: "bold" }}
