@@ -11,7 +11,8 @@ function Header() {
     <StyledWebsiteHeading
       style={{ display: "flex", alignSelf: "center", padding: "2%" }}
       variant="h2"
-      color="primary"
+      // color="primary"
+      $gradient
     >
       Good Morning, {user.displayName}
     </StyledWebsiteHeading>

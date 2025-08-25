@@ -15,6 +15,10 @@ import RadioButtonCheckedIcon from "@mui/icons-material/RadioButtonChecked";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
 import TextField from "@mui/material/TextField";
 import { create } from "domain";
+import {
+  StyledIconButton,
+  StyledSectionHeading,
+} from "../../components/styles/StyledComponentsLibrary";
 
 interface ToastProps {
   message: string;
@@ -142,73 +146,44 @@ export default function CreateWorkout(props) {
     });
   };
 
-  // const exerciseRow = React.forwardRef<HTMLDivElement, any>((props, ref) => {
-  //   const { index, style } = props;
-
-  //   const handleExerciseClick = () => {
-  //     setSelectedExercises((exercises) => {
-  //       const selected = new Set(exercises);
-  //       if (selectedExercises.has(index)) {
-  //         selected.delete(index);
-  //       } else {
-  //         selected.add(index);
-  //       }
-  //       return selected;
-  //     });
-  //   };
-
-  //   return (
-  //     <div ref={ref} style={style}>
-  //       <ListItem key={index} component="div" disablePadding>
-  //         <ListItemButton onClick={handleExerciseClick}>
-  //           <ListItemIcon sx={{ color: theme.palette.primary.main }}>
-  //             {selectedExercises.has(index) ? (
-  //               <RadioButtonCheckedIcon />
-  //             ) : (
-  //               <RadioButtonUncheckedIcon />
-  //             )}
-  //           </ListItemIcon>
-  //           <StyledListItemText
-  //             sx={{ color: theme.palette.primary.main }}
-  //             primary={exerciseList[index].ex.exercise}
-  //           />
-  //         </ListItemButton>
-  //         <TextField
-  //           id="sets"
-  //           label="sets"
-  //           variant="filled"
-  //           value={exerciseData[index]?.sets}
-  //           onChange={(e) => handleSetsChange(index, e.target.value)}
-  //         />
-  //         <TextField
-  //           id="reps"
-  //           label="reps"
-  //           variant="filled"
-  //           value={exerciseData[index]?.reps}
-  //           onChange={(e) => handleRepsChange(index, e.target.value)}
-  //         />
-  //       </ListItem>
-  //     </div>
-  //   );
-  // });
-
   return (
     <ThemeProvider theme={theme}>
-      <StyledBox>
+      <StyledBox
+        style={{
+          // these styles are just for positioning the modal in the center of the page
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+          height: 600,
+          minWidth: 500,
+        }}
+      >
+        <StyledSectionHeading
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            fontFamily: "Lato, sans-serif",
+          }}
+        >
+          Create New Workout
+        </StyledSectionHeading>
         <TextField
           id="workout-name"
           label="Workout Name"
           variant="outlined"
           onChange={(e) => setWorkoutName(e.target.value)}
+          style={{ marginBottom: 20, marginLeft: 20 }}
         />
 
         <div
           style={{
-            height: 200,
-            width: 400,
+            height: 300,
+            width: 450,
             overflowY: "auto",
             border: "1px solid #ccc",
             borderRadius: "4px",
+            padding: 10,
           }}
         >
           {exerciseList.map((exercise, index) => {
@@ -235,17 +210,20 @@ export default function CreateWorkout(props) {
                         <RadioButtonUncheckedIcon />
                       )}
                     </ListItemIcon>
+
                     <StyledListItemText
                       sx={{ color: theme.palette.primary.main }}
                       primary={exerciseList[index].ex.exercise}
                     />
                   </ListItemButton>
+
                   <TextField
                     label="sets"
-                    variant="filled"
+                    variant="outlined"
                     value={exerciseData[index]?.sets || ""}
                     onChange={(e) => handleSetsChange(index, e.target.value)}
                   />
+
                   <TextField
                     label="reps"
                     variant="filled"
@@ -258,7 +236,25 @@ export default function CreateWorkout(props) {
           })}
         </div>
 
-        {/* <List
+        <StyledIconButton
+          onClick={(e) => onCreateWorkoutClick(e)}
+          style={{ margin: 10 }}
+        >
+          Create
+        </StyledIconButton>
+        <StyledIconButton onClick={onCancelClick} style={{ margin: 10 }}>
+          Cancel
+        </StyledIconButton>
+        <div style={{ margin: 15 }}>
+          {toast && <Toast message={toast} onClose={() => setToast(null)} />}
+        </div>
+      </StyledBox>
+    </ThemeProvider>
+  );
+}
+
+{
+  /* <List
           height={300}
           width={400}
           itemSize={100}
@@ -266,11 +262,55 @@ export default function CreateWorkout(props) {
           overscanCount={5}
         >
           {exerciseRow}
-        </List> */}
-        <Button onClick={(e) => onCreateWorkoutClick(e)}>Create</Button>
-        <Button onClick={onCancelClick}>Cancel</Button>
-        {toast && <Toast message={toast} onClose={() => setToast(null)} />}
-      </StyledBox>
-    </ThemeProvider>
-  );
+        </List> */
 }
+
+// const exerciseRow = React.forwardRef<HTMLDivElement, any>((props, ref) => {
+//   const { index, style } = props;
+
+//   const handleExerciseClick = () => {
+//     setSelectedExercises((exercises) => {
+//       const selected = new Set(exercises);
+//       if (selectedExercises.has(index)) {
+//         selected.delete(index);
+//       } else {
+//         selected.add(index);
+//       }
+//       return selected;
+//     });
+//   };
+
+//   return (
+//     <div ref={ref} style={style}>
+//       <ListItem key={index} component="div" disablePadding>
+//         <ListItemButton onClick={handleExerciseClick}>
+//           <ListItemIcon sx={{ color: theme.palette.primary.main }}>
+//             {selectedExercises.has(index) ? (
+//               <RadioButtonCheckedIcon />
+//             ) : (
+//               <RadioButtonUncheckedIcon />
+//             )}
+//           </ListItemIcon>
+//           <StyledListItemText
+//             sx={{ color: theme.palette.primary.main }}
+//             primary={exerciseList[index].ex.exercise}
+//           />
+//         </ListItemButton>
+//         <TextField
+//           id="sets"
+//           label="sets"
+//           variant="filled"
+//           value={exerciseData[index]?.sets}
+//           onChange={(e) => handleSetsChange(index, e.target.value)}
+//         />
+//         <TextField
+//           id="reps"
+//           label="reps"
+//           variant="filled"
+//           value={exerciseData[index]?.reps}
+//           onChange={(e) => handleRepsChange(index, e.target.value)}
+//         />
+//       </ListItem>
+//     </div>
+//   );
+// });

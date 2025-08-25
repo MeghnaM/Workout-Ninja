@@ -252,8 +252,18 @@ function DoWorkout(props) {
 
   return (
     <ThemeProvider theme={theme}>
-      <StyledBox>
-        <StyledSectionHeading variant="h4">{workoutName}</StyledSectionHeading>
+      <StyledBox
+        style={{
+          // these styles are just for positioning the modal in the center of the page
+          position: "absolute",
+          top: "50%",
+          left: "50%",
+          transform: "translate(-50%, -50%)",
+
+          height: 500,
+        }}
+      >
+        <StyledSectionHeading variant="h5">{workoutName}</StyledSectionHeading>
         <form onSubmit={onCompleteWorkout}>
           <div className="workoutDisplayRow">
             {/* <TextField
@@ -281,11 +291,13 @@ function DoWorkout(props) {
               onChange={(e) => setWorkoutDate(e.target.value)}
             />
           </div>
-          <div style={{ height: 210, overflow: "auto" }}>
+
+          <div style={{ height: 300, overflow: "auto" }}>
             {workoutExerciseData.map((exercise, index) =>
               displayExercise({ index, key: index, style: {} })
             )}
           </div>
+
           <div className="workoutDisplayRow">
             <Button variant="contained" onClick={onClose}>
               Close

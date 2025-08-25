@@ -27,21 +27,22 @@ import generateDateValue, {
   DateValue,
 } from "@visx/mock-data/lib/generators/genDateValue";
 import { StyledSectionHeading } from "../styles/StyledComponentsLibrary";
+import { colors } from "../styles/colors";
 import { LegendOrdinal } from "@visx/legend";
 import { AxisBottom, AxisLeft } from "@visx/axis";
 
 type CurveType = keyof typeof allCurves;
 
 export type CurveProps = {
-  width: 800;
-  height: 500;
+  width?: 800;
+  height?: 500;
   showControls?: boolean;
   workoutList: any[];
 };
 
 export default function LineGraph({
-  width,
-  height,
+  width = 800,
+  height = 500,
   showControls = true,
   workoutList = [],
 }: CurveProps) {
@@ -74,19 +75,20 @@ export default function LineGraph({
         <style>{`
           .legend {
             line-height: 0.9em;
-            color:rgb(0, 140, 255);
+            color:${colors["purple-vivid-500"]};
             font-size: 10px;
             font-family: 'Lato', sans-serif;
             padding: 10px 10px;
             float: left;
-            border: 1px solid rgba(0, 110, 255, 0.3);
+            border: 1px solid ${colors["purple-vivid-500"]};
             border-radius: 8px;
             margin: 5px 5px;
           }
           .title {
             font-size: 12px;
             margin-bottom: 10px;
-            font-weight: 100;
+            font-weight: bold;
+            color:${colors["purple-vivid-500"]};
           }
         `}</style>
       </div>
@@ -179,7 +181,8 @@ export default function LineGraph({
   const ordinalColorScale = scaleOrdinal({
     // domain: Object.keys(lineData),
     domain: selectedExercises,
-    range: ["#66d981", "#71f5ef", "#4899f1", "#7d81f6"],
+    // range: ["#66d981", "#71f5ef", "#4899f1", "#7d81f6"],
+    range: ["#DAC4FF", "#A368FC", "#8719E0", "#690CB0", "#44056E"],
   });
 
   // update scale output ranges
@@ -239,23 +242,34 @@ export default function LineGraph({
       <div
         className="exercises-and-weight-line-graph"
         style={{
-          backgroundColor: theme.palette.background.main,
-          width: 900,
-          height: 850,
+          backgroundColor: theme.palette.background.paper,
+          width: 800,
+          height: 800,
           padding: 50,
           borderRadius: 50,
-          margin: 50,
+          marginBottom: 50,
+          boxShadow:
+            "0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08)",
+          transform: "translateY(8px)",
         }}
       >
         <StyledSectionHeading variant="h4">
           Progressive Overload
         </StyledSectionHeading>
-        <LegendDemo title="Exercises">
-          <LegendOrdinal scale={ordinalColorScale}></LegendOrdinal>
-        </LegendDemo>
-        <div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            justifyContent: "space-evenly",
+          }}
+        >
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <InputLabel id="exercises-multiselect">Exercises</InputLabel>
+            <InputLabel
+              id="exercises-multiselect"
+              style={{ color: colors["purple-vivid-500"] }}
+            >
+              Exercises
+            </InputLabel>
             <Select
               labelId="exercises-multiselect"
               id="exercises-multiselect-label"
@@ -294,7 +308,12 @@ export default function LineGraph({
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <InputLabel id="date-window-select-label">Date Range</InputLabel>
+            <InputLabel
+              id="date-window-select-label"
+              style={{ color: colors["purple-vivid-500"] }}
+            >
+              Date Range
+            </InputLabel>
             <Select
               labelId="date-window-select"
               id="date-window-select"
@@ -310,7 +329,20 @@ export default function LineGraph({
             <br />
           </div>
         </div>
-        <svg width={800} height={600}>
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginBottom: 20,
+          }}
+        >
+          <LegendDemo title="Exercises">
+            <LegendOrdinal scale={ordinalColorScale}></LegendOrdinal>
+          </LegendDemo>
+        </div>
+
+        <svg width={1000} height={600}>
           <rect x={0} y={0} width={width} height={height} rx={14} />
           <AxisBottom
             left={left}

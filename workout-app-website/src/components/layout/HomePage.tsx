@@ -16,10 +16,10 @@ function HomePage() {
       style={{
         display: "flex",
         flexDirection: "row",
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundRepeat: "no-repeat",
-        height: "100vh",
+        // backgroundImage: `url(${backgroundImage})`,
+        // backgroundSize: "cover",
+        // backgroundRepeat: "no-repeat",
+        height: "100%",
         overflow: "auto",
       }}
     >

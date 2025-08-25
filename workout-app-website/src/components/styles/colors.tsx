@@ -2,18 +2,6 @@ import React from "react";
 
 export const colors = {
   // Primary
-  "purple-vivid-050": "#F2EBFE",
-  "purple-vivid-100": "#DAC4FF",
-  "purple-vivid-200": "#B990FF",
-  "purple-vivid-300": "#A368FC",
-  "purple-vivid-400": "#9446ED",
-  "purple-vivid-500": "#8719E0",
-  "purple-vivid-600": "#7A0ECC",
-  "purple-vivid-700": "#690CB0",
-  "purple-vivid-800": "#580A94",
-  "purple-vivid-900": "#44056E",
-
-  // pink vivid
   "pink-vivid-050": "#FFE3EC",
   "pink-vivid-100": "#FFB8D2",
   "pink-vivid-200": "#FF8CBA",
@@ -25,30 +13,7 @@ export const colors = {
   "pink-vivid-800": "#870557",
   "pink-vivid-900": "#620042",
 
-  "yellow-vivid-050": "#FFFBEA",
-  "yellow-vivid-100": "#FFF3C4",
-  "yellow-vivid-200": "#FCE588",
-  "yellow-vivid-300": "#FADB5F",
-  "yellow-vivid-400": "#F7C948",
-  "yellow-vivid-500": "#F0B429",
-  "yellow-vivid-600": "#DE911D",
-  "yellow-vivid-700": "#CB6E17",
-  "yellow-vivid-800": "#B44D12",
-  "yellow-vivid-900": "#8D2B0B",
-
-  // orange
-  "orange-050": "#FFEFE6",
-  "orange-100": "#FFD3BA",
-  "orange-200": "#FAB38B",
-  "orange-300": "#EF8E58",
-  "orange-400": "#E67635",
-  "orange-500": "#C65D21",
-  "orange-600": "#AB4E19",
-  "orange-700": "#8C3D10",
-  "orange-800": "#77340D",
-  "orange-900": "#572508",
-
-  // orange vivid
+  // Secondary
   "orange-vivid-050": "#FFE8D9",
   "orange-vivid-100": "#FFD0B5",
   "orange-vivid-200": "#FFB088",
@@ -73,6 +38,19 @@ export const colors = {
   "warm-grey-900": "#27241D",
 
   // Supporting
+  "purple-vivid-050": "#F2EBFE",
+  "purple-vivid-100": "#DAC4FF",
+  "purple-vivid-200": "#B990FF",
+  "purple-vivid-300": "#A368FC",
+  "purple-vivid-400": "#9446ED",
+  "purple-vivid-500": "#8719E0",
+  "purple-vivid-600": "#7A0ECC",
+  "purple-vivid-700": "#690CB0",
+  "purple-vivid-800": "#580A94",
+  "purple-vivid-900": "#44056E",
+
+  // Extra
+  // Not started
   "cyan-050": "#E0FCFF",
   "cyan-100": "#BEF8FD",
   "cyan-200": "#87EAF2",
@@ -84,7 +62,7 @@ export const colors = {
   "cyan-800": "#0A6C74",
   "cyan-900": "#044E54",
 
-  // green vivid
+  // Completed
   "green-vivid-050": "#E3F9E5",
   "green-vivid-100": "#C1F2C7",
   "green-vivid-200": "#91E697",
@@ -95,4 +73,16 @@ export const colors = {
   "green-vivid-700": "#0E7817",
   "green-vivid-800": "#07600E",
   "green-vivid-900": "#014807",
+
+  // In progress
+  "yellow-vivid-050": "#FFFBEA",
+  "yellow-vivid-100": "#FFF3C4",
+  "yellow-vivid-200": "#FCE588",
+  "yellow-vivid-300": "#FADB5F",
+  "yellow-vivid-400": "#F7C948",
+  "yellow-vivid-500": "#F0B429",
+  "yellow-vivid-600": "#DE911D",
+  "yellow-vivid-700": "#CB6E17",
+  "yellow-vivid-800": "#B44D12",
+  "yellow-vivid-900": "#8D2B0B",
 };

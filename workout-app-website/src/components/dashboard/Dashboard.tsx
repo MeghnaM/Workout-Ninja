@@ -394,8 +394,20 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ height: "100%" }}>
-      <div className="grid grid-flow-col gap-4">
+    <div
+      style={{
+        display: "flex",
+        flexFlow: "column",
+        alignItems: "center",
+      }}
+    >
+      <div
+        style={{
+          display: "flex",
+          flexFlow: "row",
+          justifyContent: "center",
+        }}
+      >
         <StyledBox>
           <div className="headingRow">
             <StyledSectionHeading variant="h4">Exercises</StyledSectionHeading>
@@ -442,61 +454,58 @@ export default function Dashboard() {
             {renderExercise}
           </List>
         </StyledBox>
-        <div>
-          <StyledBox>
-            <div
-              className="headingRow"
-              style={{ display: "flex", alignItems: "center" }}
+
+        <StyledBox>
+          <div
+            className="headingRow"
+            style={{ display: "flex", alignItems: "center" }}
+          >
+            <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
+            <Button
+              type="submit"
+              variant="contained"
+              className="bg-indigo-500"
+              style={{ borderRadius: 20 }}
+              onClick={() => setCreateNewWorkoutModal(true)}
             >
-              <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
-              <Button
-                type="submit"
-                variant="contained"
-                className="bg-indigo-500"
-                style={{ borderRadius: 20 }}
-                onClick={() => setCreateNewWorkoutModal(true)}
-              >
-                Add New
-              </Button>
-            </div>
-            {/* <div className="grid grid-flow-col gap-4">
+              Add New
+            </Button>
+          </div>
+          {/* <div className="grid grid-flow-col gap-4">
               <StyledSectionSubheading>Status</StyledSectionSubheading>
               <StyledSectionSubheading>Name</StyledSectionSubheading>
               {/* <StyledSectionSubheading>Date</StyledSectionSubheading> */}
-            {/* <StyledSectionSubheading>Delete</StyledSectionSubheading> */}
-            {/* </div> */}
-            <List
-              height={300}
-              width={400}
-              itemSize={46}
-              itemCount={workoutList.length}
-              workoutListForwardRef={WorkoutListForwardRef}
-              overscanCount={5}
-            >
-              {renderWorkout}
-            </List>
-            <Modal open={doWorkoutModal}>
-              <DoWorkout
-                ongoingWorkout={ongoingWorkout}
-                setOngoingWorkout={setOngoingWorkout}
-                saveWorkoutInDB={saveWorkoutInDB}
-                setShowOngoingWorkout={setShowOngoingWorkout}
-                setDoWorkoutModal={setDoWorkoutModal}
-              />
-            </Modal>
-            <Modal open={createNewWorkoutModal}>
-              <CreateWorkout
-                setAddNewWorkoutModal={setCreateNewWorkoutModal}
-                exerciseList={exerciseList}
-                onCreateNewWorkout={onCreateNewWorkout}
-              />
-            </Modal>
-          </StyledBox>
-        </div>
+          {/* <StyledSectionSubheading>Delete</StyledSectionSubheading> */}
+          {/* </div> */}
+          <List
+            height={300}
+            width={400}
+            itemSize={46}
+            itemCount={workoutList.length}
+            workoutListForwardRef={WorkoutListForwardRef}
+            overscanCount={5}
+          >
+            {renderWorkout}
+          </List>
+        </StyledBox>
+        <Modal open={doWorkoutModal}>
+          <DoWorkout
+            ongoingWorkout={ongoingWorkout}
+            setOngoingWorkout={setOngoingWorkout}
+            saveWorkoutInDB={saveWorkoutInDB}
+            setShowOngoingWorkout={setShowOngoingWorkout}
+            setDoWorkoutModal={setDoWorkoutModal}
+          />
+        </Modal>
+        <Modal open={createNewWorkoutModal}>
+          <CreateWorkout
+            setAddNewWorkoutModal={setCreateNewWorkoutModal}
+            exerciseList={exerciseList}
+            onCreateNewWorkout={onCreateNewWorkout}
+          />
+        </Modal>
       </div>
-      <div>
-        <LineGraph width={800} height={500} workoutList={workoutList} />
-      </div>
+      <LineGraph workoutList={workoutList} />
     </div>
   );
 }
