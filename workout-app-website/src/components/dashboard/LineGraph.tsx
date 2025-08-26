@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { extent, max } from "@visx/vendor/d3-array";
 import * as allCurves from "@visx/curve";
 import { Group } from "@visx/group";
@@ -13,19 +13,17 @@ import Box from "@mui/material/Box";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import { ThemeProvider } from "@mui/material/styles";
 import { theme } from "../styles/StyledComponentsLibrary.js";
-import { withTooltip, Tooltip, defaultStyles } from "@visx/tooltip";
+import { withTooltip, Tooltip, defaultStyles, useTooltip } from "@visx/tooltip";
+import { WithTooltipProvidedProps } from "@visx/tooltip/lib/enhancers/withTooltip";
+import genRandomNormalPoints, {
+  PointsRange,
+} from "@visx/mock-data/lib/generators/genRandomNormalPoints";
 import { SeriesPoint } from "@visx/shape/lib/types";
 import cityTemperature, {
   CityTemperature,
 } from "@visx/mock-data/lib/mocks/cityTemperature";
 
-import {
-  MarkerArrow,
-  MarkerCross,
-  MarkerX,
-  MarkerCircle,
-  MarkerLine,
-} from "@visx/marker";
+import { MarkerCircle } from "@visx/marker";
 import generateDateValue, {
   DateValue,
 } from "@visx/mock-data/lib/generators/genDateValue";
@@ -44,17 +42,15 @@ export type CurveProps = {
   workoutList: any[];
 };
 
-type CityName = "New York" | "San Francisco" | "Austin";
-export type TooltipData = {
-  bar: SeriesPoint<CityTemperature>;
-  key: CityName;
-  index: number;
-  height: number;
-  width: number;
-  x: number;
-  y: number;
-  color: string;
-};
+const points: PointsRange[] = genRandomNormalPoints(
+  600,
+  /* seed= */ 0.5
+).filter((_, i) => i < 600);
+
+const x = (d: PointsRange) => d[0];
+const y = (d: PointsRange) => d[1];
+
+let tooltipTimeout: number;
 
 export default function LineGraph({
   width = 800,
@@ -66,6 +62,27 @@ export default function LineGraph({
   const [curveType, setCurveType] = useState<CurveType>("curveLinear");
   const [dateWindow, setDateWindow] = useState<number>(60);
 
+  type CityName = "New York" | "San Francisco" | "Austin";
+  type TooltipData = {
+    bar: SeriesPoint<CityTemperature>;
+    key: CityName;
+    index: number;
+    height: number;
+    width: number;
+    x: number;
+    y: number;
+    color: string;
+  };
+
+  const {
+    showTooltip,
+    hideTooltip,
+    tooltipData,
+    tooltipLeft,
+    tooltipTop,
+    tooltipOpen,
+  } = useTooltip<{ exercise: string; d: DateValue }>();
+
   useEffect(() => {
     const filteredData = getFilteredLineData();
     const availableExercises = Object.keys(filteredData);
@@ -76,40 +93,6 @@ export default function LineGraph({
     }
     console.log("Exercise Data in correct format -", lineSeriesData());
   }, [workoutList, dateWindow]);
-
-  // function LegendDemo({
-  //   title,
-  //   children,
-  // }: {
-  //   title: string;
-  //   children: React.ReactNode;
-  // }) {
-  //   return (
-  //     <div className="legend">
-  //       <div className="title">{title}</div>
-  //       {children}
-  //       <style>{`
-  //         .legend {
-  //           line-height: 0.9em;
-  //           color:${colors["orange-vivid-500"]};
-  //           font-size: 10px;
-  //           font-family: 'Lato', sans-serif;
-  //           padding: 10px 10px;
-  //           float: left;
-  //           border: 1px solid ${colors["orange-vivid-500"]};
-  //           border-radius: 8px;
-  //           margin: 5px 5px;
-  //         }
-  //         .title {
-  //           font-size: 12px;
-  //           margin-bottom: 10px;
-  //           font-weight: bold;
-  //           color:${colors["orange-vivid-500"]};
-  //         }
-  //       `}</style>
-  //     </div>
-  //   );
-  // }
 
   // chart data shape =
   // {exerciseName: array[date, value]}
@@ -163,10 +146,6 @@ export default function LineGraph({
     });
     return filteredData;
   };
-
-  // const getDefaultSelectedExercises = (data) => {
-  //   return Object.keys(data).slice(0, 2);
-  // };
 
   // EXERCISE DATA
   // const lineData = lineSeriesData();
@@ -250,6 +229,25 @@ export default function LineGraph({
     };
   }
 
+  // event handlers
+  const handleMouseMove = useCallback(
+    (event: React.MouseEvent | React.TouchEvent) => {
+      if (tooltipTimeout) clearTimeout(tooltipTimeout);
+
+      // TODO tooltip data
+      // how do I find the point at which I want to show the tooltip?
+      // where does the tooltip data come from?
+      // it's the name of the exercise and the highest weight on that day
+    },
+    [xScale, yScale, showTooltip]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    tooltipTimeout = window.setTimeout(() => {
+      hideTooltip();
+    }, 300);
+  }, [hideTooltip]);
+
   // POSITIONS
   const left = 30;
   const bottomAxisTicks = () => (dateWindow > 60 ? 10 : 5);
@@ -281,12 +279,6 @@ export default function LineGraph({
           }}
         >
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {/* <InputLabel
-              id="exercises-multiselect"
-              style={{ color: colors["pink-vivid-600"] }}
-            >
-              Exercises
-            </InputLabel> */}
             <Select
               labelId="exercises-multiselect"
               id="exercises-multiselect-label"
@@ -325,12 +317,6 @@ export default function LineGraph({
           </div>
 
           <div style={{ display: "flex", flexDirection: "column" }}>
-            {/* <InputLabel
-              id="date-window-select-label"
-              style={{ color: colors["orange-vivid-500"] }}
-            >
-              Date Range
-            </InputLabel> */}
             <Select
               labelId="date-window-select"
               id="date-window-select"
@@ -373,20 +359,20 @@ export default function LineGraph({
               labelMargin="0 15px 0 0"
             />
           </div>
-          {/* <div
-            style={{
-              display: "flex",
-              justifyContent: "flex-end",
-              marginBottom: 20,
-            }}
-          >
-            <LegendDemo title="">
-              <LegendOrdinal scale={ordinalColorScale}></LegendOrdinal>
-            </LegendDemo>
-          </div> */}
+
           <svg width={1000} height={500}>
             {/* <rect x={0} y={0} width={width} height={height} rx={14} /> */}
-
+            {/** capture all mouse events with a rect */}
+            <rect
+              width={width}
+              height={height}
+              rx={14}
+              fill="url(#dots-pink)"
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              onTouchMove={handleMouseMove}
+              onTouchEnd={handleMouseLeave}
+            />
             <AxisBottom
               left={left}
               top={450}
@@ -434,22 +420,40 @@ export default function LineGraph({
                       markerStart="url(#marker-circle)"
                       markerEnd="url(#marker-circle)"
                       shapeRendering="geometricPrecision"
-                      // onMouseLeave={() => {
-                      //   tooltipTimeout = window.setTimeout(() => {
-                      //     hideTooltip();
-                      //   }, 300);
-                      // }}
-                      // onMouseMove={() => {
-                      //   if (tooltipTimeout) clearTimeout(tooltipTimeout);
-                      //   const top = bar.y + margin.top;
-                      //   const left = bar.x + bar.width + margin.left;
-                      //   showTooltip({
-                      //     tooltipData: bar,
-                      //     tooltipTop: top,
-                      //     tooltipLeft: left,
-                      //   });
-                      // }}
+                      pointerEvents="none"
                     />
+                    {exerciseData.map((d, j) => {
+                      const cx = xScale(getX(d)) ?? 0;
+                      const cy = yScale(getY(d)) ?? 0;
+                      return (
+                        <circle
+                          key={`${exerciseName}-${j}`}
+                          cx={cx}
+                          cy={cy}
+                          r={8} // bigger hit area for easy hover
+                          fill="transparent"
+                          stroke="transparent"
+                          style={{ pointerEvents: "all", cursor: "pointer" }}
+                          onMouseMove={(e) => {
+                            showTooltip({
+                              tooltipData: { exercise: exerciseName, d },
+                              // add the group's offsets (left+1, margin.top)
+                              tooltipLeft: left + 1 + cx,
+                              tooltipTop: margin.top + cy,
+                            });
+                          }}
+                          onMouseLeave={hideTooltip}
+                          onTouchStart={(e) => {
+                            showTooltip({
+                              tooltipData: { exercise: exerciseName, d },
+                              tooltipLeft: left + 1 + cx,
+                              tooltipTop: margin.top + cy,
+                            });
+                          }}
+                          onTouchEnd={hideTooltip}
+                        />
+                      );
+                    })}
                   </Group>
                 );
               })}
@@ -459,22 +463,96 @@ export default function LineGraph({
           font-size: 12px;
         }
       `}</style>
-          {/* {tooltipOpen && tooltipData && (
-          <Tooltip top={tooltipTop} left={tooltipLeft} style={tooltipStyles}>
-            <div style={{ color: colorScale(tooltipData.key) }}>
-              <strong>{tooltipData.key}</strong>
-            </div>
-            <div>{tooltipData.bar.data[tooltipData.key]}℉</div>
-            <div>
-              <small>{formatDate(getDate(tooltipData.bar.data))}</small>
-            </div>
-          </Tooltip>
-        )} */}
+          {tooltipOpen &&
+            tooltipData &&
+            tooltipLeft != null &&
+            tooltipTop != null && (
+              <Tooltip left={tooltipLeft + 10} top={tooltipTop + 10}>
+                <div style={{ fontWeight: 700 }}>{tooltipData.exercise}</div>
+                <div>
+                  {tooltipData.d.date.toLocaleDateString(undefined, {
+                    month: "short",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </div>
+                <div>{tooltipData.d.value} lbs</div>
+              </Tooltip>
+            )}
         </div>
       </div>
     </ThemeProvider>
   );
 }
+
+{
+  /* <div
+            style={{
+              display: "flex",
+              justifyContent: "flex-end",
+              marginBottom: 20,
+            }}
+          >
+            <LegendDemo title="">
+              <LegendOrdinal scale={ordinalColorScale}></LegendOrdinal>
+            </LegendDemo>
+          </div> */
+}
+// const getDefaultSelectedExercises = (data) => {
+//   return Object.keys(data).slice(0, 2);
+// };
+
+{
+  /* <InputLabel
+              id="date-window-select-label"
+              style={{ color: colors["orange-vivid-500"] }}
+            >
+              Date Range
+            </InputLabel> */
+}
+
+{
+  /* <InputLabel
+              id="exercises-multiselect"
+              style={{ color: colors["pink-vivid-600"] }}
+            >
+              Exercises
+            </InputLabel> */
+}
+
+// function LegendDemo({
+//   title,
+//   children,
+// }: {
+//   title: string;
+//   children: React.ReactNode;
+// }) {
+//   return (
+//     <div className="legend">
+//       <div className="title">{title}</div>
+//       {children}
+//       <style>{`
+//         .legend {
+//           line-height: 0.9em;
+//           color:${colors["orange-vivid-500"]};
+//           font-size: 10px;
+//           font-family: 'Lato', sans-serif;
+//           padding: 10px 10px;
+//           float: left;
+//           border: 1px solid ${colors["orange-vivid-500"]};
+//           border-radius: 8px;
+//           margin: 5px 5px;
+//         }
+//         .title {
+//           font-size: 12px;
+//           margin-bottom: 10px;
+//           font-weight: bold;
+//           color:${colors["orange-vivid-500"]};
+//         }
+//       `}</style>
+//     </div>
+//   );
+// }
 
 // console.log(`EXERCISES = ${exercises}`);
 // console.log(`DATE WINDOWS - ${exerciseData[0]}`);
