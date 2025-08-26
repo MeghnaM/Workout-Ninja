@@ -219,13 +219,13 @@ export const StyledIconButton = styled(IconButton)(({ theme }) => ({
 export const StyledBox = styled(Box)(({ theme }) => ({
   width: "100%",
   height: 400,
-  maxWidth: 400,
+  width: 400,
   backgroundColor: theme.palette.background.paper, // was background.main
   borderRadius: "10%",
   margin: 20,
 
   boxShadow: "0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08)",
-  // transform: "translateY(8px)", // vertical offset
+  transform: "translateY(8px)", // vertical offset
   // transition: "transform 200ms ease, box-shadow 200ms ease",
   // "&:hover": {
   //   transform: "translate(4px)",

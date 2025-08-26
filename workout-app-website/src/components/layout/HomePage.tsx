@@ -14,13 +14,15 @@ function HomePage() {
     <div
       className="app-container"
       style={{
-        display: "flex",
-        flexDirection: "row",
+        // display: "flex",
+        // flexDirection: "row",
         // backgroundImage: `url(${backgroundImage})`,
         // backgroundSize: "cover",
         // backgroundRepeat: "no-repeat",
-        height: "100%",
+        minHeight: "100dvh",
         overflow: "auto",
+        display: "grid",
+        gridTemplateColumns: "260px 1fr",
       }}
     >
       <LeftSidebar />

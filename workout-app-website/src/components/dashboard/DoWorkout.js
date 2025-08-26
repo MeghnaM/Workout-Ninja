@@ -161,27 +161,31 @@ function DoWorkout(props) {
       const { index } = props;
       // sets = number of fields, each field = reps (non-editable), weight (editable)
       return (
-        <ListItem key={index} component="div" disablePadding>
-          <ListItemButton>
-            <ListItemIcon>
-              <Checkbox
-                icon={<RadioButtonUncheckedIcon />}
-                checkedIcon={<RadioButtonCheckedIcon />}
-                checked={workoutExerciseData[index].completed}
-                onChange={(e) =>
-                  updateExerciseCompleted(
-                    index,
-                    !workoutExerciseData[index].completed
-                  )
-                }
-                fontSize="small"
-              />
-            </ListItemIcon>
-            <ListItemText
-              sx={{ color: theme.palette.primary.main, width: 100 }}
-              primary={workoutExerciseData[index].exerciseName}
+        <ListItem
+          key={index}
+          component="div"
+          disablePadding
+          style={{ padding: 20 }}
+        >
+          <ListItemIcon>
+            <Checkbox
+              icon={<RadioButtonUncheckedIcon />}
+              checkedIcon={<RadioButtonCheckedIcon />}
+              checked={workoutExerciseData[index].completed}
+              onChange={(e) =>
+                updateExerciseCompleted(
+                  index,
+                  !workoutExerciseData[index].completed
+                )
+              }
+              fontSize="small"
             />
-            {/* <TextField
+          </ListItemIcon>
+          <ListItemText
+            sx={{ color: theme.palette.primary.main, width: 100 }}
+            primary={workoutExerciseData[index].exerciseName}
+          />
+          {/* <TextField
             label="Sets"
             defaultValue={exerciseData[index].sets}
             sx={{ maxWidth: 200 }}
@@ -189,7 +193,7 @@ function DoWorkout(props) {
               updateExerciseData(exerciseData[index].id, "sets", e.target.value)
             }
           /> */}
-            {/* <TextField
+          {/* <TextField
             label="Reps"
             defaultValue={exerciseData[index].reps}
             sx={{ maxWidth: 200 }}
@@ -197,28 +201,33 @@ function DoWorkout(props) {
               updateExerciseData(exerciseData[index].id, "reps", e.target.value)
             }
           /> */}
-            {(workoutExerciseData[index]?.sets || []).map((set, setIndex) => (
-              <div
-                key={setIndex}
-                style={{ display: "flex", flexDirection: "column" }}
-              >
-                <Typography>{set.reps}</Typography>
-                <TextField
-                  label="Weight"
-                  value={set.weight || ""}
-                  sx={{ maxWidth: 65 }}
-                  onChange={(e) =>
-                    updateExerciseWeights(
-                      index,
-                      setIndex,
-                      "weight",
-                      e.target.value
-                    )
-                  }
-                />
-              </div>
-            ))}
-          </ListItemButton>
+          {(workoutExerciseData[index]?.sets || []).map((set, setIndex) => (
+            <div
+              key={setIndex}
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                padding: 10,
+              }}
+            >
+              <Typography style={{ paddingBottom: 10 }}>
+                {set.reps} Reps
+              </Typography>
+              <TextField
+                label="Weight"
+                value={set.weight || ""}
+                sx={{ maxWidth: 65 }}
+                onChange={(e) =>
+                  updateExerciseWeights(
+                    index,
+                    setIndex,
+                    "weight",
+                    e.target.value
+                  )
+                }
+              />
+            </div>
+          ))}
         </ListItem>
       );
     },
@@ -259,8 +268,8 @@ function DoWorkout(props) {
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
-
           height: 500,
+          width: 500,
         }}
       >
         <StyledSectionHeading variant="h5">{workoutName}</StyledSectionHeading>

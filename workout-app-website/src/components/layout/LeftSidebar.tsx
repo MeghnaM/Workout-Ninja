@@ -33,12 +33,16 @@ function LeftSidebar() {
   return (
     <div
       style={{
-        width: "15%",
+        // width: "15%",
         display: "flex",
         flexDirection: "column",
         boxShadow: "0 4px 10px rgba(0,0,0,0.15)",
-        height: "100vh",
+        // height: "100vh",
         padding: 20,
+        // width: 260,
+        // flex: "0 0 260px",
+        alignSelf: "stretch", // ensures it stretches full height of the shell
+        overflowY: "auto",
       }}
     >
       <StyledSectionHeading
