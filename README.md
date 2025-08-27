@@ -38,7 +38,7 @@ I use `.env.development` and `.env.production` files to manage different environ
 
 #### API
 
-I used **ExpressJS** to set up the server and manage _CORS_ for localhost and workout-ninja.com, and **Mongoose** to connect to the database.
+I used **ExpressJS** to set up the server and manage **CORS** for localhost and workout-ninja.com, and **Mongoose** to connect to the database.
 
 In addition to the CRUD api routes to access and update the exercises, workouts and users, I also added a route to get the progress metrics for a particular exercise. The `/exercise-progress/:exerciseId` returns the _maxWeight_ and _totalVolume_ for an exercise for all the workouts that included that exercise within the selected time range.
 
@@ -74,7 +74,7 @@ I created a simple authentication flow that allows users to sign up or log in wi
 
 The main user dashboard is made up of an exercise section where users can add new exercises, a workout section where users can create and complete workouts and a progressive overload chart that allows users to select a time range and choose exercises.
 
-I used Airbnb's **visx** charting library, which is a thin wrapper on D3.js, to build the chart on the dashboard. It was fun to have complete freedom to design each element and customize the colors, placement and interactivity. I used custom colors for the lines, and designed the legend, axes and tooltips to match.
+I used **Airbnb's visx charting library**, which is a thin wrapper on D3.js, to build the chart on the dashboard. It was fun to have complete freedom to design each element and customize the colors, placement and interactivity. I used custom colors for the lines, and designed the legend, axes and tooltips to match.
 
 #### Profile
 
@@ -84,11 +84,11 @@ Users can see their account information and log out from the profile section.
 
 #### Theme and Styling
 
-I built a **custom Material UI theme** with a colorscheme comprising of a primary, secondary, neutral and accessory colors. I used background gradients on the buttons and larger text elements to highlight their importance.
+I built a **custom Material UI theme** with a colorscheme comprising of a primary, secondary, neutral and accessory colors. I used background _color gradients_ on the buttons and larger text elements to highlight their importance.
 
 I used _box shadows_ and _vertical offsets_ to create dimension on the page and give the website a modern look and feel. I used bright, happy colors and included a direct message to the user to make their dashboard feel personal when they use it.
 
-I used consistent colors, font and spacing throughout for a seamless experience so users can experience a pleasant look and feel while being able to focus all their attention on the content of the page.
+I used _consistent colors_, _font_ and _spacing_ throughout for a seamless experience so users can experience a pleasant look and feel while being able to focus all their attention on the content of the page.
 
 ## Upcoming Features
 
