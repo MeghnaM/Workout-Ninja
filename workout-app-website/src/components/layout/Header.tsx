@@ -14,7 +14,7 @@ function Header() {
       // color="primary"
       $gradient
     >
-      Good Morning, {user.displayName}
+      Good Morning, {user.displayName}!
     </StyledWebsiteHeading>
   );
 }
