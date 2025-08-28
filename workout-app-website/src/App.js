@@ -4,6 +4,7 @@ import { theme } from "./components/styles/StyledComponentsLibrary.js";
 import { ThemeProvider } from "@mui/material/styles";
 import AuthPage from "./components/auth/AuthPage.tsx";
 import HomePage from "./components/layout/HomePage.tsx";
+import LandingPage from "./components/layout/LandingPage.tsx";
 import { AuthProvider } from "./components/auth/AuthContext.tsx";
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <AuthProvider>
           <Routes>
             <Route path="/" element={<AuthPage />} />
+            <Route path="/landing" element={<LandingPage />} />
             <Route path="/*" element={<HomePage />} />
           </Routes>
         </AuthProvider>

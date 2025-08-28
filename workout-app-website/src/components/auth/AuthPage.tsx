@@ -7,9 +7,11 @@ import {
 import SignupForm from "./SignupForm";
 import LoginForm from "./LoginForm";
 import backgroundImage from "../../assets/nature-yellow-purple.jpg";
+import { colors } from "../styles/colors";
 
 export default function AuthPage() {
-  const [signupView, setSignupView] = useState<boolean>(true);
+  const [signupView, setSignupView] = useState<boolean>(false);
+  const pink = colors["pink-vivid-500"];
   return (
     <div
       className="App"
@@ -22,18 +24,22 @@ export default function AuthPage() {
       <header className="App-header">
         <div
           style={{
-            border: "5px solid #ffbdb6",
+            border: `5px solid ${pink}`,
             padding: 20,
             borderRadius: 20,
+            boxShadow:
+              "0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08)",
           }}
         >
           <div
             className="p-8"
             style={{
-              backgroundColor: "#ffbdb6",
-              width: 600,
+              backgroundColor: colors["orange-vivid-100"],
+              width: "xl",
               borderRadius: 20,
               padding: 50,
+              boxShadow:
+                "0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08)",
             }}
           >
             <StyledWebsiteHeading variant="h2" color="primary">
