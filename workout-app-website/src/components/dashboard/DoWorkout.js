@@ -490,10 +490,11 @@ const DoWorkout = ({
   return (
     <Box
       sx={{
-        px: { xs: 2, sm: 3 },
-        py: { xs: 2, sm: 3 },
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 2, sm: 3, md: 4 },
         width: { xs: "100%", sm: 720 },
         maxWidth: "100%",
+        minWidth: "md",
       }}
     >
       {/* Header */}

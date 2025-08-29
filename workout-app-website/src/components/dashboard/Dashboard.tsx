@@ -1176,30 +1176,30 @@ export default function Dashboard() {
             <CloseIcon />
           </IconButton>
         </Box> */}
-        <Box sx={{ p: { xs: 1, sm: 2 } }}>
-          <DoWorkout
-            ongoingWorkout={ongoingWorkout}
-            setOngoingWorkout={setOngoingWorkout}
-            saveWorkoutInDB={saveWorkoutInDB}
-            setShowOngoingWorkout={() => {}}
-            setDoWorkoutModal={setDoWorkoutModal}
-          />
-        </Box>
+        {/* <Box sx={{ p: { xs: 1, sm: 2 } }}> */}
+        <DoWorkout
+          ongoingWorkout={ongoingWorkout}
+          setOngoingWorkout={setOngoingWorkout}
+          saveWorkoutInDB={saveWorkoutInDB}
+          setShowOngoingWorkout={() => {}}
+          setDoWorkoutModal={setDoWorkoutModal}
+        />
+        {/* </Box> */}
       </Dialog>
 
-      <Dialog open={createNewWorkoutModal} fullWidth maxWidth="md">
-        <Box sx={{ position: "absolute", right: 8, top: 8 }}>
+      <Dialog open={createNewWorkoutModal}>
+        {/* <Box sx={{ position: "absolute", right: 8, top: 8 }}>
           <IconButton onClick={() => setCreateNewWorkoutModal(false)}>
             <CloseIcon />
           </IconButton>
-        </Box>
-        <Box sx={{ p: { xs: 1, sm: 2 } }}>
-          <CreateWorkout
-            setAddNewWorkoutModal={setCreateNewWorkoutModal}
-            exerciseList={exerciseList}
-            onCreateNewWorkout={onCreateNewWorkout}
-          />
-        </Box>
+        </Box> */}
+        {/* <Box sx={{ p: { xs: 1, sm: 2 } }}> */}
+        <CreateWorkout
+          setAddNewWorkoutModal={setCreateNewWorkoutModal}
+          exerciseList={exerciseList}
+          onCreateNewWorkout={onCreateNewWorkout}
+        />
+        {/* </Box> */}
       </Dialog>
 
       {/* Snackbar */}
