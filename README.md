@@ -2,7 +2,7 @@
 
 An intuitive and beautiful website that you can use to create your own exercise library, build workouts and track your progressive overload over time. **[workout-ninja.com](https://workout-ninja.com/)**
 
-![Website Login](./workout-app-website/public/Login.png)![Website Dashboard](./workout-app-website/public/Dashboard.png)
+![Landing Page](./workout-app-website/public/workout-ninja-landing-page.png)![Dashboard](./workout-app-website/public/workout-ninja-dashboard.png)
 
 ## Website Architecture
 
