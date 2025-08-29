@@ -49,7 +49,7 @@ function LeftSidebar() {
         style={{
           fontFamily: "Lato",
           fontWeight: "bold",
-          fontSize: 50,
+          fontSize: 20,
           fontVariant: "small-caps",
         }}
       >

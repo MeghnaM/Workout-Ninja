@@ -13,8 +13,8 @@ function App() {
       <ThemeProvider theme={theme}>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<AuthPage />} />
-            <Route path="/landing" element={<LandingPage />} />
+            <Route path="/login" element={<AuthPage />} />
+            <Route path="/" element={<LandingPage />} />
             <Route path="/*" element={<HomePage />} />
           </Routes>
         </AuthProvider>
