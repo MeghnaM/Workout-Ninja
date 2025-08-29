@@ -1,135 +1,1022 @@
-import { useState, useEffect, forwardRef, useRef } from "react";
-import Button from "@mui/material/Button";
+// import { useState, useEffect, forwardRef, useRef } from "react";
+// import Button from "@mui/material/Button";
+// import { FixedSizeList as List } from "react-window";
+// import TextField from "@mui/material/TextField";
+// import ExerciseInList from "./ExerciseInList";
+// // import NewWorkout from "./NewWorkout";
+// import ListItem from "@mui/material/ListItem";
+// import ListItemButton from "@mui/material/ListItemButton";
+// import DoWorkout from "./DoWorkout";
+// import Dialog from "@mui/material/Dialog";
+// import DialogActions from "@mui/material/DialogActions";
+// import { DialogTitle, Modal, Typography } from "@mui/material";
+// import IconButton from "@mui/material/IconButton";
+// import CloseIcon from "@mui/icons-material/Close";
+// import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
+// import {
+//   StyledBox,
+//   StyledListItemText,
+//   StyledSectionSubheading,
+//   StyledSectionHeading,
+//   theme,
+// } from "../styles/StyledComponentsLibrary";
+// import { ThemeProvider } from "@mui/material/styles";
+// import Checkbox from "@mui/material/Checkbox";
+// import LineGraph from "./LineGraph";
+// import backgroundImage from "../../assets/gradient.jpg";
+// import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+// import CreateWorkout from "./CreateWorkout";
+// import { error } from "console";
+
+// interface WorkoutDialogProps {
+//   index: number;
+//   style: React.CSSProperties;
+//   [key: string]: any; // For otherProps
+// }
+
+// interface WorkoutState {
+//   exercises?: any[]; // or your specific exercise type
+//   workoutName?: string;
+//   status?: string;
+//   // add other properties as needed
+// }
+
+// interface ToastProps {
+//   message: string;
+//   type?: "success" | "error" | "warning" | "info";
+//   onClose: () => void;
+// }
+
+// export default function Dashboard() {
+//   const [newExercise, setNewExercise] = useState("");
+//   const [exerciseList, setExerciseList] = useState([]);
+//   const [workoutObject, setWorkoutObject] = useState({});
+//   const [showWorkout, setShowWorkout] = useState(false);
+//   const [workoutList, setWorkoutList] = useState([]);
+//   const [ongoingWorkout, setOngoingWorkout] = useState([]);
+//   const [showOngoingWorkout, setShowOngoingWorkout] = useState(false);
+//   const [addExerciseDropdown, setAddExerciseDropdown] = useState(false);
+//   const [doWorkoutModal, setDoWorkoutModal] = useState<boolean>(false);
+//   const [alertClosed, setAlertClosed] = useState(true);
+//   const [showCopyWorkoutDialog, setShowCopyWorkoutDialog] = useState(false);
+//   const [completedWorkout, setCompletedWorkout] = useState<WorkoutState>({});
+//   const [toast, setToast] = useState<string | null>(null);
+//   const [createNewWorkoutModal, setCreateNewWorkoutModal] =
+//     useState<boolean>(false);
+
+//   const apiUrl = process.env.REACT_APP_API_URL;
+
+//   const Toast: React.FC<ToastProps> = ({ message, type = "info", onClose }) => {
+//     return <div className={`toast toast-${type}`}>{message}</div>;
+//   };
+
+//   const showToast = (message: string) => {
+//     setToast(message);
+//     setTimeout(() => setToast(null), 2000);
+//   };
+
+//   // development api url format = http://localhost:4000/get-workouts
+//   useEffect(() => {
+//     // console.log("Use effect is getting called");
+//     // console.log("apiUrl", apiUrl);
+//     async function getExercises() {
+//       await fetch(`${apiUrl}/get-exercises`)
+//         .then((response) => response.json())
+//         .then((data) => {
+//           // Map over the data that comes back from the db
+//           // Create an exercises list
+//           // If the exercise id is not already in the exerciseList,
+//           // then create a new exercise and set its selected value to be false
+//           // then add that that new exercise to the exercises list
+//           // then set the state variable to the exercises list
+//           const exercises = data.map((exercise) => {
+//             if (!exerciseList.includes(exercise)) {
+//               const newExercise = {
+//                 ex: exercise,
+//                 selected: false,
+//               };
+//               return newExercise;
+//             }
+//             return exercise;
+//           });
+//           setExerciseList(exercises);
+//         })
+//         .catch((error) => console.error(error));
+//     }
+
+//     async function getWorkouts() {
+//       await fetch(`${apiUrl}/get-workouts`)
+//         .then((response) => response.json())
+//         .then((data) => {
+//           setWorkoutList(data);
+//         })
+//         .catch((error) => console.error(error));
+//     }
+
+//     getExercises();
+//     getWorkouts();
+//   }, [newExercise, workoutObject, alertClosed]);
+
+//   // const getExerciseById = async (id) => {
+//   //   let result = await fetch(`${apiUrl}/get-exercise-by-id`)
+//   //     .then((response) => response.json())
+//   //     .then((data) =>
+//   //       setExercisesInOngoingWorkout({
+//   //         ...exercisesInOngoingWorkout,
+//   //         data,
+//   //       })
+//   //     )
+//   //     .catch((error) => console.error(error));
+//   // };
+
+//   const renderExercise = (props) => {
+//     const { index, style } = props;
+//     return (
+//       <ExerciseInList
+//         index={index}
+//         style={style}
+//         exerciseList={exerciseList}
+//         renderWorkout={renderWorkout}
+//         workoutCount={workoutList.length}
+//         workoutList={workoutList}
+//         setExerciseList={setExerciseList}
+//       />
+//     );
+//   };
+
+//   // (`${apiUrl}/register`)
+//   const onAddNewExercise = async (e) => {
+//     e.preventDefault();
+//     let result = await fetch(`${process.env.REACT_APP_API_URL}/register`, {
+//       method: "post",
+//       body: JSON.stringify({ exercise: newExercise }),
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     });
+//     const resultText: string = await result.text();
+//     console.log(resultText);
+//     if (result) {
+//       showToast("Success!");
+//       setNewExercise("");
+//     }
+//   };
+
+//   const today = () => {
+//     return new Date().toDateString();
+//   };
+//   const tomorrow = () => {
+//     const tomorrow = new Date();
+//     tomorrow.setDate(tomorrow.getDate() + 1);
+//     return tomorrow.toDateString();
+//   };
+
+//   const onCreateNewWorkout = async (
+//     e,
+//     newWorkoutName,
+//     newWorkoutExercises,
+//     newWorkoutExerciseData
+//   ) => {
+//     e.preventDefault();
+//     console.log("Create new workout was clicked!");
+
+//     try {
+//       const newWorkout = {
+//         workoutName: newWorkoutName,
+//         status: "Not Started",
+//         exercises: newWorkoutExercises,
+//         exerciseData: newWorkoutExerciseData,
+//         dateCreated: today(),
+//         dateOfWorkout: tomorrow(),
+//       };
+
+//       const result = await fetch(`${apiUrl}/create-new-workout`, {
+//         method: "POST",
+//         body: JSON.stringify(newWorkout),
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       });
+
+//       const contentType = result.headers.get("content-type");
+//       let responseData;
+//       if (contentType && contentType.includes("application/json")) {
+//         responseData = await result.json();
+//       } else {
+//         responseData = await result.text();
+//       }
+
+//       if (!result.ok) {
+//         const errorMessage =
+//           responseData.error ||
+//           responseData.message ||
+//           responseData ||
+//           "Unknown error";
+//         throw new Error(`${errorMessage}`);
+//       }
+
+//       // Success
+//       console.log("Workout created: ", responseData);
+//       setWorkoutObject(responseData);
+//       // Close the modal
+//       setCreateNewWorkoutModal(false);
+//       // Show success toast
+//     } catch (error) {
+//       console.error("Create workout error:", error);
+//       showToast(`Error: ${error.message}`);
+//     } finally {
+//       // TODO close the create workout modal
+//     }
+
+//     // setShowWorkout(!showWorkout);
+//   };
+
+//   // Takes a workout and an id
+//   // Calls update workout function from api
+//   // If func call is successful then returns success
+//   // else return an error - for now can be generic error
+//   // just an alert saying something went wrong
+//   const saveWorkoutInDB = async (workout, id) => {
+//     console.log("Save workout in db was called");
+//     console.log(workout);
+//     let result = await fetch(`${apiUrl}/update-existing-workout`, {
+//       method: "put",
+//       body: JSON.stringify({
+//         id: id,
+//         workout: workout,
+//       }),
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     });
+//     const resultText: string = await result.text();
+//     console.log("Saved workout from DB -");
+//     console.log(resultText);
+//     if (resultText !== "Something went wrong") {
+//       setWorkoutObject({});
+//       setDoWorkoutModal(false);
+//       if (ongoingWorkout) setShowOngoingWorkout(false);
+//     } else {
+//       alert("Something went wrong");
+//     }
+//   };
+
+//   const deleteWorkoutInDB = async (id) => {
+//     let result = await fetch(`${apiUrl}/delete-workout`, {
+//       method: "delete",
+//       body: JSON.stringify({
+//         id: id,
+//       }),
+//       headers: {
+//         "Content-Type": "application/json",
+//       },
+//     });
+//     const resultText = await result.text();
+//     console.log(resultText);
+//     if (resultText !== "Delete request failed") {
+//       setWorkoutObject({});
+//       setShowWorkout(false);
+//     } else {
+//       alert("Something went wrong");
+//     }
+//   };
+
+//   const startWorkout = (index) => {
+//     console.log("Button to do workout was clicked");
+//     console.log("Workout -", workoutList[index]);
+//     setOngoingWorkout(workoutList[index]);
+//     setDoWorkoutModal(true);
+
+//     // // If a workout is already in progress, then don't open another one
+//     // if (!showOngoingWorkout) {
+//     //   alert(
+//     //     "Please close or complete the current workout before starting another one."
+//     //   );
+//     // }
+//     // // If the workout is not yet completed, then the user should be able to start it
+//     // if (workoutList[index].status !== "Completed") {
+//     //   setShowOngoingWorkout(true);
+//     //   setOngoingWorkout(workoutList[index]);
+//     // }
+//     // // Otherwise, show a popup that offers the option to duplicate the workout
+//     // // Which creates a new workout in the database, with the same exercises,
+//     // // but a new date, no sets and reps and weight, and status = not started
+//     // else if (workoutList[index].status === "Completed") {
+//     //   setCompletedWorkout(workoutList[index]);
+//     //   setShowCopyWorkoutDialog(true);
+//     // }
+//   };
+
+//   const handleCopyWorkoutDialogAction = (e, option) => {
+//     if (option === "Yes") {
+//       console.log("yes was clicked");
+//       // onCreateNewWorkout(e);
+//     }
+//     setShowCopyWorkoutDialog(false);
+//   };
+
+//   const WorkoutListForwardRef = forwardRef<
+//     HTMLButtonElement,
+//     WorkoutDialogProps
+//   >((props, ref) => {
+//     const { index, style, ...otherProps } = props;
+//     return (
+//       <ThemeProvider theme={theme}>
+//         <ListItem style={style} key={index} component="div" disablePadding>
+//           <ListItemButton
+//             component="button"
+//             ref={ref}
+//             onClick={() => startWorkout(index)}
+//             {...otherProps}
+//           >
+//             <Checkbox
+//               icon={<RadioButtonUncheckedIcon />}
+//               checkedIcon={<CheckCircleIcon />}
+//               checked={workoutList[index].status === "Completed"}
+//               style={{ fontSize: "small" }}
+//               color="secondary"
+//             />
+
+//             {/* {workoutList[index].status == "Completed" && } */}
+//             <StyledListItemText primary={workoutList[index].workoutName} />
+//             {/* <StyledListItemText
+//               primary={workoutList[index].dateOfWorkout.slice(0, -14)}
+//             /> */}
+//           </ListItemButton>
+//           {/* <IconButton
+//             sx={{ color: theme.palette.secondary.main, paddingRight: 3 }}
+//             onClick={() => deleteWorkoutInDB(workoutList[index]._id)}
+//           >
+//             <CloseIcon />
+//           </IconButton> */}
+
+//           <Dialog open={showCopyWorkoutDialog}>
+//             <DialogTitle>
+//               {"Workout is complete. Create a copy of this workout?"}
+//             </DialogTitle>
+//             <DialogActions>
+//               <Button
+//                 onClick={(e) => {
+//                   const buttonText = (e.currentTarget as HTMLButtonElement)
+//                     .textContent;
+//                   handleCopyWorkoutDialogAction(e, buttonText);
+//                 }}
+//                 autoFocus
+//               >
+//                 Yes
+//               </Button>
+//               <Button
+//                 onClick={(e) => {
+//                   const buttonText = (e.currentTarget as HTMLButtonElement)
+//                     .textContent;
+//                   handleCopyWorkoutDialogAction(e, buttonText);
+//                 }}
+//               >
+//                 No
+//               </Button>
+//             </DialogActions>
+//           </Dialog>
+//         </ListItem>
+//       </ThemeProvider>
+//     );
+//   });
+
+//   const workoutsDialogRef = useRef(null);
+//   const renderWorkout = (props) => {
+//     const { index, style } = props;
+//     return (
+//       <WorkoutListForwardRef
+//         index={index}
+//         style={style}
+//         ref={workoutsDialogRef}
+//       />
+//     );
+//   };
+
+//   return (
+//     <div
+//       style={{
+//         display: "flex",
+//         flexFlow: "column",
+//         alignItems: "center",
+//       }}
+//     >
+//       <div
+//         style={{
+//           display: "flex",
+//           flexFlow: "row",
+//           justifyContent: "center",
+//         }}
+//       >
+//         <StyledBox>
+//           <div className="headingRow">
+//             <StyledSectionHeading variant="h4">Exercises</StyledSectionHeading>
+//           </div>
+//           <form action="">
+//             <div
+//               className="pb-8"
+//               style={{
+//                 display: "flex",
+//                 alignItems: "center",
+//                 justifyContent: "center",
+//                 margin: 0,
+//               }}
+//             >
+//               <TextField
+//                 type="string"
+//                 placeholder="Exercise Name"
+//                 variant="outlined"
+//                 sx={{ marginRight: 2 }}
+//                 value={newExercise}
+//                 onChange={(e) => setNewExercise(e.target.value)}
+//               />
+//               <Button
+//                 type="submit"
+//                 variant="contained"
+//                 className="bg-indigo-500"
+//                 style={{ borderRadius: 20 }}
+//                 onClick={onAddNewExercise}
+//               >
+//                 Add
+//               </Button>
+//               {toast && (
+//                 <Toast message={toast} onClose={() => setToast(null)} />
+//               )}
+//             </div>
+//           </form>
+//           <List
+//             height={200}
+//             width={380}
+//             itemSize={46}
+//             itemCount={exerciseList.length}
+//             overscanCount={5}
+//           >
+//             {renderExercise}
+//           </List>
+//         </StyledBox>
+
+//         <StyledBox>
+//           <div
+//             className="headingRow"
+//             style={{ display: "flex", alignItems: "center" }}
+//           >
+//             <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
+//             <Button
+//               type="submit"
+//               variant="contained"
+//               className="bg-indigo-500"
+//               style={{ borderRadius: 20 }}
+//               onClick={() => setCreateNewWorkoutModal(true)}
+//             >
+//               Add New
+//             </Button>
+//           </div>
+//           {/* <div className="grid grid-flow-col gap-4">
+//               <StyledSectionSubheading>Status</StyledSectionSubheading>
+//               <StyledSectionSubheading>Name</StyledSectionSubheading>
+//               {/* <StyledSectionSubheading>Date</StyledSectionSubheading> */}
+//           {/* <StyledSectionSubheading>Delete</StyledSectionSubheading> */}
+//           {/* </div> */}
+//           <List
+//             height={300}
+//             width={400}
+//             itemSize={46}
+//             itemCount={workoutList.length}
+//             workoutListForwardRef={WorkoutListForwardRef}
+//             overscanCount={5}
+//           >
+//             {renderWorkout}
+//           </List>
+//         </StyledBox>
+//         <Modal open={doWorkoutModal}>
+//           <DoWorkout
+//             ongoingWorkout={ongoingWorkout}
+//             setOngoingWorkout={setOngoingWorkout}
+//             saveWorkoutInDB={saveWorkoutInDB}
+//             setShowOngoingWorkout={setShowOngoingWorkout}
+//             setDoWorkoutModal={setDoWorkoutModal}
+//           />
+//         </Modal>
+//         <Modal open={createNewWorkoutModal}>
+//           <CreateWorkout
+//             setAddNewWorkoutModal={setCreateNewWorkoutModal}
+//             exerciseList={exerciseList}
+//             onCreateNewWorkout={onCreateNewWorkout}
+//           />
+//         </Modal>
+//       </div>
+//       <LineGraph workoutList={workoutList} />
+//     </div>
+//   );
+// }
+
+// // Extras
+// {
+//   /* <Dialog open={dialogOpen}>
+//             <DialogActions>
+//               <StyledBox>
+//                 <DialogTitle>
+//                   <StyledSectionSubheading variant="h5">
+//                     Workouts
+//                   </StyledSectionSubheading>
+//                   <IconButton
+//                     aria-label="close"
+//                     onClick={handleDialogClose}
+//                     sx={(theme) => ({
+//                       position: "absolute",
+//                       right: 8,
+//                       top: 8,
+//                       color: theme.palette.grey[500],
+//                     })}
+//                   >
+//                     <CloseIcon />
+//                   </IconButton>
+//                 </DialogTitle>
+//                 <List
+//                   height={300}
+//                   width={400}
+//                   itemSize={46}
+//                   itemCount={workoutList.length}
+//                   overscanCount={5}
+//                 >
+//                   {renderWorkoutInExerciseListDialog}
+//                 </List>
+//               </StyledBox>
+//             </DialogActions>
+//           </Dialog> */
+// }
+
+// {
+//   /* {workoutObject && showWorkout && (
+//         <NewWorkout
+//           workoutObj={workoutObject}
+//           saveWorkoutInDB={saveWorkoutInDB}
+//           deleteWorkoutInDB={deleteWorkoutInDB}
+//         />
+//       )} */
+// }
+
+// {
+//   /* <Dropdown>
+//               <StyledMenuButton onClick={onAddExerciseButtonClick}>
+//                 <AddIcon />
+//               </StyledMenuButton>
+//               <Menu slots={{ listbox: Listbox }}>
+//                 <StyledMenuItem onClick={onAddExerciseToNewWorkout}>
+//                   Add Exercises to New Workout
+//                 </StyledMenuItem>
+//                 <StyledMenuItem onClick={onAddExerciseToExistingWorkout}>
+//                   Add Exercises to Existing Workout
+//                 </StyledMenuItem>
+//               </Menu>
+//             </Dropdown> */
+// }
+
+// // const WorkoutDialogInExerciseListForwardRef = forwardRef<
+// //   HTMLButtonElement,
+// //   WorkoutDialogProps
+// // >((props, ref) => {
+// //   const { index, style, ...otherProps } = props;
+// //   return (
+// //     <ListItem style={style} key={index} component="div" disablePadding>
+// //       <ListItemButton
+// //         component="button"
+// //         ref={ref}
+// //         onClick={(e) => onWorkoutNameClick(e, index)}
+// //         {...otherProps}
+// //       >
+// //         <StyledListItemText
+// //           primary={
+// //             workoutList[index].workoutName +
+// //             " " +
+// //             workoutList[index].dateOfWorkout.slice(0, -14)
+// //           }
+// //         />
+// //       </ListItemButton>
+// //     </ListItem>
+// //   );
+// // });
+
+// // const exDialogRef = useRef(null);
+
+// // const renderWorkoutInExerciseListDialog = (props) => {
+// //   const { index, style } = props;
+// //   return (
+// //     <WorkoutDialogInExerciseListForwardRef
+// //       index={index}
+// //       style={style}
+// //       ref={exDialogRef}
+// //     />
+// //   );
+// // };
+
+// // const onWorkoutNameClick = async (e, index) => {
+// //   e.preventDefault();
+// //   console.log("Add to existing workout was clicked");
+// //   setDialogOpen(false);
+
+// //   // Map over the selected exercises and just keep the exercise itself
+// //   // since that's the format that the db expects
+// //   const selectedExercises = exerciseList.filter(
+// //     (exercise) => exercise.selected
+// //   );
+// //   const exercises = selectedExercises.map((ex) => ex.ex);
+
+// //   const workout = workoutList[index];
+// //   console.log(workout);
+// //   // Create a new list of exercises that includes the exercises
+// //   // that were already part of this workout and the new ones I want to add
+// //   const updatedExerciseList = [...exercises, ...workout.exercises];
+// //   console.log(updatedExerciseList);
+
+// //   // Make api call to update existing workout
+// //   let result = await fetch(`${apiUrl}/update-existing-workout`, {
+// //     method: "put",
+// //     body: JSON.stringify({
+// //       id: workout._id,
+// //       workout: {
+// //         workoutName: workout.workoutName,
+// //         status: workout.status,
+// //         exercises: updatedExerciseList,
+// //         dateCreated: workout.dateCreated,
+// //         dateOfWorkout: workout.dateOfWorkout,
+// //       },
+// //     }),
+// //     headers: {
+// //       "Content-Type": "application/json",
+// //     },
+// //   });
+// //   const resultText: string = await result.text();
+// //   if (resultText !== "Something went wrong") {
+// //     const resultObject = JSON.parse(resultText);
+// //     console.log(resultObject);
+// //     alert("Data saved succesfully!");
+// //     setAlertClosed(!alertClosed);
+
+// //     // Once the data has been saved in the db,
+// //     // set all the exercises to have selected boolean as false
+// //     const updatedExerciseList = exerciseList.map((exercise) => {
+// //       if (exercise.selected) return { ...exercise, selected: false };
+// //       return exercise;
+// //     });
+// //     setExerciseList(updatedExerciseList);
+// //   }
+// // };
+
+// // const handleDialogClose = () => {
+// //   setDialogOpen(false);
+// // };
+
+// // const onAddExerciseToExistingWorkout = async (e) => {
+// //   e.preventDefault();
+// //   console.log("Add exercise to existing workout was clicked");
+// //   // Map over the selected exercises and just keep the exercise itself
+// //   // since that's the format that the db expects
+// //   const selectedExercises = exerciseList.filter(
+// //     (exercise) => exercise.selected
+// //   );
+// //   const exercises = selectedExercises.map((ex) => ex.ex);
+
+// //   if (exercises.length === 0) {
+// //     alert("Please select some exercises first.");
+// //   } else {
+// //     console.log("In the else block");
+// //     // Display dialog with list of workout
+// //     setDialogOpen(true);
+// //   }
+// // };
+
+// // When button is clicked, I want to take the list of
+// // exercises whose checkbox has been checked off
+// // and send those to the db using the api call
+// // and then set all the selected booleans to false
+// // const onAddExerciseToNewWorkout = async (e) => {
+// //   e.preventDefault();
+// //   // Map over the selected exercises and just keep the exercise itself
+// //   // since that's the format that the db expects
+// //   const selectedExercises = exerciseList.filter(
+// //     (exercise) => exercise.selected
+// //   );
+// //   const exercises = selectedExercises.map((ex) => ex.ex);
+
+// //   if (exercises.length === 0) {
+// //     alert("Please select some exercises first.");
+// //   } else {
+// //     let result = await fetch(`${apiUrl}/create-new-workout`, {
+// //       method: "post",
+// //       body: JSON.stringify({
+// //         workoutName: "New Workout",
+// //         status: "Not Started",
+// //         exercises: exercises,
+// //         dateCreated: today(),
+// //         dateOfWorkout: tomorrow(),
+// //       }),
+// //       headers: {
+// //         "Content-Type": "application/json",
+// //       },
+// //     });
+// //     const resultText: string = await result.text();
+// //     if (resultText !== "Something went wrong") {
+// //       const resultObject = JSON.parse(resultText);
+// //       console.log(resultObject);
+// //       setWorkoutObject(resultObject);
+// //       setShowWorkout(!showWorkout);
+// //       alert("Data saved succesfully!");
+
+// //       // Once the data has been saved in the db,
+// //       // set all the exercises to have selected boolean as false
+// //       const updatedExerciseList = exerciseList.map((exercise) => {
+// //         if (exercise.selected) return { ...exercise, selected: false };
+// //         return exercise;
+// //       });
+// //       setExerciseList(updatedExerciseList);
+// //     }
+// //   }
+// // };
+// //else {
+// //   alert("Please save existing workout before creating a new one.")
+// // }
+// // //
+
+// // const onAddExerciseButtonClick = () => {
+// //   console.log("Show add exercise dropdown");
+// //   setAddExerciseDropdown(!addExerciseDropdown);
+// // };
+
+import React, { useState, useEffect, forwardRef, useRef } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Checkbox,
+  Container,
+  Dialog,
+  DialogActions,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Snackbar,
+  Alert,
+  TextField,
+  Typography,
+  ListItem,
+  ListItemButton,
+} from "@mui/material";
 import { FixedSizeList as List } from "react-window";
-import TextField from "@mui/material/TextField";
-import ExerciseInList from "./ExerciseInList";
-// import NewWorkout from "./NewWorkout";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import DoWorkout from "./DoWorkout";
-import Dialog from "@mui/material/Dialog";
-import DialogActions from "@mui/material/DialogActions";
-import { DialogTitle, Modal, Typography } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
 import CloseIcon from "@mui/icons-material/Close";
 import RadioButtonUncheckedIcon from "@mui/icons-material/RadioButtonUnchecked";
-import {
-  StyledBox,
-  StyledListItemText,
-  StyledSectionSubheading,
-  StyledSectionHeading,
-  theme,
-} from "../styles/StyledComponentsLibrary";
-import { ThemeProvider } from "@mui/material/styles";
-import Checkbox from "@mui/material/Checkbox";
-import LineGraph from "./LineGraph";
-import backgroundImage from "../../assets/gradient.jpg";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import CreateWorkout from "./CreateWorkout";
-import { error } from "console";
 
-interface WorkoutDialogProps {
+// Your components
+import ExerciseInList from "./ExerciseInList";
+import DoWorkout from "./DoWorkout";
+import CreateWorkout from "./CreateWorkout";
+import LineGraph from "./LineGraph";
+
+// Optional styled text (falls back to Typography if not available)
+import { StyledListItemText } from "../styles/StyledComponentsLibrary";
+
+type WorkoutDialogProps = {
   index: number;
   style: React.CSSProperties;
-  [key: string]: any; // For otherProps
-}
-
-interface WorkoutState {
-  exercises?: any[]; // or your specific exercise type
-  workoutName?: string;
-  status?: string;
-  // add other properties as needed
-}
-
-interface ToastProps {
-  message: string;
-  type?: "success" | "error" | "warning" | "info";
-  onClose: () => void;
-}
+  [key: string]: any;
+};
 
 export default function Dashboard() {
   const [newExercise, setNewExercise] = useState("");
-  const [exerciseList, setExerciseList] = useState([]);
-  const [workoutObject, setWorkoutObject] = useState({});
-  const [showWorkout, setShowWorkout] = useState(false);
-  const [workoutList, setWorkoutList] = useState([]);
-  const [ongoingWorkout, setOngoingWorkout] = useState([]);
-  const [showOngoingWorkout, setShowOngoingWorkout] = useState(false);
-  const [addExerciseDropdown, setAddExerciseDropdown] = useState(false);
-  const [doWorkoutModal, setDoWorkoutModal] = useState<boolean>(false);
-  const [alertClosed, setAlertClosed] = useState(true);
+  const [exerciseList, setExerciseList] = useState<any[]>([]);
+  const [workoutObject, setWorkoutObject] = useState<any>({});
+  const [workoutList, setWorkoutList] = useState<any[]>([]);
+  const [ongoingWorkout, setOngoingWorkout] = useState<any>({});
+  const [doWorkoutModal, setDoWorkoutModal] = useState(false);
+  const [createNewWorkoutModal, setCreateNewWorkoutModal] = useState(false);
   const [showCopyWorkoutDialog, setShowCopyWorkoutDialog] = useState(false);
-  const [completedWorkout, setCompletedWorkout] = useState<WorkoutState>({});
-  const [toast, setToast] = useState<string | null>(null);
-  const [createNewWorkoutModal, setCreateNewWorkoutModal] =
-    useState<boolean>(false);
+  const [snack, setSnack] = useState<string | null>(null);
 
   const apiUrl = process.env.REACT_APP_API_URL;
 
-  const Toast: React.FC<ToastProps> = ({ message, type = "info", onClose }) => {
-    return <div className={`toast toast-${type}`}>{message}</div>;
+  const showToast = (message: string) => setSnack(message);
+
+  // dates
+  const today = () => new Date().toDateString();
+  const tomorrow = () => {
+    const t = new Date();
+    t.setDate(t.getDate() + 1);
+    return t.toDateString();
   };
 
-  const showToast = (message: string) => {
-    setToast(message);
-    setTimeout(() => setToast(null), 2000);
-  };
-
-  // development api url format = http://localhost:4000/get-workouts
+  // Fetch data
   useEffect(() => {
-    // console.log("Use effect is getting called");
-    // console.log("apiUrl", apiUrl);
     async function getExercises() {
-      await fetch(`${apiUrl}/get-exercises`)
-        .then((response) => response.json())
-        .then((data) => {
-          // Map over the data that comes back from the db
-          // Create an exercises list
-          // If the exercise id is not already in the exerciseList,
-          // then create a new exercise and set its selected value to be false
-          // then add that that new exercise to the exercises list
-          // then set the state variable to the exercises list
-          const exercises = data.map((exercise) => {
-            if (!exerciseList.includes(exercise)) {
-              const newExercise = {
-                ex: exercise,
-                selected: false,
-              };
-              return newExercise;
-            }
-            return exercise;
-          });
-          setExerciseList(exercises);
-        })
-        .catch((error) => console.error(error));
+      try {
+        const res = await fetch(`${apiUrl}/get-exercises`);
+        const data = await res.json();
+        const mapped = data.map((exercise: any) =>
+          !exerciseList.includes(exercise)
+            ? { ex: exercise, selected: false }
+            : exercise
+        );
+        setExerciseList(mapped);
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     async function getWorkouts() {
-      await fetch(`${apiUrl}/get-workouts`)
-        .then((response) => response.json())
-        .then((data) => {
-          setWorkoutList(data);
-        })
-        .catch((error) => console.error(error));
+      try {
+        const res = await fetch(`${apiUrl}/get-workouts`);
+        const data = await res.json();
+        setWorkoutList(data);
+      } catch (err) {
+        console.error(err);
+      }
     }
 
     getExercises();
     getWorkouts();
-  }, [newExercise, workoutObject, alertClosed]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newExercise, workoutObject]);
 
-  // const getExerciseById = async (id) => {
-  //   let result = await fetch(`${apiUrl}/get-exercise-by-id`)
-  //     .then((response) => response.json())
-  //     .then((data) =>
-  //       setExercisesInOngoingWorkout({
-  //         ...exercisesInOngoingWorkout,
-  //         data,
-  //       })
-  //     )
-  //     .catch((error) => console.error(error));
-  // };
+  // Add exercise
+  const onAddNewExercise = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newExercise.trim()) return;
+    try {
+      const result = await fetch(`${apiUrl}/register`, {
+        method: "POST",
+        body: JSON.stringify({ exercise: newExercise }),
+        headers: { "Content-Type": "application/json" },
+      });
+      await result.text();
+      setNewExercise("");
+      showToast("Exercise added");
+    } catch {
+      showToast("Failed to add exercise");
+    }
+  };
 
-  const renderExercise = (props) => {
+  // Create workout
+  const onCreateNewWorkout = async (
+    e: React.FormEvent,
+    newWorkoutName: string,
+    newWorkoutExercises: any[],
+    newWorkoutExerciseData: any
+  ) => {
+    e.preventDefault();
+    try {
+      const payload = {
+        workoutName: newWorkoutName,
+        status: "Not Started",
+        exercises: newWorkoutExercises,
+        exerciseData: newWorkoutExerciseData,
+        dateCreated: today(),
+        dateOfWorkout: tomorrow(),
+      };
+
+      const res = await fetch(`${apiUrl}/create-new-workout`, {
+        method: "POST",
+        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+      });
+
+      const ct = res.headers.get("content-type");
+      const data =
+        ct && ct.includes("application/json")
+          ? await res.json()
+          : await res.text();
+      if (!res.ok) {
+        const msg = (data?.error ||
+          data?.message ||
+          data ||
+          "Unknown error") as string;
+        throw new Error(msg);
+      }
+
+      setWorkoutObject(data);
+      setCreateNewWorkoutModal(false);
+      showToast("Workout created");
+    } catch (err: any) {
+      console.error(err);
+      showToast(`Error: ${err.message}`);
+    }
+  };
+
+  // Save workout
+  const saveWorkoutInDB = async (workout: any, id: string) => {
+    try {
+      const res = await fetch(`${apiUrl}/update-existing-workout`, {
+        method: "PUT",
+        body: JSON.stringify({ id, workout }),
+        headers: { "Content-Type": "application/json" },
+      });
+      const txt = await res.text();
+      if (txt !== "Something went wrong") {
+        setWorkoutObject({});
+        setDoWorkoutModal(false);
+        showToast("Workout saved");
+      } else {
+        showToast("Save failed");
+      }
+    } catch {
+      showToast("Save failed");
+    }
+  };
+
+  // Delete workout (unused in UI but preserved)
+  const deleteWorkoutInDB = async (id: string) => {
+    try {
+      const res = await fetch(`${apiUrl}/delete-workout`, {
+        method: "DELETE",
+        body: JSON.stringify({ id }),
+        headers: { "Content-Type": "application/json" },
+      });
+      const txt = await res.text();
+      if (txt !== "Delete request failed") {
+        setWorkoutObject({});
+        showToast("Workout deleted");
+      } else {
+        showToast("Delete failed");
+      }
+    } catch {
+      showToast("Delete failed");
+    }
+  };
+
+  // Start workout (open DoWorkout modal)
+  const startWorkout = (index: number) => {
+    const w = workoutList[index];
+    if (!w) return;
+    setOngoingWorkout(w);
+    setDoWorkoutModal(true);
+  };
+
+  // Copy dialog handler (keep stub)
+  const handleCopyWorkoutDialogAction = (_e: any, _option: string) => {
+    setShowCopyWorkoutDialog(false);
+  };
+
+  // React-window renderers
+  const workoutsDialogRef = useRef<HTMLButtonElement | null>(null);
+
+  const WorkoutListForwardRef = forwardRef<
+    HTMLButtonElement,
+    WorkoutDialogProps
+  >((props, ref) => {
+    const { index, style, ...otherProps } = props;
+    const w = workoutList[index];
+    return (
+      <ListItem style={style} key={index} component="div" disablePadding>
+        <ListItemButton
+          component="button"
+          ref={ref}
+          onClick={() => startWorkout(index)}
+          {...otherProps}
+        >
+          <Checkbox
+            icon={<RadioButtonUncheckedIcon />}
+            checkedIcon={<CheckCircleIcon />}
+            checked={w?.status === "Completed"}
+            color="secondary"
+            sx={{ mr: 1 }}
+          />
+          {StyledListItemText ? (
+            <StyledListItemText primary={w?.workoutName || "Workout"} />
+          ) : (
+            <Typography>{w?.workoutName || "Workout"}</Typography>
+          )}
+        </ListItemButton>
+
+        <Dialog open={showCopyWorkoutDialog}>
+          <DialogTitle>
+            {"Workout is complete. Create a copy of this workout?"}
+          </DialogTitle>
+          <DialogActions>
+            <Button onClick={(e) => handleCopyWorkoutDialogAction(e, "Yes")}>
+              Yes
+            </Button>
+            <Button onClick={(e) => handleCopyWorkoutDialogAction(e, "No")}>
+              No
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </ListItem>
+    );
+  });
+
+  const renderWorkout = (props: any) => {
+    const { index, style } = props;
+    return (
+      <WorkoutListForwardRef
+        index={index}
+        style={style}
+        ref={workoutsDialogRef}
+      />
+    );
+  };
+
+  const renderExercise = (props: any) => {
     const { index, style } = props;
     return (
       <ExerciseInList
@@ -144,601 +1031,193 @@ export default function Dashboard() {
     );
   };
 
-  // (`${apiUrl}/register`)
-  const onAddNewExercise = async (e) => {
-    e.preventDefault();
-    let result = await fetch(`${process.env.REACT_APP_API_URL}/register`, {
-      method: "post",
-      body: JSON.stringify({ exercise: newExercise }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const resultText: string = await result.text();
-    console.log(resultText);
-    if (result) {
-      showToast("Success!");
-      setNewExercise("");
-    }
-  };
-
-  const today = () => {
-    return new Date().toDateString();
-  };
-  const tomorrow = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toDateString();
-  };
-
-  const onCreateNewWorkout = async (
-    e,
-    newWorkoutName,
-    newWorkoutExercises,
-    newWorkoutExerciseData
-  ) => {
-    e.preventDefault();
-    console.log("Create new workout was clicked!");
-
-    try {
-      const newWorkout = {
-        workoutName: newWorkoutName,
-        status: "Not Started",
-        exercises: newWorkoutExercises,
-        exerciseData: newWorkoutExerciseData,
-        dateCreated: today(),
-        dateOfWorkout: tomorrow(),
-      };
-
-      const result = await fetch(`${apiUrl}/create-new-workout`, {
-        method: "POST",
-        body: JSON.stringify(newWorkout),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      const contentType = result.headers.get("content-type");
-      let responseData;
-      if (contentType && contentType.includes("application/json")) {
-        responseData = await result.json();
-      } else {
-        responseData = await result.text();
-      }
-
-      if (!result.ok) {
-        const errorMessage =
-          responseData.error ||
-          responseData.message ||
-          responseData ||
-          "Unknown error";
-        throw new Error(`${errorMessage}`);
-      }
-
-      // Success
-      console.log("Workout created: ", responseData);
-      setWorkoutObject(responseData);
-      // Close the modal
-      setCreateNewWorkoutModal(false);
-      // Show success toast
-    } catch (error) {
-      console.error("Create workout error:", error);
-      showToast(`Error: ${error.message}`);
-    } finally {
-      // TODO close the create workout modal
-    }
-
-    // setShowWorkout(!showWorkout);
-  };
-
-  // Takes a workout and an id
-  // Calls update workout function from api
-  // If func call is successful then returns success
-  // else return an error - for now can be generic error
-  // just an alert saying something went wrong
-  const saveWorkoutInDB = async (workout, id) => {
-    console.log("Save workout in db was called");
-    console.log(workout);
-    let result = await fetch(`${apiUrl}/update-existing-workout`, {
-      method: "put",
-      body: JSON.stringify({
-        id: id,
-        workout: workout,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const resultText: string = await result.text();
-    console.log("Saved workout from DB -");
-    console.log(resultText);
-    if (resultText !== "Something went wrong") {
-      setWorkoutObject({});
-      setDoWorkoutModal(false);
-      if (ongoingWorkout) setShowOngoingWorkout(false);
-    } else {
-      alert("Something went wrong");
-    }
-  };
-
-  const deleteWorkoutInDB = async (id) => {
-    let result = await fetch(`${apiUrl}/delete-workout`, {
-      method: "delete",
-      body: JSON.stringify({
-        id: id,
-      }),
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
-    const resultText = await result.text();
-    console.log(resultText);
-    if (resultText !== "Delete request failed") {
-      setWorkoutObject({});
-      setShowWorkout(false);
-    } else {
-      alert("Something went wrong");
-    }
-  };
-
-  const startWorkout = (index) => {
-    console.log("Button to do workout was clicked");
-    console.log("Workout -", workoutList[index]);
-    setOngoingWorkout(workoutList[index]);
-    setDoWorkoutModal(true);
-
-    // // If a workout is already in progress, then don't open another one
-    // if (!showOngoingWorkout) {
-    //   alert(
-    //     "Please close or complete the current workout before starting another one."
-    //   );
-    // }
-    // // If the workout is not yet completed, then the user should be able to start it
-    // if (workoutList[index].status !== "Completed") {
-    //   setShowOngoingWorkout(true);
-    //   setOngoingWorkout(workoutList[index]);
-    // }
-    // // Otherwise, show a popup that offers the option to duplicate the workout
-    // // Which creates a new workout in the database, with the same exercises,
-    // // but a new date, no sets and reps and weight, and status = not started
-    // else if (workoutList[index].status === "Completed") {
-    //   setCompletedWorkout(workoutList[index]);
-    //   setShowCopyWorkoutDialog(true);
-    // }
-  };
-
-  const handleCopyWorkoutDialogAction = (e, option) => {
-    if (option === "Yes") {
-      console.log("yes was clicked");
-      // onCreateNewWorkout(e);
-    }
-    setShowCopyWorkoutDialog(false);
-  };
-
-  const WorkoutListForwardRef = forwardRef<
-    HTMLButtonElement,
-    WorkoutDialogProps
-  >((props, ref) => {
-    const { index, style, ...otherProps } = props;
-    return (
-      <ThemeProvider theme={theme}>
-        <ListItem style={style} key={index} component="div" disablePadding>
-          <ListItemButton
-            component="button"
-            ref={ref}
-            onClick={() => startWorkout(index)}
-            {...otherProps}
-          >
-            <Checkbox
-              icon={<RadioButtonUncheckedIcon />}
-              checkedIcon={<CheckCircleIcon />}
-              checked={workoutList[index].status === "Completed"}
-              style={{ fontSize: "small" }}
-              color="secondary"
-            />
-
-            {/* {workoutList[index].status == "Completed" && } */}
-            <StyledListItemText primary={workoutList[index].workoutName} />
-            {/* <StyledListItemText
-              primary={workoutList[index].dateOfWorkout.slice(0, -14)}
-            /> */}
-          </ListItemButton>
-          {/* <IconButton
-            sx={{ color: theme.palette.secondary.main, paddingRight: 3 }}
-            onClick={() => deleteWorkoutInDB(workoutList[index]._id)}
-          >
-            <CloseIcon />
-          </IconButton> */}
-
-          <Dialog open={showCopyWorkoutDialog}>
-            <DialogTitle>
-              {"Workout is complete. Create a copy of this workout?"}
-            </DialogTitle>
-            <DialogActions>
-              <Button
-                onClick={(e) => {
-                  const buttonText = (e.currentTarget as HTMLButtonElement)
-                    .textContent;
-                  handleCopyWorkoutDialogAction(e, buttonText);
-                }}
-                autoFocus
-              >
-                Yes
-              </Button>
-              <Button
-                onClick={(e) => {
-                  const buttonText = (e.currentTarget as HTMLButtonElement)
-                    .textContent;
-                  handleCopyWorkoutDialogAction(e, buttonText);
-                }}
-              >
-                No
-              </Button>
-            </DialogActions>
-          </Dialog>
-        </ListItem>
-      </ThemeProvider>
-    );
-  });
-
-  const workoutsDialogRef = useRef(null);
-  const renderWorkout = (props) => {
-    const { index, style } = props;
-    return (
-      <WorkoutListForwardRef
-        index={index}
-        style={style}
-        ref={workoutsDialogRef}
-      />
-    );
-  };
-
+  // UI
   return (
-    <div
-      style={{
-        display: "flex",
-        flexFlow: "column",
-        alignItems: "center",
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          flexFlow: "row",
-          justifyContent: "center",
-        }}
-      >
-        <StyledBox>
-          <div className="headingRow">
-            <StyledSectionHeading variant="h4">Exercises</StyledSectionHeading>
-          </div>
-          <form action="">
-            <div
-              className="pb-8"
-              style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: 0,
-              }}
-            >
-              <TextField
-                type="string"
-                placeholder="Exercise Name"
-                variant="outlined"
-                sx={{ marginRight: 2 }}
-                value={newExercise}
-                onChange={(e) => setNewExercise(e.target.value)}
-              />
-              <Button
-                type="submit"
-                variant="contained"
-                className="bg-indigo-500"
-                style={{ borderRadius: 20 }}
-                onClick={onAddNewExercise}
-              >
-                Add
-              </Button>
-              {toast && (
-                <Toast message={toast} onClose={() => setToast(null)} />
-              )}
-            </div>
-          </form>
-          <List
-            height={200}
-            width={380}
-            itemSize={46}
-            itemCount={exerciseList.length}
-            overscanCount={5}
-          >
-            {renderExercise}
-          </List>
-        </StyledBox>
+    <Container maxWidth="lg" sx={{ py: 4 }}>
+      {/* Header */}
+      {/* <Box sx={{ mb: 2, display: "flex", alignItems: "baseline", gap: 1 }}>
+        <Typography variant="h4" fontWeight={900} color="primary">
+          Dashboard
+        </Typography>
+      </Box> */}
 
-        <StyledBox>
-          <div
-            className="headingRow"
-            style={{ display: "flex", alignItems: "center" }}
+      <Grid container spacing={2}>
+        {/* Exercises */}
+        <Grid item xs={12} md={5} lg={4}>
+          <Card
+            variant="outlined"
+            sx={{
+              borderRadius: 3,
+              boxShadow:
+                "0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08)",
+              transform: "translateY(8px)",
+            }}
           >
-            <StyledSectionHeading variant="h4">Workouts</StyledSectionHeading>
-            <Button
-              type="submit"
-              variant="contained"
-              className="bg-indigo-500"
-              style={{ borderRadius: 20 }}
-              onClick={() => setCreateNewWorkoutModal(true)}
-            >
-              Add New
-            </Button>
-          </div>
-          {/* <div className="grid grid-flow-col gap-4">
-              <StyledSectionSubheading>Status</StyledSectionSubheading>
-              <StyledSectionSubheading>Name</StyledSectionSubheading>
-              {/* <StyledSectionSubheading>Date</StyledSectionSubheading> */}
-          {/* <StyledSectionSubheading>Delete</StyledSectionSubheading> */}
-          {/* </div> */}
-          <List
-            height={300}
-            width={400}
-            itemSize={46}
-            itemCount={workoutList.length}
-            workoutListForwardRef={WorkoutListForwardRef}
-            overscanCount={5}
+            <CardHeader
+              title={
+                <Typography variant="h6" fontWeight={800} color="primary">
+                  Exercises
+                </Typography>
+              }
+              sx={{ pb: 0.5 }}
+            />
+            <CardContent>
+              <Box
+                component="form"
+                onSubmit={onAddNewExercise}
+                sx={{ display: "flex", gap: 1, mb: 1 }}
+              >
+                <TextField
+                  type="text"
+                  placeholder="Exercise name"
+                  variant="outlined"
+                  value={newExercise}
+                  onChange={(e) => setNewExercise(e.target.value)}
+                  fullWidth
+                  size="small"
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="secondary"
+                  sx={{ px: 2, fontWeight: 800, borderRadius: 2 }}
+                  disabled={!newExercise.trim()}
+                >
+                  Add
+                </Button>
+              </Box>
+
+              <Box sx={{ height: 240 }}>
+                <List
+                  height={240}
+                  width={"100%"}
+                  itemSize={46}
+                  itemCount={exerciseList.length}
+                  overscanCount={5}
+                >
+                  {renderExercise}
+                </List>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Workouts */}
+        <Grid item xs={12} md={7} lg={5}>
+          <Card
+            variant="outlined"
+            sx={{
+              borderRadius: 3,
+              boxShadow:
+                "0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08)",
+              transform: "translateY(8px)",
+            }}
           >
-            {renderWorkout}
-          </List>
-        </StyledBox>
-        <Modal open={doWorkoutModal}>
+            <CardHeader
+              title={
+                <Typography variant="h6" fontWeight={800} color="primary">
+                  Workouts
+                </Typography>
+              }
+              action={
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  onClick={() => setCreateNewWorkoutModal(true)}
+                  sx={{ fontWeight: 800, borderRadius: 2 }}
+                >
+                  Add New
+                </Button>
+              }
+              sx={{ pb: 0.5 }}
+            />
+            <CardContent>
+              <Box sx={{ height: 320 }}>
+                <List
+                  height={320}
+                  width={"100%"}
+                  itemSize={46}
+                  itemCount={workoutList.length}
+                  overscanCount={5}
+                >
+                  {renderWorkout}
+                </List>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Progress */}
+        <Grid item xs={10} sx={{ mt: { xs: 2, md: 2 } }}>
+          <LineGraph workoutList={workoutList} />
+          {/* <Card variant="outlined" sx={{ borderRadius: 3 }}>
+            <CardHeader
+              // title={
+              //   <Typography variant="h6" fontWeight={800} color="primary">
+              //     Progress
+              //   </Typography>
+              // }
+              // subheader={
+              //   <Typography variant="body2" color="text.secondary">
+              //     Select lifts & view 30/60-day trends.
+              //   </Typography>
+              // }
+              sx={{ pb: 0.5 }}
+            />
+            <CardContent></CardContent>
+          </Card> */}
+        </Grid>
+      </Grid>
+
+      {/* Keep your original Modal usage so DoWorkout's layout works as before */}
+      <Dialog open={doWorkoutModal} fullWidth maxWidth="md">
+        {/* <Box sx={{ position: "absolute", right: 8, top: 8 }}>
+          <IconButton onClick={() => setDoWorkoutModal(false)}>
+            <CloseIcon />
+          </IconButton>
+        </Box> */}
+        <Box sx={{ p: { xs: 1, sm: 2 } }}>
           <DoWorkout
             ongoingWorkout={ongoingWorkout}
             setOngoingWorkout={setOngoingWorkout}
             saveWorkoutInDB={saveWorkoutInDB}
-            setShowOngoingWorkout={setShowOngoingWorkout}
+            setShowOngoingWorkout={() => {}}
             setDoWorkoutModal={setDoWorkoutModal}
           />
-        </Modal>
-        <Modal open={createNewWorkoutModal}>
+        </Box>
+      </Dialog>
+
+      <Dialog open={createNewWorkoutModal} fullWidth maxWidth="md">
+        <Box sx={{ position: "absolute", right: 8, top: 8 }}>
+          <IconButton onClick={() => setCreateNewWorkoutModal(false)}>
+            <CloseIcon />
+          </IconButton>
+        </Box>
+        <Box sx={{ p: { xs: 1, sm: 2 } }}>
           <CreateWorkout
             setAddNewWorkoutModal={setCreateNewWorkoutModal}
             exerciseList={exerciseList}
             onCreateNewWorkout={onCreateNewWorkout}
           />
-        </Modal>
-      </div>
-      <LineGraph workoutList={workoutList} />
-    </div>
+        </Box>
+      </Dialog>
+
+      {/* Snackbar */}
+      <Snackbar
+        open={Boolean(snack)}
+        autoHideDuration={2000}
+        onClose={() => setSnack(null)}
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+      >
+        <Alert
+          elevation={6}
+          variant="filled"
+          severity="success"
+          onClose={() => setSnack(null)}
+        >
+          {snack}
+        </Alert>
+      </Snackbar>
+    </Container>
   );
 }
-
-// Extras
-{
-  /* <Dialog open={dialogOpen}>
-            <DialogActions>
-              <StyledBox>
-                <DialogTitle>
-                  <StyledSectionSubheading variant="h5">
-                    Workouts
-                  </StyledSectionSubheading>
-                  <IconButton
-                    aria-label="close"
-                    onClick={handleDialogClose}
-                    sx={(theme) => ({
-                      position: "absolute",
-                      right: 8,
-                      top: 8,
-                      color: theme.palette.grey[500],
-                    })}
-                  >
-                    <CloseIcon />
-                  </IconButton>
-                </DialogTitle>
-                <List
-                  height={300}
-                  width={400}
-                  itemSize={46}
-                  itemCount={workoutList.length}
-                  overscanCount={5}
-                >
-                  {renderWorkoutInExerciseListDialog}
-                </List>
-              </StyledBox>
-            </DialogActions>
-          </Dialog> */
-}
-
-{
-  /* {workoutObject && showWorkout && (
-        <NewWorkout
-          workoutObj={workoutObject}
-          saveWorkoutInDB={saveWorkoutInDB}
-          deleteWorkoutInDB={deleteWorkoutInDB}
-        />
-      )} */
-}
-
-{
-  /* <Dropdown>
-              <StyledMenuButton onClick={onAddExerciseButtonClick}>
-                <AddIcon />
-              </StyledMenuButton>
-              <Menu slots={{ listbox: Listbox }}>
-                <StyledMenuItem onClick={onAddExerciseToNewWorkout}>
-                  Add Exercises to New Workout
-                </StyledMenuItem>
-                <StyledMenuItem onClick={onAddExerciseToExistingWorkout}>
-                  Add Exercises to Existing Workout
-                </StyledMenuItem>
-              </Menu>
-            </Dropdown> */
-}
-
-// const WorkoutDialogInExerciseListForwardRef = forwardRef<
-//   HTMLButtonElement,
-//   WorkoutDialogProps
-// >((props, ref) => {
-//   const { index, style, ...otherProps } = props;
-//   return (
-//     <ListItem style={style} key={index} component="div" disablePadding>
-//       <ListItemButton
-//         component="button"
-//         ref={ref}
-//         onClick={(e) => onWorkoutNameClick(e, index)}
-//         {...otherProps}
-//       >
-//         <StyledListItemText
-//           primary={
-//             workoutList[index].workoutName +
-//             " " +
-//             workoutList[index].dateOfWorkout.slice(0, -14)
-//           }
-//         />
-//       </ListItemButton>
-//     </ListItem>
-//   );
-// });
-
-// const exDialogRef = useRef(null);
-
-// const renderWorkoutInExerciseListDialog = (props) => {
-//   const { index, style } = props;
-//   return (
-//     <WorkoutDialogInExerciseListForwardRef
-//       index={index}
-//       style={style}
-//       ref={exDialogRef}
-//     />
-//   );
-// };
-
-// const onWorkoutNameClick = async (e, index) => {
-//   e.preventDefault();
-//   console.log("Add to existing workout was clicked");
-//   setDialogOpen(false);
-
-//   // Map over the selected exercises and just keep the exercise itself
-//   // since that's the format that the db expects
-//   const selectedExercises = exerciseList.filter(
-//     (exercise) => exercise.selected
-//   );
-//   const exercises = selectedExercises.map((ex) => ex.ex);
-
-//   const workout = workoutList[index];
-//   console.log(workout);
-//   // Create a new list of exercises that includes the exercises
-//   // that were already part of this workout and the new ones I want to add
-//   const updatedExerciseList = [...exercises, ...workout.exercises];
-//   console.log(updatedExerciseList);
-
-//   // Make api call to update existing workout
-//   let result = await fetch(`${apiUrl}/update-existing-workout`, {
-//     method: "put",
-//     body: JSON.stringify({
-//       id: workout._id,
-//       workout: {
-//         workoutName: workout.workoutName,
-//         status: workout.status,
-//         exercises: updatedExerciseList,
-//         dateCreated: workout.dateCreated,
-//         dateOfWorkout: workout.dateOfWorkout,
-//       },
-//     }),
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//   });
-//   const resultText: string = await result.text();
-//   if (resultText !== "Something went wrong") {
-//     const resultObject = JSON.parse(resultText);
-//     console.log(resultObject);
-//     alert("Data saved succesfully!");
-//     setAlertClosed(!alertClosed);
-
-//     // Once the data has been saved in the db,
-//     // set all the exercises to have selected boolean as false
-//     const updatedExerciseList = exerciseList.map((exercise) => {
-//       if (exercise.selected) return { ...exercise, selected: false };
-//       return exercise;
-//     });
-//     setExerciseList(updatedExerciseList);
-//   }
-// };
-
-// const handleDialogClose = () => {
-//   setDialogOpen(false);
-// };
-
-// const onAddExerciseToExistingWorkout = async (e) => {
-//   e.preventDefault();
-//   console.log("Add exercise to existing workout was clicked");
-//   // Map over the selected exercises and just keep the exercise itself
-//   // since that's the format that the db expects
-//   const selectedExercises = exerciseList.filter(
-//     (exercise) => exercise.selected
-//   );
-//   const exercises = selectedExercises.map((ex) => ex.ex);
-
-//   if (exercises.length === 0) {
-//     alert("Please select some exercises first.");
-//   } else {
-//     console.log("In the else block");
-//     // Display dialog with list of workout
-//     setDialogOpen(true);
-//   }
-// };
-
-// When button is clicked, I want to take the list of
-// exercises whose checkbox has been checked off
-// and send those to the db using the api call
-// and then set all the selected booleans to false
-// const onAddExerciseToNewWorkout = async (e) => {
-//   e.preventDefault();
-//   // Map over the selected exercises and just keep the exercise itself
-//   // since that's the format that the db expects
-//   const selectedExercises = exerciseList.filter(
-//     (exercise) => exercise.selected
-//   );
-//   const exercises = selectedExercises.map((ex) => ex.ex);
-
-//   if (exercises.length === 0) {
-//     alert("Please select some exercises first.");
-//   } else {
-//     let result = await fetch(`${apiUrl}/create-new-workout`, {
-//       method: "post",
-//       body: JSON.stringify({
-//         workoutName: "New Workout",
-//         status: "Not Started",
-//         exercises: exercises,
-//         dateCreated: today(),
-//         dateOfWorkout: tomorrow(),
-//       }),
-//       headers: {
-//         "Content-Type": "application/json",
-//       },
-//     });
-//     const resultText: string = await result.text();
-//     if (resultText !== "Something went wrong") {
-//       const resultObject = JSON.parse(resultText);
-//       console.log(resultObject);
-//       setWorkoutObject(resultObject);
-//       setShowWorkout(!showWorkout);
-//       alert("Data saved succesfully!");
-
-//       // Once the data has been saved in the db,
-//       // set all the exercises to have selected boolean as false
-//       const updatedExerciseList = exerciseList.map((exercise) => {
-//         if (exercise.selected) return { ...exercise, selected: false };
-//         return exercise;
-//       });
-//       setExerciseList(updatedExerciseList);
-//     }
-//   }
-// };
-//else {
-//   alert("Please save existing workout before creating a new one.")
-// }
-// //
-
-// const onAddExerciseButtonClick = () => {
-//   console.log("Show add exercise dropdown");
-//   setAddExerciseDropdown(!addExerciseDropdown);
-// };
