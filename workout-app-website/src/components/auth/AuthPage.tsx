@@ -31,7 +31,7 @@ export default function AuthPage() {
               "0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08)",
           }}
         >
-          <div
+          {/* <div
             className="p-8"
             style={{
               backgroundColor: colors["orange-vivid-100"],
@@ -56,14 +56,14 @@ export default function AuthPage() {
                 flexDirection: "column",
                 alignItems: "center",
               }}
-            >
-              {signupView ? (
-                <SignupForm setSignupView={setSignupView} />
-              ) : (
-                <LoginForm setSignupView={setSignupView} />
-              )}
-            </StyledWebsiteSubheading>
-          </div>
+            > */}
+          {signupView ? (
+            <SignupForm setSignupView={setSignupView} />
+          ) : (
+            <LoginForm setSignupView={setSignupView} />
+          )}
+          {/* </StyledWebsiteSubheading>
+          </div> */}
         </div>
       </header>
     </div>

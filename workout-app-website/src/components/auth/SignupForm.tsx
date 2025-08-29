@@ -1,28 +1,31 @@
-//import { firebaseConfig } from "./firebase";
+//
+
+import React, { useState } from "react";
+import {
+  Box,
+  Button,
+  Card,
+  CardContent,
+  CardHeader,
+  Grid,
+  IconButton,
+  InputAdornment,
+  Link,
+  Alert,
+  Typography,
+  TextField,
+} from "@mui/material";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
+import GitHubIcon from "@mui/icons-material/GitHub";
 import {
   createUserWithEmailAndPassword,
   deleteUser,
   updateProfile,
-  UserCredential,
 } from "firebase/auth";
-import React from "react";
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Box from "@mui/material/Box";
-import Input from "@mui/material/Input";
-import Button from "@mui/material/Button";
-import { paperClasses, Typography } from "@mui/material";
-import Alert from "@mui/material/Alert";
 import { auth } from "../../firebase";
-import { error } from "console";
-
-// TODO
-// Typescript
-// Form to sign up new user, or log in with email and password
-// App opens to this page, once user logs in then they see their workout ninja profile
-// Page has heading and form
-
-const ariaLabel = { "aria-label": "description" };
 
 interface FormData {
   firstName: string;
@@ -43,7 +46,7 @@ interface Props {
   setSignupView: (signupView: boolean) => void;
 }
 
-export default function SignUpForm(props: Props) {
+export default function SignUpForm({ setSignupView }: Props) {
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
     lastName: "",
@@ -54,130 +57,39 @@ export default function SignUpForm(props: Props) {
   const navigate = useNavigate();
   const apiUrl = process.env.REACT_APP_API_URL;
   const [errors, setErrors] = useState<FormErrors>({});
-  const [newUserFirebaseId, setNewUserFirebaseId] = useState<String>("");
-  const [registrationSuccessful, setRegistrationSuccessful] =
-    useState<boolean>(false);
-  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [registrationSuccessful, setRegistrationSuccessful] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
   const emailRegex: RegExp = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!emailRegex.test(formData.email)) {
+
+    if (!formData.firstName) newErrors.firstName = "First name is required";
+    if (!formData.lastName) newErrors.lastName = "Last name is required";
+
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!emailRegex.test(formData.email))
       newErrors.email = "Please enter a valid email address";
-    }
 
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (formData.password.length < 8) {
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 8)
       newErrors.password = "Password must be at least 8 characters long";
-    }
-
-    if (!formData.firstName) {
-      newErrors.firstName = "First name is required";
-    }
-    if (!formData.lastName) {
-      newErrors.lastName = "Last name is required";
-    }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length == 0;
+    return Object.keys(newErrors).length === 0;
   };
 
-  const handleFirstNameChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    const value = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      firstName: value,
-    }));
-    // Clear error when user starts typing
-    if (errors.firstName) {
-      setErrors((prev) => ({
-        ...prev,
-        firstName: "",
-      }));
-    }
-    if (errors.submit) {
-      setErrors((prev) => ({
-        ...prev,
-        submit: "",
-      }));
-    }
-  };
-  const handleLastNameChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    const value = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      lastName: value,
-    }));
-    // Clear error when user starts typing
-    if (errors.lastName) {
-      setErrors((prev) => ({
-        ...prev,
-        lastName: "",
-      }));
-    }
-    if (errors.submit) {
-      setErrors((prev) => ({
-        ...prev,
-        submit: "",
-      }));
-    }
-  };
+  const handleChange =
+    (key: keyof FormData) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setFormData((prev) => ({ ...prev, [key]: e.target.value }));
+      // clear specific error + submit error while typing
+      if (errors[key]) setErrors((prev) => ({ ...prev, [key]: "" }));
+      if (errors.submit) setErrors((prev) => ({ ...prev, submit: "" }));
+    };
 
-  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    const value = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      email: value,
-    }));
-    // Clear error when user starts typing
-    if (errors.email) {
-      setErrors((prev) => ({
-        ...prev,
-        email: "",
-      }));
-    }
-    if (errors.submit) {
-      setErrors((prev) => ({
-        ...prev,
-        submit: "",
-      }));
-    }
-  };
-
-  const handlePasswordChange = (
-    e: React.ChangeEvent<HTMLInputElement>
-  ): void => {
-    const value = e.target.value;
-    setFormData((prev) => ({
-      ...prev,
-      password: value,
-    }));
-
-    // Clear error when user starts typing
-    if (errors.password) {
-      setErrors((prev) => ({
-        ...prev,
-        password: "",
-      }));
-    }
-    if (errors.submit) {
-      setErrors((prev) => ({
-        ...prev,
-        submit: "",
-      }));
-    }
-  };
-
-  const onCreateNewUser = async (e, firebaseUser) => {
-    e.preventDefault();
-    console.log("Create new user was clicked.");
+  const onCreateNewUser = async (firebaseUser: { uid: string }) => {
     const user = {
       firstName: formData.firstName,
       lastName: formData.lastName,
@@ -186,85 +98,59 @@ export default function SignUpForm(props: Props) {
       firebaseUid: firebaseUser.uid,
     };
 
-    let result: Response = await fetch(`${apiUrl}/create-new-user`, {
-      method: "post",
+    const result = await fetch(`${apiUrl}/create-new-user`, {
+      method: "POST",
       body: JSON.stringify(user),
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: { "Content-Type": "application/json" },
     });
-    const resultText: string = await result.text();
-    console.log(resultText === "Something went wrong", resultText);
+
+    const resultText = await result.text();
     if (resultText === "Something went wrong") {
-      console.log("API call failed with error: ", resultText);
-      console.error(`API call failed with error - ${resultText}`);
-      const submitError =
-        "The following error occurred: Unable to create user in DB.";
       setErrors((prev) => ({
         ...prev,
-        submit: submitError,
+        submit: "The following error occurred: Unable to create user in DB.",
       }));
-      // TODO - If user is created in Firebase but API call fails, then
-      // delete user in Firebase too within this if statement
-      deleteUser(firebaseUser);
-    } else {
-      console.log("Result text -", resultText);
-      const resultObject = JSON.parse(resultText);
-      console.log(resultObject);
-      setRegistrationSuccessful(true);
-      setNewUserFirebaseId("");
-      // alert("Data saved succesfully!");
-      // In this case we don't want the user to be able to navigate back to
-      // to the auth page so we set replace = true
-      navigate("/home", { replace: true });
-      console.log("navigate called");
+      try {
+        await deleteUser(firebaseUser as any);
+      } catch (_) {}
+      return false;
     }
+    return true;
   };
 
-  const handleSubmit = async (e): Promise<void> => {
-    // Clear any previous submit errors
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     setErrors((prev) => ({ ...prev, submit: "" }));
+    if (!validateForm()) return;
 
-    console.log("errors", errors);
-    if (!validateForm()) {
-      return;
-    }
     setIsSubmitting(true);
-    await createUserWithEmailAndPassword(
-      auth,
-      formData.email,
-      formData.password
-    )
-      .then(async (userCredential) => {
-        console.log("User UID:", userCredential.user.uid);
-        await updateProfile(userCredential.user, {
-          displayName: formData.firstName,
-        });
-        setNewUserFirebaseId(userCredential.user.uid);
-        onCreateNewUser(e, userCredential.user);
-      })
-      .catch((error) => {
-        console.log("Error while creating user in Firebase:", error);
-        var submitError = "";
-        if (error.code) {
-          switch (error.code) {
-            case "auth/email-already-in-use":
-              submitError =
-                "User with this email already exists. Please log in or try a different email.";
-              break;
-            default:
-              submitError = `The following error occurred: ${error.message}`;
-          }
-        }
-        console.error("Registration failed:", error);
-        setErrors((prev) => ({
-          ...prev,
-          submit: submitError,
-        }));
-      })
-      .finally(() => {
-        setIsSubmitting(false);
+    try {
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        formData.email,
+        formData.password
+      );
+      await updateProfile(userCredential.user, {
+        displayName: formData.firstName,
       });
+
+      const ok = await onCreateNewUser(userCredential.user);
+      if (!ok) return;
+
+      setRegistrationSuccessful(true);
+      setTimeout(() => navigate("/home", { replace: true }), 600);
+    } catch (err: any) {
+      let submitError = "Registration failed.";
+      if (err?.code === "auth/email-already-in-use") {
+        submitError =
+          "User with this email already exists. Please log in or try a different email.";
+      } else if (err?.message) {
+        submitError = `The following error occurred: ${err.message}`;
+      }
+      setErrors((prev) => ({ ...prev, submit: submitError }));
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleAlertClose = () => {
@@ -272,115 +158,187 @@ export default function SignUpForm(props: Props) {
     setFormData({ firstName: "", lastName: "", email: "", password: "" });
   };
 
-  const handleLoginButtonClick = () => props.setSignupView(false);
+  const toLogin = () => setSignupView(false);
 
   return (
-    <form action="">
-      <div className="pb-8">
-        <Typography>
-          Create a new account to sign up for Workout Ninja
-        </Typography>
-        <Box
-          component="form"
-          sx={{ "& > :not(style)": { m: 1 } }}
-          noValidate
-          autoComplete="off"
-          style={{
-            margin: 10,
-            display: "flex",
-            flexDirection: "column",
-          }}
-        >
-          <Input
-            type="text"
-            id="firstName"
-            value={formData.firstName}
-            placeholder="First Name"
-            inputProps={ariaLabel}
-            onChange={handleFirstNameChange}
-          />
-          {errors.firstName && (
-            <p className="mt-1 text-sm text-red-600">{errors.firstName}</p>
-          )}
-          <Input
-            type="text"
-            id="lastName"
-            value={formData.lastName}
-            placeholder="Last Name"
-            inputProps={ariaLabel}
-            onChange={handleLastNameChange}
-          />
-          {errors.lastName && (
-            <p className="mt-1 text-sm text-red-600">{errors.lastName}</p>
-          )}
-          <Input
-            type="email"
-            id="email"
-            value={formData.email}
-            placeholder="Email"
-            inputProps={ariaLabel}
-            onChange={handleEmailChange}
-          />
-          {errors.email && (
-            <p className="mt-1 text-sm text-red-600">{errors.email}</p>
-          )}
-          <Input
-            placeholder="Password"
-            inputProps={ariaLabel}
-            type="password"
-            id="password"
-            value={formData.password}
-            onChange={handlePasswordChange}
-          />
-          {errors.password && (
-            <p className="mt-1 text-sm text-red-600">{errors.password}</p>
-          )}
+    <Box
+      sx={{
+        // minHeight: "100dvh",
+        display: "grid",
+        placeItems: "center",
+        borderRadius: 10,
+        boxShadow: "0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08)",
+        bgcolor: (t) => t.palette.background.default,
+        px: 2,
+        py: 6,
+      }}
+    >
+      <Card
+        variant="outlined"
+        sx={{
+          width: "100%",
+          maxWidth: 520,
+          borderRadius: 3,
+          borderColor: (t) => t.palette.divider,
+          overflow: "hidden",
+        }}
+      >
+        <CardHeader
+          title={
+            <Typography variant="h4" fontWeight={900} color="primary">
+              Create your Workout Ninja account
+            </Typography>
+          }
+          subheader={
+            <Typography variant="body2" color="text.secondary">
+              Serious training, simple tracking. Sign up to start building and
+              logging workouts.
+            </Typography>
+          }
+          sx={{ pb: 0, mt: 1 }}
+        />
+
+        <CardContent sx={{ pt: 3 }}>
           {errors.submit && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-              <p className="text-sm text-red-600">{errors.submit}</p>
-            </div>
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {errors.submit}
+            </Alert>
           )}
-          <Button
-            variant="contained"
-            style={{
-              fontWeight: "bold",
-              marginLeft: 10,
-              width: 100,
-              alignSelf: "center",
-              backgroundColor: isSubmitting
-                ? "bg-gray-400 cursor-not-allowed"
-                : "primary",
+          {registrationSuccessful && (
+            <Alert
+              onClose={handleAlertClose}
+              variant="filled"
+              severity="success"
+              sx={{ mb: 2 }}
+            >
+              Your account has been created — welcome to Workout Ninja!
+            </Alert>
+          )}
+
+          <Box component="form" noValidate onSubmit={handleSubmit}>
+            <Grid container spacing={1.5}>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="First name"
+                  value={formData.firstName}
+                  onChange={handleChange("firstName")}
+                  autoComplete="given-name"
+                  fullWidth
+                  error={Boolean(errors.firstName)}
+                  helperText={errors.firstName || " "}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField
+                  label="Last name"
+                  value={formData.lastName}
+                  onChange={handleChange("lastName")}
+                  autoComplete="family-name"
+                  fullWidth
+                  error={Boolean(errors.lastName)}
+                  helperText={errors.lastName || " "}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleChange("email")}
+                  autoComplete="email"
+                  fullWidth
+                  error={Boolean(errors.email)}
+                  helperText={errors.email || " "}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleChange("password")}
+                  autoComplete="new-password"
+                  fullWidth
+                  error={Boolean(errors.password)}
+                  helperText={errors.password || "Minimum 8 characters"}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label={
+                            showPassword ? "Hide password" : "Show password"
+                          }
+                          onClick={() => setShowPassword((v) => !v)}
+                          edge="end"
+                        >
+                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sx={{ mt: 0.5 }}>
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="secondary" // orange
+                  fullWidth
+                  disabled={isSubmitting}
+                  sx={{ py: 1.1, fontWeight: 800, borderRadius: 2 }}
+                >
+                  {isSubmitting ? "Creating account…" : "Sign Up"}
+                </Button>
+              </Grid>
+
+              <Grid item xs={12}>
+                <Typography
+                  variant="body2"
+                  align="center"
+                  color="text.secondary"
+                  sx={{ mt: 1 }}
+                >
+                  Already have an account?{" "}
+                  <Link component="button" onClick={toLogin} underline="hover">
+                    Log in
+                  </Link>
+                </Typography>
+              </Grid>
+            </Grid>
+          </Box>
+
+          {/* Optional: demo + GitHub quick links */}
+          <Box
+            sx={{
+              mt: 3,
+              display: "flex",
+              justifyContent: "center",
+              gap: 1.5,
+              flexWrap: "wrap",
             }}
-            onClick={handleSubmit}
-            disabled={isSubmitting}
           >
-            {isSubmitting ? "Signing Up .." : "Sign Up"}
-          </Button>
-        </Box>
-        {registrationSuccessful && (
-          <Alert onClose={handleAlertClose} variant="filled" severity="success">
-            Your account has been created, welcome to Workout Ninja!
-          </Alert>
-        )}
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            marginTop: 20,
-          }}
-        >
-          <Typography>Already have an account?</Typography>
-          <Button
-            variant="contained"
-            style={{ fontWeight: "bold", marginLeft: 10 }}
-            onClick={handleLoginButtonClick}
-          >
-            Log In
-          </Button>
-        </div>
-      </div>
-    </form>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<PlayArrowRoundedIcon />}
+              href="/#demo"
+            >
+              Watch demo
+            </Button>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<GitHubIcon />}
+              href="https://github.com/MeghnaM/Workout-Ninja"
+              target="_blank"
+              rel="noreferrer"
+            >
+              GitHub
+            </Button>
+          </Box>
+        </CardContent>
+      </Card>
+    </Box>
   );
 }
