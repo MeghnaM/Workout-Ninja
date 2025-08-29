@@ -24,7 +24,7 @@ import {
   deleteUser,
   updateProfile,
 } from "firebase/auth";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link as RouterLink } from "react-router-dom";
 import { auth } from "../../firebase";
 
 interface FormData {
@@ -166,7 +166,7 @@ export default function SignUpForm({ setSignupView }: Props) {
         // minHeight: "100dvh",
         display: "grid",
         placeItems: "center",
-        borderRadius: 10,
+        borderRadius: 5,
         boxShadow: "0 14px 28px rgba(0,0,0,0.12), 0 10px 10px rgba(0,0,0,0.08)",
         bgcolor: (t) => t.palette.background.default,
         px: 2,
@@ -186,14 +186,22 @@ export default function SignUpForm({ setSignupView }: Props) {
         <CardHeader
           title={
             <Typography variant="h4" fontWeight={900} color="primary">
-              Create your Workout Ninja account
+              Workout Ninja
             </Typography>
           }
           subheader={
-            <Typography variant="body2" color="text.secondary">
-              Serious training, simple tracking. Sign up to start building and
-              logging workouts.
-            </Typography>
+            <>
+              <Typography variant="body2" color="text.secondary">
+                Serious training, simple tracking.
+              </Typography>
+              <Typography
+                variant="overline"
+                color="text.secondary"
+                sx={{ letterSpacing: 2, fontWeight: 800 }}
+              >
+                SIGN UP
+              </Typography>
+            </>
           }
           sx={{ pb: 0, mt: 1 }}
         />
