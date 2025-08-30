@@ -27,6 +27,7 @@ import { ThemeProvider, createTheme } from "@mui/material/styles";
 import dashboard from "../../assets/workout-ninja-dashboard.png";
 import { useNavigate } from "react-router-dom";
 import { colors } from "../styles/colors";
+import demo from "../../assets/workout-ninja-demo.mp4";
 
 /** ---- Config ---- */
 const ICON_SRC = "/favicon.ico"; // swap with your icon path; wrapped in pink badge style below
@@ -273,7 +274,7 @@ function Hero({ onOpenDemo }: { onOpenDemo: () => void }) {
                 sx={{
                   width: "100%",
                   borderRadius: 2,
-                  border: (t) => `1px solid ${t.palette.divider}`,
+                  //   border: (t) => `1px solid ${t.palette.divider}`,
                   display: "block",
                 }}
               />
@@ -618,7 +619,7 @@ function DemoDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
         <Box sx={{ position: "relative", width: "100%", pt: "56.25%" }}>
           <Box
             component="video"
-            // src={DEMO_VIDEO_URL}
+            src={demo}
             controls
             playsInline
             sx={{
